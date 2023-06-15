@@ -5,15 +5,16 @@ export default function GameUI( {onSelectAction} ) {
 
   function onSelectProvince(index) {
     // TODO: Only fetch one, not every freaking thing!
-    axios.get('http://localhost:8082/api/provinces')
+    axios.get('http://localhost:8082/api/provinces/', {
+      params: { id: index}
+    })
     .then( (res) => {
-      if (res.data.length != 0)
-      {
-        onSelectAction(res.data[index]);
+      if (res.data.length !== 0) {
+          onSelectAction(res.data[0]);
       }
     })
-    .catch( () => {
-      console.log("Cannot find province onClick!")
+    .catch( (e) => {
+      console.log(e)
     });
   }
 

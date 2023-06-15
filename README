@@ -9,5 +9,7 @@ Features:
 - Generates provinces
 - Selectable provinces
 
-That's it, lol
+Run by first starting the backend: npm run app
+Then by starting the frontend: npm start
 
+PS: You need a local MongoDB server up and running for it to work right now

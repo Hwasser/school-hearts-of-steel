@@ -9,12 +9,17 @@ router.get('/test', (req, res) => res.send('test route for provinces'));
 // @description Get all provinces
 // @access Public
 router.get('/', (req, res) => {
-    if (req.params.myid == "0")
-      return; 
+  const province_id = req.query.id;
+  if (province_id != null) {
+    Province.find({id: province_id})
+      .then(provinces => res.json(provinces))
+      .catch(err => res.status(404).json({ noprovincesfound: 'No provinces found' }));
+  } else {
     Province.find()
       .then(provinces => res.json(provinces))
       .catch(err => res.status(404).json({ noprovincesfound: 'No provinces found' }));
-  });
+  }
+});
 
 // @route GET api/Provinces
 // @description add/save Province
