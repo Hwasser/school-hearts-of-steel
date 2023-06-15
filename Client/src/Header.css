@@ -1,26 +1,32 @@
 .header {
     display: flex;
-    background-color: antiquewhite;
+    align-items: center;
+    justify-content: center;
+    background-color:rgb(25, 69, 37);
     width: 1000px;
     height: fit-content;
+    margin: 4px;
+    padding:  4px 4px;
     
 }
 
 .header_box {
     flex: 1;
-    background-color: burlywood;
+    border-radius: 2px;
+    background-color: rgb(37, 122, 60);
+    padding:  4px 4px;
+    margin: 4px;
+    text-align: center;
+}
+
+.restart_button {
+    flex: 1;
+    border-radius: 6px;
+    background-color: rgb(37, 122, 60);
     padding:  4px 4px;
     margin: 4px;
 }
 
-#player_text {
-    margin: 4px;
-}
-
-#money_text {
-    margin: 4px;
-}
-
-#soldiers_text {
-    margin: 4px;
+.restart_button:hover {
+    background-color: rgb(38, 135, 64);
 }

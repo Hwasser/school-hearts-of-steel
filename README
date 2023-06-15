@@ -13,3 +13,18 @@ Run by first starting the backend: npm run app
 Then by starting the frontend: npm start
 
 PS: You need a local MongoDB server up and running for it to work right now
+
+
+Game instructions:
+
+- The goal is to conquer all provinces.
+- The topbar shows the player name and all resources that can be used.
+- The province-bar shows:
+  - All available manpower. Raising the level of a building will temporarily use half 
+    of the manpower. Free manpower will scavange the province for resources - more 
+    free manpower means faster scavanging. 
+  - Raising an army will show slider of how much manpower to draft.
+  - The second row shows all buildings in the province. Click on a building to
+    increase the level in the province. Houses generates more manpower, mines 
+    generates materials, workshops generates tools and farms generates food.
+  - The third row shows how much resources are available for scavanging.

@@ -27,6 +27,11 @@ const ProvinceSchema = new mongoose.Schema({
         required: true
     },
 
+    forts: {
+        type: Number,
+        required: true
+    },
+
     food: {
         type: Number,
         required: true

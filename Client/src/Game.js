@@ -1,27 +1,38 @@
+import './Game.css';
 import Header from './Header';
 import GameUI from './GameUI';
 import Footer from './Footer';
 
-import { useState } from 'react';  
+import { useState, useEffect } from 'react';  
 
 export default function Game() {
-
+    
     const [properties, setProperties] = useState(defaultProvinceState);
-
+    const [provinceNames, setProvinceNames] = useState(Array(9).fill('-'));
+    
     // Handle selection of provinces from the database
-    function handleSelectProvince(provinceData) {
+    function handleSelectProvince(provinceData) { 
         setProperties(provinceData);
-        console.log(provinceData);
     }
 
-    return (
-        <>
-        <Header />
-        <GameUI onSelectAction={handleSelectProvince}/>
-        <Footer properties={properties}/>
-        </>
-    )
+    // Handle setting province names for the view
+    function handleProvinceNames(provinceNamesData) {
+        setProvinceNames(provinceNamesData);
+    }
     
+    const renderGame = () => {
+        return (
+            <>
+            <Header updateProvinceNames={handleProvinceNames} />
+            <GameUI onSelectAction={handleSelectProvince} names={provinceNames} />
+            <Footer properties={properties}/>
+            </>
+        )
+        
+    }
+
+
+    return renderGame();
 
 }
 

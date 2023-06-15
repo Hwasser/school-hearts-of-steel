@@ -1,7 +1,8 @@
 import axios from 'axios';
 import './GameUI.css';
+import { useEffect } from 'react';  
 
-export default function GameUI( {onSelectAction} ) {
+export default function GameUI( {onSelectAction, names} ) {
 
   function onSelectProvince(index) {
     // TODO: Only fetch one, not every freaking thing!
@@ -24,11 +25,14 @@ export default function GameUI( {onSelectAction} ) {
       for (let i = 0; i < worldSize; i++) {
           let listItems = []
           for (let j = 0; j < worldSize; j++) {
-              const index = i * worldSize + j;
+            const index = i * worldSize + j;
+            const name = names[index];
               // TODO: click-function just placeholder
-              listItems.push(<Province id={index} onProvinceClick={ 
-                () => onSelectProvince(index) 
-              } />);
+              listItems.push(<Province 
+                id={index} 
+                onProvinceClick={ () => onSelectProvince(index) }
+                name={name} 
+              />);
           }
           body.push(<div className='world_row'> {listItems} </div>);
       }
@@ -45,10 +49,10 @@ export default function GameUI( {onSelectAction} ) {
   );
 }
 
-function Province({ id, onProvinceClick }) {
+function Province({ id, onProvinceClick, name }) {
     return (
         <button className='province' id={id} onClick={onProvinceClick}> 
-            province name
+            {name}
         </button>
     );
   }
