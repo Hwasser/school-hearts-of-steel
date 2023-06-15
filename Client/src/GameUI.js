@@ -1,14 +1,20 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import axios from 'axios';
 import './GameUI.css';
 
 export default function GameUI( {onSelectAction} ) {
 
   function onSelectProvince(index) {
-    /*
-    TODO:
-    1. Fetch data from database
-    2. Send data to footer through onSelectionAction
-    */
+    // TODO: Only fetch one, not every freaking thing!
+    axios.get('http://localhost:8082/api/provinces')
+    .then( (res) => {
+      if (res.data.length != 0)
+      {
+        onSelectAction(res.data[index]);
+      }
+    })
+    .catch( () => {
+      console.log("Cannot find province onClick!")
+    });
   }
 
   const worldSize = 3;
@@ -19,7 +25,9 @@ export default function GameUI( {onSelectAction} ) {
           for (let j = 0; j < worldSize; j++) {
               const index = i * worldSize + j;
               // TODO: click-function just placeholder
-              listItems.push(<Province id={index} onProvinceClick={ () => onSelectProvince(index) } />);
+              listItems.push(<Province id={index} onProvinceClick={ 
+                () => onSelectProvince(index) 
+              } />);
           }
           body.push(<div className='world_row'> {listItems} </div>);
       }

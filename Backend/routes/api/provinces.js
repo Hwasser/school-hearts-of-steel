@@ -9,26 +9,19 @@ router.get('/test', (req, res) => res.send('test route for provinces'));
 // @description Get all provinces
 // @access Public
 router.get('/', (req, res) => {
+    if (req.params.myid == "0")
+      return; 
     Province.find()
       .then(provinces => res.json(provinces))
       .catch(err => res.status(404).json({ noprovincesfound: 'No provinces found' }));
   });
-
-// @route GET api/Provinces/:id
-// @description Get single Province by id
-// @access Public
-router.get('/:id', (req, res) => {
-  Province.findById(req.params.id)
-    .then(rovinces => res.json(provinces))
-    .catch(err => res.status(404).json({ noprovincesfound: 'No province found' }));
-});
 
 // @route GET api/Provinces
 // @description add/save Province
 // @access Public
 router.post('/', (req, res) => {
   Province.create(req.body)
-    .then(rovinces => res.json({ msg: 'Province added successfully' }))
+    .then(province => res.json({ msg: 'Province added successfully' }))
     .catch(err => res.status(400).json({ error: 'Unable to add this Province' }));
 });
 
@@ -37,7 +30,7 @@ router.post('/', (req, res) => {
 // @access Public
 router.put('/:id', (req, res) => {
   Province.findByIdAndUpdate(req.params.id, req.body)
-    .then(rovinces => res.json({ msg: 'Updated successfully' }))
+    .then(province => res.json({ msg: 'Updated successfully' }))
     .catch(err =>
       res.status(400).json({ error: 'Unable to update the Database' })
     );
@@ -47,7 +40,9 @@ router.put('/:id', (req, res) => {
 // @description Delete Province by id
 // @access Public
 router.delete('/:id', (req, res) => {
-  Province.findByIdAndRemove(req.params.id, req.body)
-    .then(rovinces => res.json({ mgs: 'Province entry deleted successfully' }))
+  Province.remove({id: req.params.id})
+    .then(province => res.json({ mgs: 'Province entry deleted successfully' }))
     .catch(err => res.status(404).json({ error: 'No such a Province' }));
 });
+
+module.exports = router;
