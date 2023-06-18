@@ -30,6 +30,7 @@ export default function GameUI( {onSelectAction, names} ) {
               // TODO: click-function just placeholder
               listItems.push(<Province 
                 id={index} 
+                key={index}
                 onProvinceClick={ () => onSelectProvince(index) }
                 name={name} 
               />);
@@ -51,8 +52,14 @@ export default function GameUI( {onSelectAction, names} ) {
 
 function Province({ id, onProvinceClick, name }) {
     return (
-        <button className='province' id={id} onClick={onProvinceClick}> 
-            {name}
+        <button className='province' id={id} onClick={onProvinceClick}>
+        <ul> 
+          <li className='province_name'>{name}</li>
+          <li className='province_army'>Army 1</li>
+          <li className='province_army'>Army 2</li>
+          <li className='province_army'>Army 3</li>
+          <li className='province_army'>Army 4</li>
+        </ul>
         </button>
     );
   }
