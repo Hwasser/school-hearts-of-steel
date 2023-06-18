@@ -1,10 +1,55 @@
 import './Footer.css';
+import { useState } from 'react';  
   
 
 export default function Footer( {properties} ) {
 
+  const [prop, setProp] = useState(null);
+  
+
+  const useSlider = (min, max, defaultState, label, id) => {
+    const [state, setSlide] = useState(defaultState);
+    const handleChange = e => {
+      setSlide(e.target.value);
+    };
+    const Slider = () => (
+      <>
+      <div className='raise_army'>
+        <p>Raise Army</p>
+        <input
+          className='slider'
+          type="range"
+          id={id}
+          min={min}
+          max={max}
+          step={1.0}
+          value={state}
+          onChange={handleChange}
+        />
+        <div> 
+            <span>Amount:</span>
+            <span>{state}</span> 
+        </div>
+      </div>
+      </>
+    );
+    return [state, Slider, setSlide];
+  };
+
+  const [slideValue, Slider] = useSlider(
+    10,
+    properties['workforce'],
+    (properties['workforce']-10) / 2,
+    "Threshold",
+    "threshold"
+  );
+
   return (
     <div className="footer">
+
+      
+        
+        <Slider />
 
       <div className='footer_row'>
         <div className='property_name'>
