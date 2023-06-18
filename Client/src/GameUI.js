@@ -54,10 +54,10 @@ function Province({ id, onProvinceClick, name }) {
     return (
         <div className='province' id={id} >
         <button className='province_name' onClick={onProvinceClick}>{name}</button>
-        <button className='province_army' id='army1' onClick={console.log("Army 1")}>Army 1</button>
-        <button className='province_army' id='army2' onClick={console.log("Army 2")}>Army 2</button>
-        <button className='province_army' id='army3' onClick={console.log("Army 3")}>Army 3</button>
-        <button className='province_army' id='army4' onClick={console.log("Army 4")}>Army 4</button>
+        <button className='province_army' id='army1' onClick={() => 0}>Army 1</button>
+        <button className='province_army' id='army2' onClick={() => 0}>Army 2</button>
+        <button className='province_army' id='army3' onClick={() => 0}>Army 3</button>
+        <button className='province_army' id='army4' onClick={() => 0}>Army 4</button>
         </div>
     );
   }
