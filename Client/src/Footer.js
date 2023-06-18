@@ -7,16 +7,28 @@ export default function Footer( {properties} ) {
   const [provProp, setProvProp] = useState(properties);
   const [useRaiseSlider, setUseRaiseSlider] = useState(false);
 
-  const onRaiseArmy = () => { setUseRaiseSlider(!useRaiseSlider); }
+  const onRaiseArmyMenu = () => { setUseRaiseSlider(!useRaiseSlider); }
   if (properties != provProp) {
     setProvProp(properties);
     setUseRaiseSlider(false);
   }
 
+  function raiseArmyAction(newValue) {
+    const newProvProp = provProp;
+    newProvProp['workforce'] = newValue;
+    setProvProp(newProvProp); 
+    onRaiseArmyMenu();
+  }
+
   return (
     <div className="footer">
 
-      <RaiseArmy active={useRaiseSlider} workforce={provProp['workforce']} /> 
+      <RaiseArmy 
+        active={useRaiseSlider} 
+        workforce={provProp['workforce']} 
+        onRaiseArmy={raiseArmyAction} 
+        id = {provProp['id']}
+      /> 
 
       <div className='footer_row'>
         <div className='property_name'>
@@ -29,7 +41,7 @@ export default function Footer( {properties} ) {
         </div>
         <button 
           className='property_button'
-            onClick={onRaiseArmy}
+            onClick={onRaiseArmyMenu}
           >
           <span id="name12"> Raise Army </span>
         </button>

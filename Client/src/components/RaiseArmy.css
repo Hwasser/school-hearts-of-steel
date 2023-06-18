@@ -4,9 +4,9 @@
     border: 2px solid rgba(0, 0, 0, 0.25);
     border-radius: 4px;
     width: 250px;
-    height: 100px;
+    height: 134px;
     right: 4px;
-    top: -116px;
+    top: -150px;
     padding: 4px;
     text-align: center;
 }
@@ -40,4 +40,14 @@
     height: 15px;
     background: #04AA6D;
     cursor: pointer;
+  }
+
+  .raise_button{
+    background-color: rgba(0, 0, 0, 0.15);
+    margin-top: 8px;
+    padding: 4px;
+  }
+
+  .raise_button:hover{
+    background-color: rgba(0, 0, 0, 0.25);
   }
