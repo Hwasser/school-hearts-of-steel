@@ -25,9 +25,8 @@ export default function Footer( {properties} ) {
 
       <RaiseArmy 
         active={useRaiseSlider} 
-        workforce={provProp['workforce']} 
+        fromProvince = {provProp}
         onRaiseArmy={raiseArmyAction} 
-        id = {provProp['id']}
       /> 
 
       <div className='footer_row'>

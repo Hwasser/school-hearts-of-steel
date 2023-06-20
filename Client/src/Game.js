@@ -9,22 +9,32 @@ export default function Game() {
     
     const [properties, setProperties] = useState(defaultProvinceState);
     const [provinceNames, setProvinceNames] = useState(Array(9).fill('-'));
+    const [provinceOwners, setProvinceOwners] = useState(Array(9).fill('Neutral'));
     
     // Handle selection of provinces from the database
     function handleSelectProvince(provinceData) { 
         setProperties(provinceData);
     }
 
-    // Handle setting province names for the view
-    function handleProvinceNames(provinceNamesData) {
-        setProvinceNames(provinceNamesData);
+    // Handle province names and owners for the view
+    function handleProvinceNames(allProvinces) {
+        const provinceNamesLocal = Array(9);
+        const provinceOwnersLocal = Array(9);
+
+        for (let i = 0; i < allProvinces.length; i++) {
+            provinceNamesLocal[i]  = allProvinces[i]['name']
+            provinceOwnersLocal[i] = allProvinces[i]['owner']
+        }
+
+        setProvinceNames(provinceNamesLocal);
+        setProvinceOwners(provinceOwnersLocal);
     }
     
     const renderGame = () => {
         return (
             <>
             <Header updateProvinceNames={handleProvinceNames} />
-            <GameUI onSelectAction={handleSelectProvince} names={provinceNames} />
+            <GameUI onSelectAction={handleSelectProvince} names={provinceNames} owners={provinceOwners} />
             <Footer properties={properties}/>
             </>
         )

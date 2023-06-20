@@ -52,6 +52,31 @@ const ProvinceSchema = new mongoose.Schema({
     workforce: {
         type: Number,
         required: true
+    },
+
+    owner: {
+        type: String,
+        required: true
+    },
+
+    army1: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false
+    },
+
+    army2: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false
+    },
+
+    army3: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false
+    },
+
+    army4: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false
     }
 });
 

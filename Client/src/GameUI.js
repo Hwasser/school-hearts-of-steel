@@ -2,7 +2,7 @@ import axios from 'axios';
 import './GameUI.css';
 import { useEffect } from 'react';  
 
-export default function GameUI( {onSelectAction, names} ) {
+export default function GameUI( {onSelectAction, names, owners} ) {
 
   function onSelectProvince(index) {
     // TODO: Only fetch one, not every freaking thing!
@@ -27,11 +27,13 @@ export default function GameUI( {onSelectAction, names} ) {
           for (let j = 0; j < worldSize; j++) {
             const index = i * worldSize + j;
             const name = names[index];
+            const owner = owners[index];
               // TODO: click-function just placeholder
               listItems.push(<Province 
                 id={index} 
                 key={index}
                 onProvinceClick={ () => onSelectProvince(index) }
+                owner={owner}
                 name={name} 
               />);
           }
@@ -50,14 +52,23 @@ export default function GameUI( {onSelectAction, names} ) {
   );
 }
 
-function Province({ id, onProvinceClick, name }) {
-    return (
-        <div className='province' id={id} >
-        <button className='province_name' onClick={onProvinceClick}>{name}</button>
-        <button className='province_army' id='army1' onClick={() => 0}>Army 1</button>
-        <button className='province_army' id='army2' onClick={() => 0}>Army 2</button>
-        <button className='province_army' id='army3' onClick={() => 0}>Army 3</button>
-        <button className='province_army' id='army4' onClick={() => 0}>Army 4</button>
-        </div>
-    );
-  }
+function Province({ id, onProvinceClick, name, owner}) {
+  const color = playerColors[owner];
+  return (
+      <div className='province' id={id} owner={owner} style={{background: color}}>
+      <button className='province_name' onClick={onProvinceClick}>{name}</button>
+      <button className='province_army' id='army1' onClick={() => 0}>Army 1</button>
+      <button className='province_army' id='army2' onClick={() => 0}>Army 2</button>
+      <button className='province_army' id='army3' onClick={() => 0}>Army 3</button>
+      <button className='province_army' id='army4' onClick={() => 0}>Army 4</button>
+      </div>
+  );
+}
+
+const playerColors = {
+  Player1: "rgb(135, 245, 66)",
+  Player2: "rgb(219, 78, 46)",
+  Player3: "rgb(194, 85, 224)",
+  Player4: "rgb(82, 212, 217)",
+  Neutral: "rgb(216, 217, 167)"
+};
