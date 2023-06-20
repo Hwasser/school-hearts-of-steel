@@ -2,7 +2,7 @@ import './Footer.css';
 import RaiseArmy from './components/RaiseArmy';
 import { useState } from 'react';
 
-export default function Footer( {properties} ) {
+export default function Footer( {properties, onRaiseArmy} ) {
 
   const [provProp, setProvProp] = useState(properties);
   const [useRaiseSlider, setUseRaiseSlider] = useState(false);
@@ -13,11 +13,10 @@ export default function Footer( {properties} ) {
     setUseRaiseSlider(false);
   }
 
-  function raiseArmyAction(newValue) {
-    const newProvProp = provProp;
-    newProvProp['workforce'] = newValue;
-    setProvProp(newProvProp); 
+  function raiseArmyAction(newProvinceInfo) {
+    setProvProp(newProvinceInfo); 
     onRaiseArmyMenu();
+    onRaiseArmy(newProvinceInfo)
   }
 
   return (
