@@ -60,19 +60,23 @@ export default function GameUI( {onSelectAction, names, owners, army1, army2, ar
 // TODO: We do not want armies as it is right now, it is ridiculous. Maybe eact province should have
 // armyslots and max armyslots as integers and the armies as a list instead
 function Province({ id, onProvinceClick, name, owner, army1, army2, army3, army4}) {
-  /* 
-  function handleOnDrag(e, widgetType){
-    e.dataTranfser.setData("widgetType", widgetType);
+  
+  function handleOnDrag(e, whatArmy, fromId){
+    //e.originalEvent.dataTranfser.setData("widgetType", widgetType);
+    e.dataTransfer.setData("whatArmy", whatArmy);
+    e.dataTransfer.setData("fromId", fromId);
+    console.log(whatArmy + " from province " + id + " start dragging")
   }
 
-  function handleOnDrop(){
-    const widgetType = e.dataTranfser.getData("widgetType");
-    console.log("widgetType", widgetType);
-    setWidgets([...widgets, widgetType]);
+  function handleOnDrop(e, id){
+    const whatArmy = e.dataTransfer.getData("whatArmy");
+    const fromId   = e.dataTransfer.getData("fromId");
+    console.log(whatArmy + " from province " + fromId + " has been dropped in province " + id);
   }
-  */
+ 
   function handleDragOver(e){
     e.preventDefault();
+    console.log("object is above!");
   }
 
   const playerColors = {
@@ -94,16 +98,19 @@ function Province({ id, onProvinceClick, name, owner, army1, army2, army3, army4
   const army4Draggable = (army4 == null) ? false : true;
   
   return (
-      <div className='province' id={id} owner={owner} style={{background: color}} onDragOver={handleDragOver}>
+      <div className='province' id={id} owner={owner} style={{background: color}} 
+        onDragOver={handleDragOver} onDrop={(e) => {handleOnDrop(e, id)} }>
+      
       <button className='province_name' onClick={onProvinceClick}>{name}</button>
-      <button className='province_army' id='army1' style={{opacity: army1Exists}} draggable={army1Draggable}
-        onClick={() => 0}>Army 1</button>
+      
+      <button className='province_army' id='army1' style={{opacity: army1Exists}} draggable={army1Draggable} 
+        onClick={() => 0} onDragStart={(e) => handleOnDrag(e, "army1", id)} >Army 1</button>
       <button className='province_army' id='army2' style={{opacity: army2Exists}} draggable={army2Draggable}
-        onClick={() => 0}>Army 2</button>
+        onClick={() => 0} onDragStart={(e) => handleOnDrag(e, "army2", id)} >Army 2</button>
       <button className='province_army' id='army3' style={{opacity: army3Exists}} draggable={army3Draggable}
-        onClick={() => 0}>Army 3</button>
+        onClick={() => 0} onDragStart={(e) => handleOnDrag(e, "army3", id)} >Army 3</button>
       <button className='province_army' id='army4' style={{opacity: army4Exists}} draggable={army4Draggable}
-        onClick={() => 0}>Army 4</button>
+        onClick={() => 0} onDragStart={(e) => handleOnDrag(e, "army4", id)} >Army 4</button>
       </div>
   );
 }
