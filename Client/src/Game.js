@@ -81,8 +81,39 @@ export default function Game() {
         }
     }
 
-    function handleUpdateArmies(fromProvince, fromId, toProvince, toId, army) {
+    function handleUpdateArmies(fromProvince, fromId, toProvince, toId, army, fromSlot, isAttacking) {
+        // Re-arrange the slots in the source province
+        function rearrangeSourceSlots() {
+            armiesCopy[fromSlot][fromProvince] = null;
 
+            if (fromSlot < 3) {
+                for (let i = 0; i < 3; i++) {
+                    if (armiesCopy[i][fromProvince] == null) {
+                        armiesCopy[i][fromProvince] = armiesCopy[i+1][fromProvince];
+                        armiesCopy[i+1][fromProvince] = null;
+                    }
+                }
+            }
+        }
+        
+        // Get a copy of all army slots
+        const armiesCopy = [army1.slice(0,8), army2.slice(0,8), army3.slice(0,8), army4.slice(0,8)];
+        
+        rearrangeSourceSlots();
+        
+        // Put army in a free slot
+        for (let i = 0; i < 4; i++) {
+            if (armiesCopy[i][toProvince] == null) {
+                armiesCopy[i][toProvince] = army;
+                break;
+            }
+        }
+
+        // Update armies
+        setArmy1(armiesCopy[0]);
+        setArmy2(armiesCopy[1]);
+        setArmy3(armiesCopy[2]);
+        setArmy4(armiesCopy[3]);
     }
 
     // Init all provinces when booting up the game
