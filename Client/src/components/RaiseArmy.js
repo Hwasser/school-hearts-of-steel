@@ -90,7 +90,8 @@ function updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy) {
   // Check which province army slot to put army in
   const armySlot = findArmySlot(province);
   if (armySlot == null) {
-    throw("No army slot in province!");
+    console.log("No army slot in province!");
+    return;
   }
   // Push army to database
   const army = {

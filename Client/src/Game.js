@@ -132,12 +132,10 @@ export default function Game() {
             // Update province with new army data
             const province = res.data[0];
             const id = province['_id'];
-            console.log("Before", province);
             province['army1'] = armies[0][provinceId];
             province['army2'] = armies[1][provinceId];
             province['army3'] = armies[2][provinceId];
             province['army4'] = armies[3][provinceId];
-            console.log("After", province);
             axios
             .put(`http://localhost:8082/api/provinces/${id}`, province)
             .catch((err) => {
