@@ -81,7 +81,7 @@ export default function Game() {
         }
     }
 
-    function handleUpdateArmies(fromProvince, fromId, toProvince, toId, army, fromSlot, isAttacking) {
+    function handleUpdateArmies(fromProvince, toProvince, army, fromSlot, isAttacking) {
         // Re-arrange the slots in the source province
         function rearrangeSourceSlots() {
             armiesCopy[fromSlot][fromProvince] = null;
@@ -109,11 +109,45 @@ export default function Game() {
             }
         }
 
+        console.log(armiesCopy[0][8], armiesCopy[1][8], armiesCopy[2][8], armiesCopy[3][8]);
+
         // Update armies
         setArmy1(armiesCopy[0]);
         setArmy2(armiesCopy[1]);
         setArmy3(armiesCopy[2]);
         setArmy4(armiesCopy[3]);
+
+        console.log(fromProvince, toProvince);
+
+        // Replace armies in database
+        replaceArmyInProvince(fromProvince, armiesCopy);
+        replaceArmyInProvince(toProvince, armiesCopy);
+    }
+
+    function replaceArmyInProvince(provinceId, armies) {
+        // First we must get the latest properties of the province
+        axios.get('http://localhost:8082/api/provinces/', {
+        params: { id: provinceId}
+        })
+        .then( (res) => {
+            // Update province with new army data
+            const province = res.data[0];
+            const id = province['_id'];
+            console.log("Before", province);
+            province['army1'] = armies[0][provinceId];
+            province['army2'] = armies[1][provinceId];
+            province['army3'] = armies[2][provinceId];
+            province['army4'] = armies[3][provinceId];
+            console.log("After", province);
+            axios
+            .put(`http://localhost:8082/api/provinces/${id}`, province)
+            .catch((err) => {
+            console.log('Error in replacing armies in province: ' + err);
+            });
+        })
+        .catch( (e) => {
+        console.log(e)
+        });
     }
 
     // Init all provinces when booting up the game
@@ -125,7 +159,7 @@ export default function Game() {
         const localArmy2 = Array(9);
         const localArmy3 = Array(9);
         const localArmy4 = Array(9);
-
+        
         axios.get('http://localhost:8082/api/provinces/')
         .then( (res) => {
             if (res.data.length !== 0) {
@@ -139,6 +173,7 @@ export default function Game() {
                     localArmy3[i] = province['army3'];
                     localArmy4[i] = province['army4'];
                 }
+
                 setProvinceNames(localProvinceNames);
                 setProvinceOwners(localProvinceOwners);
                 setProvinceId(localProvinceId);
@@ -177,6 +212,7 @@ export default function Game() {
     return renderGame();
 
 }
+
 
 const defaultProvinceState = {
 id: -1,

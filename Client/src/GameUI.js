@@ -25,10 +25,6 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ob
       return;
     }
 
-    // Get the document id from both source and destination
-    const fromId = Number(objectIds[fromProvince]);
-    const toId = Number(objectIds[toProvince]);
-    
     // Check if destination province is neightbour from this province
     if (Math.abs(fromProvince - toProvince) == 1
       || Math.abs(fromProvince - toProvince) == worldSize) {
@@ -39,13 +35,13 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ob
             || army3[toProvince] == null 
             || army4[toProvince] == null) {      
             console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
-            updateArmies(fromProvince, fromId, toProvince, toId, army, fromSlot, false);
+            updateArmies(fromProvince, toProvince, army, fromSlot, false);
           } else {
             console.log("No available army slots in that province!");
           }
         } else {
           console.log("attack with army " + army + " from province " + fromProvince + " to " + toProvince);
-          updateArmies(fromProvince, fromId, toProvince, toId, army, fromSlot, true);
+          updateArmies(fromProvince, toProvince, army, fromSlot, true);
         }
       } else {
         console.log("Province is too far away!");
