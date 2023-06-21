@@ -27,7 +27,6 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ob
 
     // Check if destination province is neightbour from this province
     const move = fromProvince - toProvince; 
-    console.log(fromProvince % worldSize, move);
     if (Math.abs(move) == worldSize 
       || (move == -1 &&  (fromProvince % worldSize != worldSize-1))
       || (move == 1 && (fromProvince % worldSize != 0)) ) {

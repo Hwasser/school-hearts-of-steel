@@ -3,6 +3,7 @@ import Header from './Header';
 import GameUI from './GameUI';
 import Footer from './Footer';
 import axios from 'axios';
+import { armyMove, armyAttack } from './functionality/manageArmies';
 
 import { useState, useEffect } from 'react';  
 
@@ -81,70 +82,22 @@ export default function Game() {
         }
     }
 
-    function handleUpdateArmies(fromProvince, toProvince, army, fromSlot, isAttacking) {
-        // Re-arrange the slots in the source province
-        function rearrangeSourceSlots() {
-            armiesCopy[fromSlot][fromProvince] = null;
-
-            if (fromSlot < 3) {
-                for (let i = 0; i < 3; i++) {
-                    if (armiesCopy[i][fromProvince] == null) {
-                        armiesCopy[i][fromProvince] = armiesCopy[i+1][fromProvince];
-                        armiesCopy[i+1][fromProvince] = null;
-                    }
-                }
-            }
-        }
-        
+    async function handleUpdateArmies(fromProvince, toProvince, army, fromSlot, isAttacking) {
         // Get a copy of all army slots
         const armiesCopy = [army1.slice(0,8), army2.slice(0,8), army3.slice(0,8), army4.slice(0,8)];
-        
-        rearrangeSourceSlots();
-        
-        // Put army in a free slot
-        for (let i = 0; i < 4; i++) {
-            if (armiesCopy[i][toProvince] == null) {
-                armiesCopy[i][toProvince] = army;
-                break;
-            }
+
+        if (isAttacking) {
+            await armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy);
+        } else {
+            await armyMove(fromProvince, toProvince, army, fromSlot, armiesCopy);
         }
 
-        console.log(armiesCopy[0][8], armiesCopy[1][8], armiesCopy[2][8], armiesCopy[3][8]);
-
-        // Update armies
+                // Update armies
         setArmy1(armiesCopy[0]);
         setArmy2(armiesCopy[1]);
         setArmy3(armiesCopy[2]);
         setArmy4(armiesCopy[3]);
 
-        // Replace armies in database
-        replaceArmyInProvince(fromProvince, armiesCopy);
-        replaceArmyInProvince(toProvince, armiesCopy);
-    }
-
-    // TODO: KNOWN BUG! When moved from province 8 to another province army doubles
-    function replaceArmyInProvince(provinceId, armies) {
-        // First we must get the latest properties of the province
-        axios.get('http://localhost:8082/api/provinces/', {
-        params: { id: provinceId}
-        })
-        .then( (res) => {
-            // Update province with new army data
-            const province = res.data[0];
-            const id = province['_id'];
-            province['army1'] = armies[0][provinceId];
-            province['army2'] = armies[1][provinceId];
-            province['army3'] = armies[2][provinceId];
-            province['army4'] = armies[3][provinceId];
-            axios
-            .put(`http://localhost:8082/api/provinces/${id}`, province)
-            .catch((err) => {
-            console.log('Error in replacing armies in province: ' + err);
-            });
-        })
-        .catch( (e) => {
-        console.log(e)
-        });
     }
 
     // Init all provinces when booting up the game

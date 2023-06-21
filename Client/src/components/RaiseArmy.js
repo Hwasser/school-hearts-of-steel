@@ -101,7 +101,7 @@ function updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy) {
   axios
   .post('http://localhost:8082/api/armies', army)
   .then( (res2) => {
-    console.log("Succsesfully added army: " + res2.data.armydata._id);
+    console.log("Succsesfully added army: " + res2.data.armydata);
     // Change the workforce number of the province
     province['workforce'] = newValue; 
     province[armySlot] = res2.data.armydata._id;
