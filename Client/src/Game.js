@@ -107,7 +107,6 @@ export default function Game() {
                 setProvinceNames(localProvinceNames);
                 setProvinceOwners(localProvinceOwners);
                 setProvinceId(localProvinceId);
-                setProvinceId(provinceId)
                 setArmy1(localArmy1);
                 setArmy2(localArmy2);
                 setArmy3(localArmy3);

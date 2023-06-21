@@ -19,6 +19,12 @@ export default function GameUI( {onSelectAction, names, owners, objectIds, army1
     });
   }
 
+  function onMoveArmy(fromProvince, toProvince, army) {
+    console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
+  }
+
+  
+
   const worldSize = 3;
   function BuildBody() {
       const body = [];
@@ -39,6 +45,7 @@ export default function GameUI( {onSelectAction, names, owners, objectIds, army1
                 owner={owner}
                 name={name} 
                 armies={armies}
+                moveArmy={onMoveArmy}
               />);
           }
           body.push(<div className='world_row'> {listItems} </div>);
