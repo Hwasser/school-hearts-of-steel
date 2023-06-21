@@ -117,13 +117,12 @@ export default function Game() {
         setArmy3(armiesCopy[2]);
         setArmy4(armiesCopy[3]);
 
-        console.log(fromProvince, toProvince);
-
         // Replace armies in database
         replaceArmyInProvince(fromProvince, armiesCopy);
         replaceArmyInProvince(toProvince, armiesCopy);
     }
 
+    // TODO: KNOWN BUG! When moved from province 8 to another province army doubles
     function replaceArmyInProvince(provinceId, armies) {
         // First we must get the latest properties of the province
         axios.get('http://localhost:8082/api/provinces/', {

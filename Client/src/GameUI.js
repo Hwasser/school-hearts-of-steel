@@ -26,8 +26,11 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ob
     }
 
     // Check if destination province is neightbour from this province
-    if (Math.abs(fromProvince - toProvince) == 1
-      || Math.abs(fromProvince - toProvince) == worldSize) {
+    const move = fromProvince - toProvince; 
+    console.log(fromProvince % worldSize, move);
+    if (Math.abs(move) == worldSize 
+      || (move == -1 &&  (fromProvince % worldSize != worldSize-1))
+      || (move == 1 && (fromProvince % worldSize != 0)) ) {
         // Only start moving an army if there are any available army slots!
         if (owners[toProvince] == owners[fromProvince]) {
           if (army1[toProvince] == null 
