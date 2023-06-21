@@ -81,6 +81,10 @@ export default function Game() {
         }
     }
 
+    function handleUpdateArmies(fromProvince, fromId, toProvince, toId, army) {
+
+    }
+
     // Init all provinces when booting up the game
     function initAllProvinces(index) {
         const localProvinceNames = Array(9);
@@ -124,6 +128,7 @@ export default function Game() {
             <Header updateProvinceNames={handleProvinceNames} />
             <GameUI 
                 onSelectAction={handleSelectProvince} 
+                updateArmies={handleUpdateArmies}
                 names={provinceNames} 
                 owners={provinceOwners} 
                 objectIds={provinceId}

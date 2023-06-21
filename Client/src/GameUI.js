@@ -3,7 +3,8 @@ import './GameUI.css';
 import Province from './components/Province';
 import React, { useEffect } from 'react';  
 
-export default function GameUI( {onSelectAction, names, owners, objectIds, army1, army2, army3, army4} ) {
+export default function GameUI( {onSelectAction, updateArmies, names, owners, objectIds, army1, army2, army3, army4} ) {
+  const worldSize = 3;
 
   function onSelectProvince(index) {
     axios.get('http://localhost:8082/api/provinces/', {
@@ -20,12 +21,38 @@ export default function GameUI( {onSelectAction, names, owners, objectIds, army1
   }
 
   function onMoveArmy(fromProvince, toProvince, army) {
-    console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
+    if (fromProvince == toProvince) {
+      return;
+    }
+
+    // Get the document id from both source and destination
+    const fromId = Number(objectIds[fromProvince]);
+    const toId = Number(objectIds[toProvince]);
+    
+    // Check if to province is neightbour from this province
+    if (Math.abs(fromProvince - toProvince) == 1
+      || Math.abs(fromProvince - toProvince) == worldSize) {
+        // Only start moving an army if there are any available army slots!
+        if (owners[toProvince] == owners[fromProvince]) {
+          if (army1[toProvince] == null 
+            || army2[toProvince] == null 
+            || army3[toProvince] == null 
+            || army4[toProvince] == null) {      
+            console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
+            // Update to "move armies" or something
+            updateArmies(fromProvince, fromId, toProvince, toId, army);
+          } else {
+            console.log("Cannot move more armies to that position!");
+          }
+        } else {
+          // TODO: Implement!
+          console.log("Attacking a province!");
+        }
+      } else {
+        console.log("Province is too far away!");
+      }
   }
 
-  
-
-  const worldSize = 3;
   function BuildBody() {
       const body = [];
       for (let i = 0; i < worldSize; i++) {
@@ -39,7 +66,6 @@ export default function GameUI( {onSelectAction, names, owners, objectIds, army1
               // TODO: click-function just placeholder
               listItems.push(<Province 
                 id={index} 
-                objectId={objectId}
                 key={index}
                 onProvinceClick={ () => onSelectProvince(index) }
                 owner={owner}
