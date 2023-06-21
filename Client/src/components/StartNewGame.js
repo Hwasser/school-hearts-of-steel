@@ -58,6 +58,17 @@ function replaceProvinces(allProvinces, response) {
       console.log('Error in replacing province: ' + err);
     });
   }
+  console.log("Restarted game!");
+  // Remove all armies from old game
+  axios
+    .delete(`http://localhost:8082/api/armies/`)
+    .then( (res) => {
+      console.log("All old armies removed!");
+    })
+    .catch((err) => {
+      console.log('Error in removing armies: ' + err);
+    });
+
 }
 
 // Post newly generated provinces to db
@@ -92,7 +103,11 @@ function generateProvince(id, player) {
       material: getRandomInt(100, 1000),
       tools: getRandomInt(100, 1000),
       workforce: getRandomInt(10, 100),
-      owner: player
+      owner: player,
+      army1: null,
+      army2: null,
+      army3: null,
+      army4: null
     };
 
     // Set some special stats to provinces associated with certain names

@@ -14,7 +14,7 @@ router.get('/:id', (req, res) => {
       .catch(err => res.status(404).json({ noarmyfound: 'No Army found' }));
   });
 
-// @route GET api/Provinces
+// @route GET api/armies/
 // @description add/save Province
 // @access Public
 router.post('/', (req, res) => {
@@ -23,8 +23,8 @@ router.post('/', (req, res) => {
     .catch(err => res.status(400).json({ error: 'Unable to add this Army' }));
 });
 
-// @route GET api/Provinces/:id
-// @description Update Province
+// @route GET api/armies/:id
+// @description Update Army
 // @access Public
 router.put('/:id', (req, res) => {
   Army.findByIdAndUpdate(req.params.id, req.body)
@@ -34,13 +34,22 @@ router.put('/:id', (req, res) => {
     );
 });
 
-// @route GET api/Provinces/:id
-// @description Delete Province by id
+// @route DELETE api/armies/:id
+// @description Delete Army by id
 // @access Public
 router.delete('/:id', (req, res) => {
   Army.remove({id: req.params.id})
     .then(army => res.json({ mgs: 'Province entry deleted successfully' }))
     .catch(err => res.status(404).json({ error: 'No such a Province' }));
+});
+
+// @route api/armies/
+// @description Delete all armies
+// @access Public
+router.delete('/', (req, res) => {
+  Army.deleteMany({})
+    .then(army => res.json({ mgs: 'Province entry deleted successfully' }))
+    .catch(err => res.status(404).json({ error: 'Could not remove all armies' }));
 });
 
 module.exports = router;

@@ -105,24 +105,24 @@ function updateProvinceDatabase(newValue, toRaise, index, onRaiseArmy) {
           owner: province['owner']
         };
         axios
-          .post('http://localhost:8082/api/armies', army)
-          .then( (res2) => {
-            console.log("Succsesfully added army: " + res2.data.armydata._id);
-            // Change the workforce number of the province
-            province['workforce'] = newValue; 
-            province[armySlot] = res2.data.armydata._id;
-            onRaiseArmy(province);
-            // Update province with army and new value of workforce
-            axios
-            .put(`http://localhost:8082/api/provinces/${id}`, province)
-            .catch((err) => {
-              console.log('Error in replacing province: ' + err);
-            });
+        .post('http://localhost:8082/api/armies', army)
+        .then( (res2) => {
+          console.log("Succsesfully added army: " + res2.data.armydata._id);
+          // Change the workforce number of the province
+          province['workforce'] = newValue; 
+          province[armySlot] = res2.data.armydata._id;
+          onRaiseArmy(province);
+          // Update province with army and new value of workforce
+          axios
+          .put(`http://localhost:8082/api/provinces/${id}`, province)
+          .catch((err) => {
+            console.log('Error in replacing province: ' + err);
+          });
         })
-      .catch((err) => {
-          console.log('Error in creating army: ' + err);
-          
-      });  
+        .catch((err) => {
+            console.log('Error in creating army: ' + err);
+            
+        });  
       }
     })
     .catch( (e) => {
