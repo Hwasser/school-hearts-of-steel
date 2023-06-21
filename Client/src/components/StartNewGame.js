@@ -19,13 +19,11 @@ export default function StartNewGame(updateProvinces) {
       
       // If the list of provinces is empty, creaty new ones
       if (response.length == 0) {
-        createNewProvinces(allProvinces);
+        createNewProvinces(allProvinces, updateProvinces);
       } else {
         // Otherwise replace all provinces
-        replaceProvinces(allProvinces, response)
+        replaceProvinces(allProvinces, response, updateProvinces)
       }
-      // Update the names of all provinces in the view
-      updateProvinces(allProvinces);
     })
     .catch((err) => {
       // If provinces doesn't exist then return false to create new ones
@@ -47,10 +45,11 @@ function setUpProvinces(playerPositions) {
 }
 
 // Replace the provinces in the db with the newly generated
-function replaceProvinces(allProvinces, response) {
+function replaceProvinces(allProvinces, response, updateProvinces) {
   const nProvinces = allProvinces.length;
   for (let i = 0; i < nProvinces; i++) {
     const id = response[i]['_id']
+    allProvinces[i]['objectId'] = id;
     const province = allProvinces[i];
     axios
     .put(`http://localhost:8082/api/provinces/${id}`, province)
@@ -69,21 +68,31 @@ function replaceProvinces(allProvinces, response) {
       console.log('Error in removing armies: ' + err);
     });
 
+    // Update the names of all provinces in the view
+    updateProvinces(allProvinces);
 }
 
 // Post newly generated provinces to db
-function createNewProvinces(allProvinces) {
+function createNewProvinces(allProvinces, updateProvinces) {
   const nProvinces = allProvinces.length;
     for (let i = 0; i < nProvinces; i++) {
       const province = allProvinces[i];
       axios
       .post('http://localhost:8082/api/provinces', province)
+      .then( (res) => {
+        allProvinces[i]['objectid'] = res.data.province._id;
+        
+        // on last iteration, update view
+        if (i == nProvinces-1) {
+          updateProvinces(allProvinces);
+        }
+      })
       .catch((err) => {
           console.log('Error in creating a province: ' + err);
           
       });
-      console.log('created province: ' + province);
     }
+    // Update the names of all provinces in the view
 }
 
 // Generates a province with an id with random properties

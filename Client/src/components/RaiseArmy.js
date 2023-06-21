@@ -11,7 +11,7 @@ export default function RaiseArmy({ active, fromProvince, onRaiseArmy}) {
   // update the workforce and push back to interface
   function onRaiseAction(toRaise) {
     const newValue = curWorkforce - toRaise; 
-    updateProvinceDatabase(newValue, toRaise, id, onRaiseArmy)
+    updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy)
   }
 
   // Minimum amout to draft or to be left in province
@@ -79,55 +79,43 @@ export default function RaiseArmy({ active, fromProvince, onRaiseArmy}) {
     );
 
   return ( <Slider /> )
-  
 }
 
 // Update the amount of workers in province in database
-function updateProvinceDatabase(newValue, toRaise, index, onRaiseArmy) {
-  // Search for document id of the province
-  axios.get('http://localhost:8082/api/provinces/', {
-      params: { id: index }
-    })
-    .then( (res) => {
-      // Replace the province value with one with the new workforce
-      if (res.data.length !== 0) {
-        const province = res.data[0];
-        // Get the document id of the province
-        const id = province['_id'];
-        // Check which province army slot to put army in
-        const armySlot = findArmySlot(province);
-        if (armySlot == null) {
-          throw("No army slot in province!");
-        }
-        // Push army to database
-        const army = {
-          soldiers: toRaise,
-          owner: province['owner']
-        };
-        axios
-        .post('http://localhost:8082/api/armies', army)
-        .then( (res2) => {
-          console.log("Succsesfully added army: " + res2.data.armydata._id);
-          // Change the workforce number of the province
-          province['workforce'] = newValue; 
-          province[armySlot] = res2.data.armydata._id;
-          onRaiseArmy(province);
-          // Update province with army and new value of workforce
-          axios
-          .put(`http://localhost:8082/api/provinces/${id}`, province)
-          .catch((err) => {
-            console.log('Error in replacing province: ' + err);
-          });
-        })
-        .catch((err) => {
-            console.log('Error in creating army: ' + err);
-            
-        });  
-      }
-    })
-    .catch( (e) => {
-      console.log(e)
-  });
+function updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy) {
+  // Replace the province value with one with the new workforce
+  const province = fromProvince;
+  // Get the document id of the province
+  const id = province['_id'];
+  // Check which province army slot to put army in
+  const armySlot = findArmySlot(province);
+  if (armySlot == null) {
+    throw("No army slot in province!");
+  }
+  // Push army to database
+  const army = {
+    soldiers: toRaise,
+    owner: province['owner']
+  };
+  axios
+  .post('http://localhost:8082/api/armies', army)
+  .then( (res2) => {
+    console.log("Succsesfully added army: " + res2.data.armydata._id);
+    // Change the workforce number of the province
+    province['workforce'] = newValue; 
+    province[armySlot] = res2.data.armydata._id;
+    onRaiseArmy(province);
+    // Update province with army and new value of workforce
+    axios
+    .put(`http://localhost:8082/api/provinces/${id}`, province)
+    .catch((err) => {
+      console.log('Error in replacing province: ' + err);
+    });
+  })
+  .catch((err) => {
+      console.log('Error in creating army: ' + err);
+      
+  });  
 }
 
 function findArmySlot(province) {

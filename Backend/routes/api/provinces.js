@@ -26,7 +26,7 @@ router.get('/', (req, res) => {
 // @access Public
 router.post('/', (req, res) => {
   Province.create(req.body)
-    .then(province => res.json({ msg: 'Province added successfully' }))
+    .then(province => res.json({ province: province, msg: 'Province added successfully' }))
     .catch(err => res.status(400).json({ error: 'Unable to add this Province' }));
 });
 

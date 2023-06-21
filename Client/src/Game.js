@@ -10,6 +10,7 @@ export default function Game() {
     
     const [properties, setProperties] = useState(defaultProvinceState);
     const [provinceNames, setProvinceNames] = useState(Array(9).fill('-'));
+    const [provinceId, setProvinceId] = useState(Array(9).fill(''));
     const [provinceOwners, setProvinceOwners] = useState(Array(9).fill('Neutral'));
     const [army1, setArmy1] = useState(Array(9))
     const [army2, setArmy2] = useState(Array(9))
@@ -34,14 +35,19 @@ export default function Game() {
         // Get a list of all province names and owners
         const provinceNamesLocal = Array(9);
         const provinceOwnersLocal = Array(9);
+        const provinceIdLocal = Array(9);
 
         for (let i = 0; i < allProvinces.length; i++) {
             provinceNamesLocal[i]  = allProvinces[i]['name']
             provinceOwnersLocal[i] = allProvinces[i]['owner']
+            provinceIdLocal[i] = allProvinces[i]['objectId']
         }
+
+        console.log(allProvinces);
 
         setProvinceNames(provinceNamesLocal);
         setProvinceOwners(provinceOwnersLocal);
+        setProvinceId(provinceIdLocal);
 
         // Reset all army slots
         setArmy1(Array(9));
@@ -79,6 +85,7 @@ export default function Game() {
     function initAllProvinces(index) {
         const localProvinceNames = Array(9);
         const localProvinceOwners = Array(9);
+        const localProvinceId = Array(9);
         const localArmy1 = Array(9);
         const localArmy2 = Array(9);
         const localArmy3 = Array(9);
@@ -91,6 +98,7 @@ export default function Game() {
                     const province = res.data[i];
                     localProvinceNames[i] = province['name'];
                     localProvinceOwners[i] = province['owner'];
+                    localProvinceId[i] = province['_id']
                     localArmy1[i] = province['army1'];
                     localArmy2[i] = province['army2'];
                     localArmy3[i] = province['army3'];
@@ -98,6 +106,8 @@ export default function Game() {
                 }
                 setProvinceNames(localProvinceNames);
                 setProvinceOwners(localProvinceOwners);
+                setProvinceId(localProvinceId);
+                setProvinceId(provinceId)
                 setArmy1(localArmy1);
                 setArmy2(localArmy2);
                 setArmy3(localArmy3);
@@ -109,8 +119,6 @@ export default function Game() {
         });
     }
         
-
-
     const renderGame = () => {
         return (
             <>
@@ -119,6 +127,7 @@ export default function Game() {
                 onSelectAction={handleSelectProvince} 
                 names={provinceNames} 
                 owners={provinceOwners} 
+                objectIds={provinceId}
                 army1={army1}
                 army2={army2}
                 army3={army3}
@@ -129,7 +138,6 @@ export default function Game() {
         )
         
     }
-
 
     return renderGame();
 

@@ -2,7 +2,7 @@ import axios from 'axios';
 import './GameUI.css';
 import React, { useEffect } from 'react';  
 
-export default function GameUI( {onSelectAction, names, owners, army1, army2, army3, army4} ) {
+export default function GameUI( {onSelectAction, names, owners, objectIds, army1, army2, army3, army4} ) {
 
   function onSelectProvince(index) {
     axios.get('http://localhost:8082/api/provinces/', {
@@ -27,10 +27,12 @@ export default function GameUI( {onSelectAction, names, owners, army1, army2, ar
             const index = i * worldSize + j;
             const name = names[index];
             const owner = owners[index];
+            const objectId = objectIds[index];
             const armies = [army1[index], army2[index], army3[index], army4[index]]
               // TODO: click-function just placeholder
               listItems.push(<Province 
                 id={index} 
+                objectId={objectId}
                 key={index}
                 onProvinceClick={ () => onSelectProvince(index) }
                 owner={owner}
