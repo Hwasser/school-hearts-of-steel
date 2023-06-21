@@ -31,6 +31,7 @@ export default function Game() {
 
     // Handle province names and owners for the view
     function handleProvinceNames(allProvinces) {
+        // Get a list of all province names and owners
         const provinceNamesLocal = Array(9);
         const provinceOwnersLocal = Array(9);
 
@@ -41,6 +42,8 @@ export default function Game() {
 
         setProvinceNames(provinceNamesLocal);
         setProvinceOwners(provinceOwnersLocal);
+
+        // Reset all army slots
         setArmy1(Array(9));
         setArmy2(Array(9));
         setArmy3(Array(9));

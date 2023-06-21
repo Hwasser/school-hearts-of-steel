@@ -1,11 +1,10 @@
 import axios from 'axios';
 import './GameUI.css';
-import { useEffect } from 'react';  
+import React, { useEffect } from 'react';  
 
 export default function GameUI( {onSelectAction, names, owners, army1, army2, army3, army4} ) {
 
   function onSelectProvince(index) {
-    // TODO: Only fetch one, not every freaking thing!
     axios.get('http://localhost:8082/api/provinces/', {
       params: { id: index}
     })
@@ -56,31 +55,56 @@ export default function GameUI( {onSelectAction, names, owners, army1, army2, ar
   );
 }
 
+
+// TODO: Break out province to its own component
+// TODO: We do not want armies as it is right now, it is ridiculous. Maybe eact province should have
+// armyslots and max armyslots as integers and the armies as a list instead
 function Province({ id, onProvinceClick, name, owner, army1, army2, army3, army4}) {
+  /* 
+  function handleOnDrag(e, widgetType){
+    e.dataTranfser.setData("widgetType", widgetType);
+  }
+
+  function handleOnDrop(){
+    const widgetType = e.dataTranfser.getData("widgetType");
+    console.log("widgetType", widgetType);
+    setWidgets([...widgets, widgetType]);
+  }
+  */
+  function handleDragOver(e){
+    e.preventDefault();
+  }
+
+  const playerColors = {
+    Player1: "rgb(135, 245, 66)",
+    Player2: "rgb(219, 78, 46)",
+    Player3: "rgb(194, 85, 224)",
+    Player4: "rgb(82, 212, 217)",
+    Neutral: "rgb(216, 217, 167)"
+  };
+
   const color = playerColors[owner];
   const army1Exists = (army1 == null) ? 0.2 : 1.0;
   const army2Exists = (army2 == null) ? 0.2 : 1.0;
   const army3Exists = (army3 == null) ? 0.2 : 1.0;
   const army4Exists = (army4 == null) ? 0.2 : 1.0;
+  const army1Draggable = (army1 == null) ? false : true;
+  const army2Draggable = (army2 == null) ? false : true;
+  const army3Draggable = (army3 == null) ? false : true;
+  const army4Draggable = (army4 == null) ? false : true;
+  
   return (
-      <div className='province' id={id} owner={owner} style={{background: color}}>
+      <div className='province' id={id} owner={owner} style={{background: color}} onDragOver={handleDragOver}>
       <button className='province_name' onClick={onProvinceClick}>{name}</button>
-      <button className='province_army' id='army1' style={{opacity: army1Exists}}  
+      <button className='province_army' id='army1' style={{opacity: army1Exists}} draggable={army1Draggable}
         onClick={() => 0}>Army 1</button>
-      <button className='province_army' id='army2' style={{opacity: army2Exists}}
+      <button className='province_army' id='army2' style={{opacity: army2Exists}} draggable={army2Draggable}
         onClick={() => 0}>Army 2</button>
-      <button className='province_army' id='army3' style={{opacity: army3Exists}}
+      <button className='province_army' id='army3' style={{opacity: army3Exists}} draggable={army3Draggable}
         onClick={() => 0}>Army 3</button>
-      <button className='province_army' id='army4' style={{opacity: army4Exists}}
+      <button className='province_army' id='army4' style={{opacity: army4Exists}} draggable={army4Draggable}
         onClick={() => 0}>Army 4</button>
       </div>
   );
 }
 
-const playerColors = {
-  Player1: "rgb(135, 245, 66)",
-  Player2: "rgb(219, 78, 46)",
-  Player3: "rgb(194, 85, 224)",
-  Player4: "rgb(82, 212, 217)",
-  Neutral: "rgb(216, 217, 167)"
-};
