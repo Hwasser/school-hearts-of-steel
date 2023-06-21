@@ -27,6 +27,7 @@ export default function GameUI( {onSelectAction, names, owners, army1, army2, ar
             const index = i * worldSize + j;
             const name = names[index];
             const owner = owners[index];
+            const armies = [army1[index], army2[index], army3[index], army4[index]]
               // TODO: click-function just placeholder
               listItems.push(<Province 
                 id={index} 
@@ -34,10 +35,7 @@ export default function GameUI( {onSelectAction, names, owners, army1, army2, ar
                 onProvinceClick={ () => onSelectProvince(index) }
                 owner={owner}
                 name={name} 
-                army1={army1[index]}
-                army2={army2[index]}
-                army3={army3[index]}
-                army4={army4[index]}
+                armies={armies}
               />);
           }
           body.push(<div className='world_row'> {listItems} </div>);
@@ -59,8 +57,7 @@ export default function GameUI( {onSelectAction, names, owners, army1, army2, ar
 // TODO: Break out province to its own component
 // TODO: We do not want armies as it is right now, it is ridiculous. Maybe eact province should have
 // armyslots and max armyslots as integers and the armies as a list instead
-function Province({ id, onProvinceClick, name, owner, army1, army2, army3, army4}) {
-  
+function Province({ id, onProvinceClick, name, owner, armies}) {
   function handleOnDrag(e, whatArmy, fromId){
     //e.originalEvent.dataTranfser.setData("widgetType", widgetType);
     e.dataTransfer.setData("whatArmy", whatArmy);
@@ -88,14 +85,14 @@ function Province({ id, onProvinceClick, name, owner, army1, army2, army3, army4
   };
 
   const color = playerColors[owner];
-  const army1Exists = (army1 == null) ? 0.2 : 1.0;
-  const army2Exists = (army2 == null) ? 0.2 : 1.0;
-  const army3Exists = (army3 == null) ? 0.2 : 1.0;
-  const army4Exists = (army4 == null) ? 0.2 : 1.0;
-  const army1Draggable = (army1 == null) ? false : true;
-  const army2Draggable = (army2 == null) ? false : true;
-  const army3Draggable = (army3 == null) ? false : true;
-  const army4Draggable = (army4 == null) ? false : true;
+  const army1Exists = (armies[0] == null) ? 0.2 : 1.0;
+  const army2Exists = (armies[1] == null) ? 0.2 : 1.0;
+  const army3Exists = (armies[2] == null) ? 0.2 : 1.0;
+  const army4Exists = (armies[3] == null) ? 0.2 : 1.0;
+  const army1Draggable = (armies[0] == null) ? false : true;
+  const army2Draggable = (armies[1] == null) ? false : true;
+  const army3Draggable = (armies[2] == null) ? false : true;
+  const army4Draggable = (armies[3] == null) ? false : true;
   
   return (
       <div className='province' id={id} owner={owner} style={{background: color}} 
@@ -104,13 +101,13 @@ function Province({ id, onProvinceClick, name, owner, army1, army2, army3, army4
       <button className='province_name' onClick={onProvinceClick}>{name}</button>
       
       <button className='province_army' id='army1' style={{opacity: army1Exists}} draggable={army1Draggable} 
-        onClick={() => 0} onDragStart={(e) => handleOnDrag(e, "army1", id)} >Army 1</button>
+        onClick={() => 0} onDragStart={(e) => handleOnDrag(e, armies[0], id)} >Army 1</button>
       <button className='province_army' id='army2' style={{opacity: army2Exists}} draggable={army2Draggable}
-        onClick={() => 0} onDragStart={(e) => handleOnDrag(e, "army2", id)} >Army 2</button>
+        onClick={() => 0} onDragStart={(e) => handleOnDrag(e, armies[1], id)} >Army 2</button>
       <button className='province_army' id='army3' style={{opacity: army3Exists}} draggable={army3Draggable}
-        onClick={() => 0} onDragStart={(e) => handleOnDrag(e, "army3", id)} >Army 3</button>
+        onClick={() => 0} onDragStart={(e) => handleOnDrag(e, armies[2], id)} >Army 3</button>
       <button className='province_army' id='army4' style={{opacity: army4Exists}} draggable={army4Draggable}
-        onClick={() => 0} onDragStart={(e) => handleOnDrag(e, "army4", id)} >Army 4</button>
+        onClick={() => 0} onDragStart={(e) => handleOnDrag(e, armies[3], id)} >Army 4</button>
       </div>
   );
 }
