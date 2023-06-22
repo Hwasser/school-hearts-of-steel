@@ -30,8 +30,9 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ob
     if (Math.abs(move) == worldSize 
       || (move == -1 &&  (fromProvince % worldSize != worldSize-1))
       || (move == 1 && (fromProvince % worldSize != 0)) ) {
-        // Only start moving an army if there are any available army slots!
+        // Check if the destination province is ours or belongs to another player
         if (owners[toProvince] == owners[fromProvince]) {
+          // Only start moving an army if there are any available army slots in dst!
           if (army1[toProvince] == null 
             || army2[toProvince] == null 
             || army3[toProvince] == null 
@@ -41,6 +42,7 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ob
           } else {
             console.log("No available army slots in that province!");
           }
+        // If the province is not ours, attack!
         } else {
           console.log("attack with army " + army + " from province " + fromProvince + " to " + toProvince);
           updateArmies(fromProvince, toProvince, army, fromSlot, true);
@@ -52,13 +54,14 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ob
 
   function BuildBody() {
       const body = [];
+      // Build all provinces of the map
       for (let i = 0; i < worldSize; i++) {
           let listItems = []
+          // Build a row of provinces
           for (let j = 0; j < worldSize; j++) {
             const index = i * worldSize + j;
             const name = names[index];
             const owner = owners[index];
-            const objectId = objectIds[index];
             const armies = [army1[index], army2[index], army3[index], army4[index]]
               // TODO: click-function just placeholder
               listItems.push(<Province 

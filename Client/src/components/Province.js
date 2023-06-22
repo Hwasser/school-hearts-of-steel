@@ -4,13 +4,15 @@ import './Province.css';
 // TODO: We do not want armies as it is right now, it is ridiculous. Maybe eact province should have
 // armyslots and max armyslots as integers and the armies as a list instead
 export default function Province({ id, onProvinceClick, name, owner, armies, moveArmy}) {
-    function handleOnDrag(e, whatArmy, fromId, fromSlot){
+  // If start dragging an army  
+  function handleOnDrag(e, whatArmy, fromId, fromSlot){
       //e.originalEvent.dataTranfser.setData("widgetType", widgetType);
       e.dataTransfer.setData("whatArmy", whatArmy);
       e.dataTransfer.setData("fromId", fromId);
       e.dataTransfer.setData("fromSlot", fromSlot);
     }
   
+    // If dropping an army in a province
     function handleOnDrop(e, id){
       const whatArmy = e.dataTransfer.getData("whatArmy");
       const fromId   = e.dataTransfer.getData("fromId");
@@ -32,6 +34,7 @@ export default function Province({ id, onProvinceClick, name, owner, armies, mov
     };
   
     const color = playerColors[owner];
+    // If an army exists in a slot, show that it exists and make it draggable
     const army1Exists = (armies[0] == null) ? 0.2 : 1.0;
     const army2Exists = (armies[1] == null) ? 0.2 : 1.0;
     const army3Exists = (armies[2] == null) ? 0.2 : 1.0;

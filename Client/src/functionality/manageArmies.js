@@ -53,11 +53,11 @@ export async function armyAttack(fromProvince, toProvince, army, fromSlot, armie
         armiesCopy[0][toProvince] = army;
         replaceArmyInProvince(toProvince, armiesCopy, attackingArmy['owner']);
         console.log(army, "won and will be moved to province.", "Soldiers left:", attackingArmy['soldiers']);
+        return attackingArmy['owner'];
     } else {
         replaceArmyInProvince(toProvince, armiesCopy, null);
+        return '';
     }
-    
-    console.log("happens second"); 
 }
 
 // Re-arrange the slots in the source province

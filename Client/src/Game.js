@@ -8,15 +8,17 @@ import { armyMove, armyAttack } from './functionality/manageArmies';
 import { useState, useEffect } from 'react';  
 
 export default function Game() {
+
+    const nProvinces = 9;
     
     const [properties, setProperties] = useState(defaultProvinceState);
-    const [provinceNames, setProvinceNames] = useState(Array(9).fill('-'));
-    const [provinceId, setProvinceId] = useState(Array(9).fill(''));
-    const [provinceOwners, setProvinceOwners] = useState(Array(9).fill('Neutral'));
-    const [army1, setArmy1] = useState(Array(9))
-    const [army2, setArmy2] = useState(Array(9))
-    const [army3, setArmy3] = useState(Array(9))
-    const [army4, setArmy4] = useState(Array(9))
+    const [provinceNames, setProvinceNames] = useState(Array(nProvinces).fill('-'));
+    const [provinceId, setProvinceId] = useState(Array(nProvinces).fill(''));
+    const [provinceOwners, setProvinceOwners] = useState(Array(nProvinces).fill('Neutral'));
+    const [army1, setArmy1] = useState(Array(nProvinces))
+    const [army2, setArmy2] = useState(Array(nProvinces))
+    const [army3, setArmy3] = useState(Array(nProvinces))
+    const [army4, setArmy4] = useState(Array(nProvinces))
 
     const [hasStarted, setHasStarted] = useState(false);
 
@@ -34,11 +36,11 @@ export default function Game() {
     // Handle province names and owners for the view
     function handleProvinceNames(allProvinces) {
         // Get a list of all province names and owners
-        const provinceNamesLocal = Array(9);
-        const provinceOwnersLocal = Array(9);
-        const provinceIdLocal = Array(9);
+        const provinceNamesLocal = Array(nProvinces);
+        const provinceOwnersLocal = Array(nProvinces);
+        const provinceIdLocal = Array(nProvinces);
 
-        for (let i = 0; i < allProvinces.length; i++) {
+        for (let i = 0; i < nProvinces; i++) {
             provinceNamesLocal[i]  = allProvinces[i]['name']
             provinceOwnersLocal[i] = allProvinces[i]['owner']
             provinceIdLocal[i] = allProvinces[i]['objectId']
@@ -51,10 +53,10 @@ export default function Game() {
         setProvinceId(provinceIdLocal);
 
         // Reset all army slots
-        setArmy1(Array(9));
-        setArmy2(Array(9));
-        setArmy3(Array(9));
-        setArmy4(Array(9));
+        setArmy1(Array(nProvinces));
+        setArmy2(Array(nProvinces));
+        setArmy3(Array(nProvinces));
+        setArmy4(Array(nProvinces));
     }
 
     function handleRaiseArmy(provinceInfo) {
@@ -62,10 +64,10 @@ export default function Game() {
         try {
             setProperties(provinceInfo);
         
-            const army1Copy = army1.slice(0,8);
-            const army2Copy = army2.slice(0,8);
-            const army3Copy = army3.slice(0,8);
-            const army4Copy = army4.slice(0,8);
+            const army1Copy = army1.slice(0,nProvinces);
+            const army2Copy = army2.slice(0,nProvinces);
+            const army3Copy = army3.slice(0,nProvinces);
+            const army4Copy = army4.slice(0,nProvinces);
             
             army1Copy[provinceId] = provinceInfo['army1']
             setArmy1(army1Copy);
@@ -84,36 +86,46 @@ export default function Game() {
 
     async function handleUpdateArmies(fromProvince, toProvince, army, fromSlot, isAttacking) {
         // Get a copy of all army slots
-        const armiesCopy = [army1.slice(0,8), army2.slice(0,8), army3.slice(0,8), army4.slice(0,8)];
+        const armiesCopy = 
+            [army1.slice(0,nProvinces), army2.slice(0,nProvinces), army3.slice(0,nProvinces), army4.slice(0,nProvinces)];
 
+        // Perform movement or attack of army
+        let newOwner = '';
         if (isAttacking) {
-            await armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy);
+            newOwner = await armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy);
         } else {
             await armyMove(fromProvince, toProvince, army, fromSlot, armiesCopy);
         }
 
-                // Update armies
+        // Update armies in view
         setArmy1(armiesCopy[0]);
         setArmy2(armiesCopy[1]);
         setArmy3(armiesCopy[2]);
         setArmy4(armiesCopy[3]);
 
+        // Update province owners if army won an attack
+        if (newOwner != '') {
+            const provinceOwnersLocal = provinceOwners.slice(0,nProvinces);
+            provinceOwners[toProvince] = newOwner;
+            setProvinceOwners(provinceOwnersLocal);
+        }
+
     }
 
     // Init all provinces when booting up the game
     function initAllProvinces(index) {
-        const localProvinceNames = Array(9);
-        const localProvinceOwners = Array(9);
-        const localProvinceId = Array(9);
-        const localArmy1 = Array(9);
-        const localArmy2 = Array(9);
-        const localArmy3 = Array(9);
-        const localArmy4 = Array(9);
+        const localProvinceNames = Array(nProvinces);
+        const localProvinceOwners = Array(nProvinces);
+        const localProvinceId = Array(nProvinces);
+        const localArmy1 = Array(nProvinces);
+        const localArmy2 = Array(nProvinces);
+        const localArmy3 = Array(nProvinces);
+        const localArmy4 = Array(nProvinces);
         
         axios.get('http://localhost:8082/api/provinces/')
         .then( (res) => {
             if (res.data.length !== 0) {
-                for (let i = 0; i < 9; i++) {
+                for (let i = 0; i < nProvinces; i++) {
                     const province = res.data[i];
                     localProvinceNames[i] = province['name'];
                     localProvinceOwners[i] = province['owner'];
