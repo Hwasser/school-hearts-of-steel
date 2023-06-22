@@ -5,20 +5,20 @@ import './Province.css';
 // armyslots and max armyslots as integers and the armies as a list instead
 export default function Province({ id, onProvinceClick, name, owner, armies, moveArmy}) {
   // If start dragging an army  
-  function handleOnDrag(e, whatArmy, fromId, fromSlot){
+  function handleOnDrag(e, whatArmy, fromProvince, fromSlot){
       //e.originalEvent.dataTranfser.setData("widgetType", widgetType);
       e.dataTransfer.setData("whatArmy", whatArmy);
-      e.dataTransfer.setData("fromId", fromId);
+      e.dataTransfer.setData("fromProvince", fromProvince);
       e.dataTransfer.setData("fromSlot", fromSlot);
     }
   
     // If dropping an army in a province
-    function handleOnDrop(e, id){
+    function handleOnDrop(e, toProvince){
       const whatArmy = e.dataTransfer.getData("whatArmy");
-      const fromId   = e.dataTransfer.getData("fromId");
+      const fromProvince   = e.dataTransfer.getData("fromProvince");
       const fromSlot   = e.dataTransfer.getData("fromSlot");
 
-      moveArmy(fromId, id, whatArmy, fromSlot);
+      moveArmy(fromProvince, toProvince, whatArmy, fromSlot);
     }
    
     function handleDragOver(e){

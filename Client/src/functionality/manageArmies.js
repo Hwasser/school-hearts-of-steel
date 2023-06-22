@@ -1,5 +1,12 @@
 import axios from 'axios';
 
+/** @brief: Moves army between two provinces
+ *  @param (number) fromProvince: Which province number to move from
+ *  @param (number) toProvince: Which province number to move to
+ *  @param (string) army: The Document Id of the army to move
+ *  @param (number) fromSlot: Which slot in the province it moves from
+ *  @param (2d array of string) armiesCopy: A copy of the state of all army slots in all provinces
+ */
 export async function armyMove(fromProvince, toProvince, army, fromSlot, armiesCopy) {
     // Manage army slots of source province
     rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy);
@@ -17,6 +24,15 @@ export async function armyMove(fromProvince, toProvince, army, fromSlot, armiesC
     replaceArmyInProvince(toProvince, armiesCopy, null);
 }
 
+
+/** @brief: Makes an army attack a province
+ *  @param (number) fromProvince: Which province number to attack from
+ *  @param (number) toProvince: Which province number to attack to
+ *  @param (string) army: The Document Id of the army to attack
+ *  @param (number) fromSlot: Which slot in the province it attacks from
+ *  @param (2d array of string) armiesCopy: A copy of the state of all army slots in all provinces
+ *  @returns (string) The new owner of the province, empty string if no change 
+ */
 export async function armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy) {
     // Manage army slots of source province
     rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy);
@@ -94,6 +110,7 @@ function performBattle(attackingArmy, defendingArmy) {
     }
 }
 
+// Remove army from database
 function killArmy(armyId) {
     axios
     .delete(`http://localhost:8082/api/armies/${armyId}`)
@@ -102,6 +119,7 @@ function killArmy(armyId) {
     });
 }
 
+// Fetch army from database
 async function fetchArmy(armyId) {
     let attackingArmy;
     await axios.get(`http://localhost:8082/api/armies/${armyId}` )
