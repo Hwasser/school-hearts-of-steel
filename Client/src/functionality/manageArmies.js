@@ -147,7 +147,6 @@ function updateArmy(army){
         });
 }
 
-// TODO: KNOWN BUG! When moved from province 8 to another province army doubles
 function replaceArmyInProvince(provinceId, armies, player) {
     // First we must get the latest properties of the province
     axios.get('http://localhost:8082/api/provinces/', {
