@@ -34,14 +34,17 @@ export async function armyMove(fromProvince, toProvince, army, fromSlot, armiesC
  *  @returns (string) The new owner of the province, empty string if no change 
  */
 export async function armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy) {
+    // Fetch data of the attacking army
+    const attackingArmy = await fetchArmy(army);
+    
     // Manage army slots of source province
     rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy);
 
-    const attackingArmy = await fetchArmy(army);
-
+    // Iterate through all enemy army slots, perform battle at each slot
     for (let i = 3; i >= 0; i--) {
         if (armiesCopy[i][toProvince] != null) {
             const defendingArmy = await fetchArmy(armiesCopy[i][toProvince]);
+            console.log("fetching done, starting attack:", i);
             const result = performBattle(attackingArmy, defendingArmy);
             if (result == 'win') {;
                 console.log("won battle!", attackingArmy['soldiers'], "soldiers left");
@@ -51,6 +54,7 @@ export async function armyAttack(fromProvince, toProvince, army, fromSlot, armie
             if (result == 'lose') {
                 console.log("lost battle!");
                 killArmy(attackingArmy['_id']);
+                updateArmy(defendingArmy);
                 break;
             }
             if (result == 'draw') {
@@ -67,6 +71,7 @@ export async function armyAttack(fromProvince, toProvince, army, fromSlot, armie
     replaceArmyInProvince(fromProvince, armiesCopy);
     if (attackingArmy['soldiers'] > 0) {
         armiesCopy[0][toProvince] = army;
+        updateArmy(attackingArmy);
         replaceArmyInProvince(toProvince, armiesCopy, attackingArmy['owner']);
         console.log(army, "won and will be moved to province.", "Soldiers left:", attackingArmy['soldiers']);
         return attackingArmy['owner'];
@@ -112,6 +117,7 @@ function performBattle(attackingArmy, defendingArmy) {
 
 // Remove army from database
 function killArmy(armyId) {
+    console.log("kill army:", armyId);
     axios
     .delete(`http://localhost:8082/api/armies/${armyId}`)
     .catch((err) => {
@@ -130,6 +136,15 @@ async function fetchArmy(armyId) {
         console.log("Error in armyAttack:", e)
     });
     return attackingArmy;
+}
+
+function updateArmy(army){
+    const armyId = army['_id'];
+    axios
+        .put(`http://localhost:8082/api/armies/${armyId}`, army)
+        .catch((err) => {
+        console.log('Error in updating army: ' + err);
+        });
 }
 
 // TODO: KNOWN BUG! When moved from province 8 to another province army doubles

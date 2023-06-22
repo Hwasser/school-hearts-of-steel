@@ -38,9 +38,9 @@ router.put('/:id', (req, res) => {
 // @description Delete Army by id
 // @access Public
 router.delete('/:id', (req, res) => {
-  Army.deleteOne({id: req.params.id})
-    .then(army => res.json({ mgs: 'Province entry deleted successfully' }))
-    .catch(err => res.status(404).json({ error: 'No such a Province' }));
+  Army.findOneAndDelete({_id: req.params.id})
+    .then(army => res.json({ mgs: 'Army ' + req.params.id + ' successfully removed!' }))
+    .catch(err => res.status(404).json({ error: 'No such army' }));
 });
 
 // @route api/armies/
