@@ -11,23 +11,6 @@
 }
 
 
-.province {
-  border-radius: 4px;
-  background-color:transparent;
-  height: 275px;
-  width: 275px;
-  margin: 4px 4px;
-}
-
-.province:hover {
-
-  background-color: rgba(0, 0, 0, 0.15)
-}
-
-.province_water:hover {
-
-  background-color: rgba(0, 0, 0, 0.15)
-}
 
 .world_row {
   display: flex;

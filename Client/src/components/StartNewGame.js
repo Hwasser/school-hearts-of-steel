@@ -1,9 +1,15 @@
 import axios from 'axios';
 
-export default function StartNewGame(updateProvinceNames) {
+export default function StartNewGame(updateProvinces) {
     // TODO: Remember this is specified here!
     const nProvinces = 9;
-    const allProvinces = Array(9);
+
+    // TODO: Get all players
+    // ...
+    const players = ["Player1", "Player2", "Player3"]; // TODO:
+    const playerPositions = setPlayerPositions(players);
+
+    const allProvinces = setUpProvinces(playerPositions)
 
     // Get list of all provinces
     axios
@@ -11,56 +17,86 @@ export default function StartNewGame(updateProvinceNames) {
     .then((res) => {
       const response = res.data;
       
-      // If the list of provinces is empty, creaty new onse
+      // If the list of provinces is empty, creaty new ones
       if (response.length == 0) {
-        createNewProvinces(nProvinces, allProvinces);
+        createNewProvinces(allProvinces, updateProvinces);
       } else {
         // Otherwise replace all provinces
-        for (let i = 0; i < nProvinces; i++) {
-            const id = response[i]['_id']
-            const province = generateProvince(i);
-            allProvinces[i] = province['name']; // Return this back to the main view
-            axios
-            .put(`http://localhost:8082/api/provinces/${id}`, province)
-            .catch((err) => {
-              console.log('Error in replacing province: ' + err);
-            });
-
-        }
+        replaceProvinces(allProvinces, response, updateProvinces)
       }
-      // Update the names of all provinces in the view
-      updateProvinceNames(allProvinces);
     })
     .catch((err) => {
       // If provinces doesn't exist then return false to create new ones
       console.log('Error from getting provinces:' + err);
       
     });
-
-    return allProvinces;
-
 }
 
+// Setup randomly generated provinces, set up player start positions etc
+function setUpProvinces(playerPositions) {
+  const allProvinces = Array(9);
+  const nProvinces = playerPositions.length;
+  for (let i = 0; i < nProvinces; i++) {
+    const player = playerPositions[i];
+    const province = generateProvince(i, player); 
+    allProvinces[i] = province;
+  }
+  return allProvinces;
+}
 
-// Create province data for 'nProvinces' and posts them to the server
-function createNewProvinces(nProvinces, allProvinces) {
+// Replace the provinces in the db with the newly generated
+function replaceProvinces(allProvinces, response, updateProvinces) {
+  const nProvinces = allProvinces.length;
+  for (let i = 0; i < nProvinces; i++) {
+    const id = response[i]['_id']
+    allProvinces[i]['objectId'] = id;
+    const province = allProvinces[i];
+    axios
+    .put(`http://localhost:8082/api/provinces/${id}`, province)
+    .catch((err) => {
+      console.log('Error in replacing province: ' + err);
+    });
+  }
+  console.log("Restarted game!");
+  // Remove all armies from old game
+  axios
+    .delete(`http://localhost:8082/api/armies/`)
+    .then( (res) => {
+      console.log("All old armies removed!");
+    })
+    .catch((err) => {
+      console.log('Error in removing armies: ' + err);
+    });
+
+    // Update the names of all provinces in the view
+    updateProvinces(allProvinces);
+}
+
+// Post newly generated provinces to db
+function createNewProvinces(allProvinces, updateProvinces) {
+  const nProvinces = allProvinces.length;
     for (let i = 0; i < nProvinces; i++) {
-        const province = generateProvince(i); 
-        allProvinces[i] = province['name'];
-
-        axios
-        .post('http://localhost:8082/api/provinces', province)
-        .catch((err) => {
-            console.log('Error in creating a province!');
-            
-        });
-        console.log('created province: ' + province);
+      const province = allProvinces[i];
+      axios
+      .post('http://localhost:8082/api/provinces', province)
+      .then( (res) => {
+        allProvinces[i]['objectid'] = res.data.province._id;
+        
+        // on last iteration, update view
+        if (i == nProvinces-1) {
+          updateProvinces(allProvinces);
+        }
+      })
+      .catch((err) => {
+          console.log('Error in creating a province: ' + err);
+          
+      });
     }
-    return allProvinces;
+    // Update the names of all provinces in the view
 }
 
 // Generates a province with an id with random properties
-function generateProvince(id) {
+function generateProvince(id, player) {
     const name = generateRandomName();
 
     const province = {
@@ -75,7 +111,12 @@ function generateProvince(id) {
       fuel: getRandomInt(100, 1000),
       material: getRandomInt(100, 1000),
       tools: getRandomInt(100, 1000),
-      workforce: getRandomInt(10, 100)
+      workforce: getRandomInt(10, 100),
+      owner: player,
+      army1: null,
+      army2: null,
+      army3: null,
+      army4: null
     };
 
     // Set some special stats to provinces associated with certain names
@@ -123,6 +164,32 @@ function generateRandomName() {
     return {first: firstName[firstNumber], last: lastName[lastNumber]};
 }
 
-const firstName = ['Beavers', 'Cats', 'Dogs', 'Scrap', 'Farmers', 'Nukes', 'Mutants', 'Radiation', 'Raiders', 'Peace', 'Clean', 'Dead']
+const firstName = ['Beavers', 'Cats', 'Dogs', 'Scrap', 'Farmers', 'Nukes', 'Mutants', 'Radiation', 'Raiders', 'Peace', 'Clean', 'Dead'];
 
-const lastName = ['ville', 'town', 'bridge', 'river', 'ridge', 'by', 'wood', 'shire', 'lake']
+const lastName = ['ville', 'town', 'bridge', 'river', 'ridge', 'by', 'wood', 'shire', 'lake'];
+
+
+// Set up the position of all players
+// VARIANT: 1 <= n of players <= 4 
+function setPlayerPositions(players) {
+  const n = players.length;
+
+  const playerPositions = Array(9).fill("Neutral");
+
+  playerPositions[0] = players[0];
+
+  if (n == 2) {
+    playerPositions[8] = players[1];
+  }
+  if (n == 3) {
+    playerPositions[2] = players[1];
+    playerPositions[7] = players[2];
+  }
+  if (n == 4) {
+    playerPositions[2] = players[1];
+    playerPositions[6] = players[2];
+    playerPositions[8] = players[3];
+  }
+
+  return playerPositions;
+}

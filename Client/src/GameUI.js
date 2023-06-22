@@ -1,11 +1,12 @@
 import axios from 'axios';
 import './GameUI.css';
-import { useEffect } from 'react';  
+import Province from './components/Province';
+import React, { useEffect } from 'react';  
 
-export default function GameUI( {onSelectAction, names} ) {
+export default function GameUI( {onSelectAction, updateArmies, names, owners, objectIds, army1, army2, army3, army4} ) {
+  const worldSize = 3;
 
   function onSelectProvince(index) {
-    // TODO: Only fetch one, not every freaking thing!
     axios.get('http://localhost:8082/api/provinces/', {
       params: { id: index}
     })
@@ -19,19 +20,58 @@ export default function GameUI( {onSelectAction, names} ) {
     });
   }
 
-  const worldSize = 3;
+  function onMoveArmy(fromProvince, toProvince, army, fromSlot) {
+    if (fromProvince == toProvince) {
+      return;
+    }
+
+    // Check if destination province is neightbour from this province
+    const move = fromProvince - toProvince; 
+    if (Math.abs(move) == worldSize 
+      || (move == -1 &&  (fromProvince % worldSize != worldSize-1))
+      || (move == 1 && (fromProvince % worldSize != 0)) ) {
+        // Check if the destination province is ours or belongs to another player
+        if (owners[toProvince] == owners[fromProvince]) {
+          // Only start moving an army if there are any available army slots in dst!
+          if (army1[toProvince] == null 
+            || army2[toProvince] == null 
+            || army3[toProvince] == null 
+            || army4[toProvince] == null) {      
+            console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
+            updateArmies(fromProvince, toProvince, army, fromSlot, false);
+          } else {
+            console.log("No available army slots in that province!");
+          }
+        // If the province is not ours, attack!
+        } else {
+          console.log("attack with army " + army + " from province " + fromProvince + " to " + toProvince);
+          updateArmies(fromProvince, toProvince, army, fromSlot, true);
+        }
+      } else {
+        console.log("Province is too far away!");
+      }
+  }
+
   function BuildBody() {
       const body = [];
+      // Build all provinces of the map
       for (let i = 0; i < worldSize; i++) {
           let listItems = []
+          // Build a row of provinces
           for (let j = 0; j < worldSize; j++) {
             const index = i * worldSize + j;
             const name = names[index];
+            const owner = owners[index];
+            const armies = [army1[index], army2[index], army3[index], army4[index]]
               // TODO: click-function just placeholder
               listItems.push(<Province 
                 id={index} 
+                key={index}
                 onProvinceClick={ () => onSelectProvince(index) }
+                owner={owner}
                 name={name} 
+                armies={armies}
+                moveArmy={onMoveArmy}
               />);
           }
           body.push(<div className='world_row'> {listItems} </div>);
@@ -49,10 +89,5 @@ export default function GameUI( {onSelectAction, names} ) {
   );
 }
 
-function Province({ id, onProvinceClick, name }) {
-    return (
-        <button className='province' id={id} onClick={onProvinceClick}> 
-            {name}
-        </button>
-    );
-  }
+
+

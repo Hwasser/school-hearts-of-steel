@@ -5,7 +5,7 @@ export default function Header( {updateProvinceNames} ) {
 
   // When starting a new game, reset all provinces and return names to view
   function onStartNewGame() {
-    const newNames = StartNewGame(updateProvinceNames);
+    StartNewGame(updateProvinceNames);
   }    
   
   return (
