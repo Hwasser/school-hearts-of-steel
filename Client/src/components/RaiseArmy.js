@@ -5,7 +5,7 @@ import './RaiseArmy.css';
 
 // Code inspired by from "https://codepen.io/rmichels/pen/WNegjyK"
 
-export default function RaiseArmy({ active, fromProvince, onRaiseArmy}) {
+export default function RaiseArmy({ active, setActive, fromProvince, onRaiseArmy}) {
 
   // When the "raise army" button has been pushed, 
   // update the workforce and push back to interface
@@ -22,7 +22,8 @@ export default function RaiseArmy({ active, fromProvince, onRaiseArmy}) {
   // State of workforce in province
   const [curWorkforce, setCurWorkforce] = useState(workforce);
   // State of slide value
-  const [state, setSlide] = useState(workforce / 2);
+  const [state, setSlide] = useState(Math.floor(workforce / 2));
+  const [showErrorState, setshowErrorState] = useState('');
   
   // Whether to reset the slider
   if (workforce != curWorkforce) {
@@ -31,7 +32,26 @@ export default function RaiseArmy({ active, fromProvince, onRaiseArmy}) {
   }
   
   // Whether to draw the "raise army" bar at all
-  const toDraw = (active && workforce >= 20) ? "inline" : "none";
+  const errorState = (findArmySlot(fromProvince) == null) ? 'slots' :
+    ( (workforce < 20) ? 'workforce' : 'none' );
+
+  // Show error message if raise army cannot be used!
+  if (active && errorState != 'none' && showErrorState == '') {
+    console.log("asads");
+    if (errorState == 'slots') {
+      setshowErrorState("All army slots in the province are occupied!");
+    }
+    if (errorState == 'workforce') {
+      setshowErrorState("You need to have above 20 manpower to raise an army!");
+    }
+  }
+  
+  const closeErrorMsg = () => { 
+    setActive();
+    setshowErrorState('');
+  }
+
+  const toDraw = (active && errorState == 'none') ? "inline" : "none";
 
   const useSlider = (min, max, defaultState, label, id) => {
       
@@ -41,6 +61,13 @@ export default function RaiseArmy({ active, fromProvince, onRaiseArmy}) {
 
       const Slider = () => (
         <>
+
+        {showErrorState != '' && (
+          <div className="slider_error">
+            <p>{showErrorState}</p>
+            <button onClick={closeErrorMsg}>ok</button>
+          </div>
+        )}
         <div className='raise_army' style={{display: toDraw}}>
           <p>Raise Army</p>
           <input
@@ -66,7 +93,7 @@ export default function RaiseArmy({ active, fromProvince, onRaiseArmy}) {
         </div>
         </>
       );
-      return [state, Slider, setSlide];
+      return [state, Slider, setSlide, errorState];
     };
   
     // The values for the slider, min, max, default etc

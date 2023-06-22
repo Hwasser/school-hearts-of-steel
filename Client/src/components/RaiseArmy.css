@@ -51,3 +51,16 @@
   .raise_button:hover{
     background-color: rgba(0, 0, 0, 0.25);
   }
+
+  .slider_error{
+    position: absolute;
+    background-color: rgba(225, 225, 225, 0.50);
+    border: 2px solid rgba(225, 225, 225, 0.50);
+    border-radius: 4px;
+    width: 250px;
+    height: 100px;
+    right: 4px;
+    top: -120px;
+    padding: 4px;
+    text-align: center;
+  }

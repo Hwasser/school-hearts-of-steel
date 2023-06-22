@@ -6,11 +6,13 @@ export default function Footer( {properties, onRaiseArmy} ) {
 
   const [provProp, setProvProp] = useState(properties);
   const [useRaiseSlider, setUseRaiseSlider] = useState(false);
-
+  
+  const makeSliderInactive = () => {setUseRaiseSlider(false)};
+  
   const onRaiseArmyMenu = () => { setUseRaiseSlider(!useRaiseSlider); }
   if (properties != provProp) {
     setProvProp(properties);
-    setUseRaiseSlider(false);
+    makeSliderInactive();
   }
 
   function raiseArmyAction(newProvinceInfo) {
@@ -19,11 +21,13 @@ export default function Footer( {properties, onRaiseArmy} ) {
     onRaiseArmy(newProvinceInfo)
   }
 
+
   return (
     <div className="footer">
 
       <RaiseArmy 
         active={useRaiseSlider} 
+        setActive={makeSliderInactive}
         fromProvince = {provProp}
         onRaiseArmy={raiseArmyAction} 
       /> 
