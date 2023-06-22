@@ -106,7 +106,7 @@ export default function Game() {
         // Update province owners if army won an attack
         if (newOwner != '') {
             const provinceOwnersLocal = provinceOwners.slice(0,nProvinces);
-            provinceOwners[toProvince] = newOwner;
+            provinceOwnersLocal[toProvince] = newOwner;
             setProvinceOwners(provinceOwnersLocal);
         }
 
