@@ -50,6 +50,10 @@ export default function Footer( {properties, onRaiseArmy} ) {
           <span id="name1"> Province: </span>
           <span id="value1"> {provProp['name']} </span>
         </div>
+        <div className='property_name'>
+          <span id="name1b"> Owner: </span>
+          <span id="value1b"> {provProp['owner']} </span>
+        </div>
         <div className='property'>
           <span id="name10"> Manpower: </span>
           <span id="value10"> {provProp['workforce']} </span>
