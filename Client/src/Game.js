@@ -29,7 +29,7 @@ export default function Game() {
 
     
     // Handle selection of provinces from the database
-    function handleSelectProvince(provinceData) { 
+    function handleSelectProvince(provinceData, selecting) { 
         setProperties(provinceData);
     }
 
@@ -77,7 +77,6 @@ export default function Game() {
             setArmy3(army3Copy);
             army4Copy[provinceId] = provinceInfo['army4']
             setArmy4(army4Copy);
-
 
         } catch(err) {
             console.error("handleRaiseArmy: " + err);
@@ -160,10 +159,10 @@ export default function Game() {
                 names={provinceNames} 
                 owners={provinceOwners} 
                 objectIds={provinceId}
-                army1={army1}
-                army2={army2}
-                army3={army3}
-                army4={army4}    
+                army1={army1}   
+                army2={army2}   
+                army3={army3}   
+                army4={army4}   
                 />
             <Footer properties={properties} onRaiseArmy={handleRaiseArmy} />
             </>

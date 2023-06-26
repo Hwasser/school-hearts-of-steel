@@ -20,6 +20,20 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ob
     });
   }
 
+  function onSelectArmy(id) {
+    if (id == null) {
+      return;
+    }
+
+    axios.get(`http://localhost:8082/api/armies/${id}` )
+    .then( (res) => {
+      onSelectAction(res.data);
+    })
+    .catch( (e) => {
+      console.log(e)
+    });
+  }
+
   function onMoveArmy(fromProvince, toProvince, army, fromSlot) {
     if (fromProvince == toProvince) {
       return;
@@ -68,6 +82,7 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ob
                 id={index} 
                 key={index}
                 onProvinceClick={ () => onSelectProvince(index) }
+                onArmyClick={onSelectArmy}
                 owner={owner}
                 name={name} 
                 armies={armies}
