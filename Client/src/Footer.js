@@ -40,7 +40,7 @@ export default function Footer( {properties, onRaiseArmy} ) {
 
       <RaiseArmy 
         active={useRaiseSlider} 
-        setActive={makeSliderInactive}
+        setInactive={makeSliderInactive}
         fromProvince = {provProp}
         onRaiseArmy={raiseArmyAction} 
       /> 
@@ -69,7 +69,7 @@ export default function Footer( {properties, onRaiseArmy} ) {
 
       <div className='footer_row'>
 
-        <button className='property_button'>
+        <button className='property_button' >
           <span id="name6"> Houses: </span>
           <span id="value6"> {provProp['houses']} </span>
         </button>

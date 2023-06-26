@@ -42,14 +42,26 @@
     cursor: pointer;
   }
 
-  .raise_button{
+  .confirm_button{
     background-color: rgba(0, 0, 0, 0.15);
     margin-top: 8px;
     padding: 4px;
+    margin-right: 4px;
   }
 
-  .raise_button:hover{
-    background-color: rgba(0, 0, 0, 0.25);
+  .confirm_button:hover {
+    background-color: rgba(0, 0, 0, 0.10);
+  }
+
+  .cancel_button{
+    background-color: rgba(0, 0, 0, 0.15);
+    margin-top: 8px;
+    padding: 4px;
+    margin-left: 4px;
+  }
+
+  .cancel_button:hover{
+    background-color: rgba(0, 0, 0, 0.10);
   }
 
   .slider_error{
