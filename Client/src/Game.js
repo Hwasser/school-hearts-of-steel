@@ -11,12 +11,20 @@ export default function Game() {
 
     const nProvinces = 9;
     
+    // All properties for a province or an army
     const [properties, setProperties] = useState(defaultProvinceState);
+    // An array containing the names of all provinces
     const [provinceNames, setProvinceNames] = useState(Array(nProvinces).fill('-'));
+    // An array containing the documentId of all provinces
     const [provinceId, setProvinceId] = useState(Array(nProvinces).fill(''));
+    // An array containing the owners of all provinces
     const [provinceOwners, setProvinceOwners] = useState(Array(nProvinces).fill('Neutral'));
+    // Contains the documentId of each army in each slot and province
+    // VARIANT: armies[slot][province index]  
     const [armies, setArmies] = useState([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
 
+    // If the program starts for the first time, init stuff. 
+    // TODO: This should be replaced with a login screen
     const [hasStarted, setHasStarted] = useState(false);
 
     if (!hasStarted) {
@@ -24,7 +32,6 @@ export default function Game() {
         setHasStarted(true);
     }
 
-    
     // Handle selection of provinces from the database
     function handleSelectProvince(provinceData, selecting) { 
         setProperties(provinceData);
