@@ -3,7 +3,7 @@ import './Province.css';
 // TODO: Break out province to its own component
 // TODO: We do not want armies as it is right now, it is ridiculous. Maybe eact province should have
 // armyslots and max armyslots as integers and the armies as a list instead
-export default function Province({ id, onProvinceClick, name, owner, armies, moveArmy}) {
+export default function Province({ id, onProvinceClick, onArmyClick, name, owner, armies, moveArmy}) {
   // If start dragging an army  
   function handleOnDrag(e, whatArmy, fromProvince, fromSlot){
       //e.originalEvent.dataTranfser.setData("widgetType", widgetType);
@@ -51,13 +51,13 @@ export default function Province({ id, onProvinceClick, name, owner, armies, mov
         <button className='province_name' onClick={onProvinceClick}>{name}</button>
         
         <button className='province_army' id='army1' style={{opacity: army1Exists}} draggable={army1Draggable} 
-          onClick={() => 0} onDragStart={(e) => handleOnDrag(e, armies[0], id, 0)} >Army 1</button>
+          onClick={() => onArmyClick(armies[0])} onDragStart={(e) => handleOnDrag(e, armies[0], id, 0)} >Army 1</button>
         <button className='province_army' id='army2' style={{opacity: army2Exists}} draggable={army2Draggable}
-          onClick={() => 0} onDragStart={(e) => handleOnDrag(e, armies[1], id, 1)} >Army 2</button>
+          onClick={() => onArmyClick(armies[1])} onDragStart={(e) => handleOnDrag(e, armies[1], id, 1)} >Army 2</button>
         <button className='province_army' id='army3' style={{opacity: army3Exists}} draggable={army3Draggable}
-          onClick={() => 0} onDragStart={(e) => handleOnDrag(e, armies[2], id, 2)} >Army 3</button>
+          onClick={() => onArmyClick(armies[2])} onDragStart={(e) => handleOnDrag(e, armies[2], id, 2)} >Army 3</button>
         <button className='province_army' id='army4' style={{opacity: army4Exists}} draggable={army4Draggable}
-          onClick={() => 0} onDragStart={(e) => handleOnDrag(e, armies[3], id, 3)} >Army 4</button>
+          onClick={() => onArmyClick(armies[3])} onDragStart={(e) => handleOnDrag(e, armies[3], id, 3)} >Army 4</button>
         </div>
     );
   }

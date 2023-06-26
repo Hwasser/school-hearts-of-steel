@@ -37,7 +37,6 @@ export default function RaiseArmy({ active, setActive, fromProvince, onRaiseArmy
 
   // Show error message if raise army cannot be used!
   if (active && errorState != 'none' && showErrorState == '') {
-    console.log("asads");
     if (errorState == 'slots') {
       setshowErrorState("All army slots in the province are occupied!");
     }
@@ -45,7 +44,7 @@ export default function RaiseArmy({ active, setActive, fromProvince, onRaiseArmy
       setshowErrorState("You need to have above 20 manpower to raise an army!");
     }
   }
-  
+
   const closeErrorMsg = () => { 
     setActive();
     setshowErrorState('');
