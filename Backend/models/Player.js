@@ -5,25 +5,29 @@ const PlayerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    password: {
+        type: String,
+        required: true
+    },
     slot: {
         type: Number,
-        required: true
+        required: false
     },
     food: {
         type: Number,
-        required: true
+        required: false
     },
     fuel: {
         type: Number,
-        required: true
+        required: false
     },
     material: {
         type: Number,
-        required: true
+        required: false
     },
     tools: {
         type: Number,
-        required: true
+        required: false
     }
 });
 
