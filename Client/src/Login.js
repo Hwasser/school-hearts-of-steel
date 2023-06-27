@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
-export default function Login( {setLogin} ) {
+export default function Login( {loginAction} ) {
     // An empty register form
     const initValue = () => {
         return {
@@ -23,6 +23,7 @@ export default function Login( {setLogin} ) {
         setPlayer({ ...player, [e.target.name]: e.target.value})
     };
 
+    // When registering a player
     const onSubmit = (e) => {
         console.log("Submit:", e);
         e.preventDefault();
@@ -45,10 +46,28 @@ export default function Login( {setLogin} ) {
             setRegisterMenu(false);
           })
           .catch((err) => {
-            console.log('Error in registering a player!');
+            console.log('Error in registering a player:', err);
           });
       };
-    
+
+    // When pressing the login button
+    function onLogin() {
+        console.log("Tried to login with:", player.name, player.password);
+        axios
+          .get('http://localhost:8082/api/players', {
+            params: {name: player.name, password: player.password}
+          })
+          .then((res) => {
+              console.log("Logged in with:", res.data);
+            if (res.data != null) {
+                loginAction(res.data);
+            }
+          })
+          .catch((err) => {
+            console.log('cant find: ', err.response);
+          });
+    }
+
     return (
         <>
         <div className='login_main'>
@@ -95,7 +114,7 @@ export default function Login( {setLogin} ) {
                     <input 
                         type="text" 
                         placeholder='Enter Username' 
-                        name='username'
+                        name='name' 
                         value={player.name}
                         onChange={onChange} 
                         required />
@@ -108,7 +127,7 @@ export default function Login( {setLogin} ) {
                         onChange={onChange} 
                         required />
                     <button type="submit"
-                        onClick={() => setLogin()}
+                        onClick={onLogin}
                     >Login</button>
                 </div>
             )}

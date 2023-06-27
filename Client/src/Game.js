@@ -23,13 +23,16 @@ export default function Game() {
     // Contains the documentId of each army in each slot and province
     // VARIANT: armies[slot][province index]  
     const [armies, setArmies] = useState([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
+    // Player data
+    const [player, setPlayer] = useState({name: '', password: ''});
 
     // If the program starts for the first time, init stuff. 
     // TODO: This should be replaced with a login screen
     const [hasStarted, setHasStarted] = useState(false);
 
-    function startGame() {
+    function startGame(playerData) {
         initAllProvinces();
+        setPlayer(playerData);
         setHasStarted(true);
     }
 
@@ -150,11 +153,11 @@ export default function Game() {
         return (
             <>
             {!hasStarted && (
-                <Login setLogin={startGame} />
+                <Login loginAction={startGame} />
             )}
             {hasStarted && (
                 <div className='game_view'>
-                    <Header updateProvinceNames={handleProvinceNames} />
+                    <Header updateProvinceNames={handleProvinceNames} playerData={player} />
                     <GameUI 
                         onSelectAction={handleSelectProvince} 
                         updateArmies={handleUpdateArmies}
