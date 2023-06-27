@@ -2,6 +2,7 @@ import './Game.css';
 import Header from './Header';
 import GameUI from './GameUI';
 import Footer from './Footer';
+import Login from './Login';
 import axios from 'axios';
 import { armyMove, armyAttack } from './functionality/manageArmies';
 
@@ -27,7 +28,7 @@ export default function Game() {
     // TODO: This should be replaced with a login screen
     const [hasStarted, setHasStarted] = useState(false);
 
-    if (!hasStarted) {
+    function startGame() {
         initAllProvinces();
         setHasStarted(true);
     }
@@ -148,16 +149,23 @@ export default function Game() {
     const renderGame = () => {
         return (
             <>
-            <Header updateProvinceNames={handleProvinceNames} />
-            <GameUI 
-                onSelectAction={handleSelectProvince} 
-                updateArmies={handleUpdateArmies}
-                names={provinceNames} 
-                owners={provinceOwners} 
-                objectIds={provinceId}
-                armies={armies}    
-                />
-            <Footer properties={properties} onRaiseArmy={handleRaiseArmy} onBuildBuilding={handleBuildBuilding} />
+            {!hasStarted && (
+                <Login setLogin={startGame} />
+            )}
+            {hasStarted && (
+                <div className='game_view'>
+                    <Header updateProvinceNames={handleProvinceNames} />
+                    <GameUI 
+                        onSelectAction={handleSelectProvince} 
+                        updateArmies={handleUpdateArmies}
+                        names={provinceNames} 
+                        owners={provinceOwners} 
+                        objectIds={provinceId}
+                        armies={armies}    
+                        />
+                    <Footer properties={properties} onRaiseArmy={handleRaiseArmy} onBuildBuilding={handleBuildBuilding} />
+                </div>
+            )}
             </>
         )
         
