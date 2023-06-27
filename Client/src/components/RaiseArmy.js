@@ -11,7 +11,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
   // update the workforce and push back to interface
   function onRaiseAction(toRaise) {
     const newValue = curWorkforce - toRaise; 
-    updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy)
+    updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy);
   }
 
   // Minimum amout to draft or to be left in province
