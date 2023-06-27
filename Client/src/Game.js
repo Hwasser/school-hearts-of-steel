@@ -81,6 +81,10 @@ export default function Game() {
         }
     }
 
+    function handleBuildBuilding(provinceInfo) {
+        setProperties(provinceInfo);
+    }
+
     async function handleUpdateArmies(fromProvince, toProvince, army, fromSlot, isAttacking) {
         // Get a copy of all army slots
         const armiesCopy = 
@@ -153,7 +157,7 @@ export default function Game() {
                 objectIds={provinceId}
                 armies={armies}    
                 />
-            <Footer properties={properties} onRaiseArmy={handleRaiseArmy} />
+            <Footer properties={properties} onRaiseArmy={handleRaiseArmy} onBuildBuilding={handleBuildBuilding} />
             </>
         )
         

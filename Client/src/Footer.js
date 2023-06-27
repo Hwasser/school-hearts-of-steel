@@ -1,25 +1,46 @@
 import './Footer.css';  
 import RaiseArmy from './components/RaiseArmy';
+import ProvinceBuild from './components/ProvinceBuild';
 import { useState } from 'react';
 
-export default function Footer( {properties, onRaiseArmy} ) {
+export default function Footer( {properties, onRaiseArmy, onBuildBuilding} ) {
 
   const [provProp, setProvProp] = useState(properties);
-  const [useRaiseSlider, setUseRaiseSlider] = useState(false);
+  const [useRaiseMenu, setuseRaiseMenu] = useState(false);
+  const [useBuildMenu, setUseBuildMenu] = useState('none');
   const [isProvince, setIsProvince] = useState(true);
   
-  const makeSliderInactive = () => {setUseRaiseSlider(false)};
+  // For deactivating menus
+  const makeSliderInactive = () => {setuseRaiseMenu(false)};  
+  const makeBuildInactive  = () => {setUseBuildMenu('none')};
   
-  const onRaiseArmyMenu = () => { setUseRaiseSlider(!useRaiseSlider); }
+  // When clicking the "raise army" button
+  const onRaiseArmyMenu = () => { setuseRaiseMenu(!useRaiseMenu); };
+  // When clicking on a building
+  function onBuildMenu(setBuildingType) {
+    if (useBuildMenu == setBuildingType) {
+      setUseBuildMenu('none')  
+    } else {
+      setUseBuildMenu(setBuildingType);
+    }
+  }
+  
+  // Only change properties if they have actually changed
   if (properties != provProp) {
     setProvProp(properties);
     makeSliderInactive();
+    makeBuildInactive();
   }
 
   function raiseArmyAction(newProvinceInfo) {
     setProvProp(newProvinceInfo); 
     onRaiseArmyMenu();
     onRaiseArmy(newProvinceInfo)
+  }
+
+  function buildMenuAction(newProvinceInfo) {
+    setProvProp(newProvinceInfo);
+    onBuildBuilding()
   }
 
   // Whether to show properties for a province or an army
@@ -39,11 +60,18 @@ export default function Footer( {properties, onRaiseArmy} ) {
       <div className="footer">
 
       <RaiseArmy 
-        active={useRaiseSlider} 
-        setActive={makeSliderInactive}
+        active={useRaiseMenu} 
+        setInactive={makeSliderInactive}
         fromProvince = {provProp}
         onRaiseArmy={raiseArmyAction} 
       /> 
+
+      <ProvinceBuild 
+        buildingType={useBuildMenu}
+        setInactive={makeBuildInactive}
+        fromProvince={provProp}
+        onBuildMenu={buildMenuAction}
+      />
 
       <div className='footer_row'>
         <div className='property_name'>
@@ -69,27 +97,27 @@ export default function Footer( {properties, onRaiseArmy} ) {
 
       <div className='footer_row'>
 
-        <button className='property_button'>
+        <button className='property_button' onClick={() => onBuildMenu('house')} >
           <span id="name6"> Houses: </span>
           <span id="value6"> {provProp['houses']} </span>
         </button>
 
-        <button className='property_button'>
+        <button className='property_button' onClick={() => onBuildMenu('mine')} >
           <span id="name7"> Mines: </span>
           <span id="value7"> {provProp['mines']} </span>
         </button>
 
-        <button className='property_button'>
+        <button className='property_button' onClick={() => onBuildMenu('workshop')} >
           <span id="name8"> Workshops: </span>
           <span id="value8"> {provProp['workshops']} </span>
         </button>
 
-        <button className='property_button'>
+        <button className='property_button' onClick={() => onBuildMenu('farm')}>
           <span id="name9"> Farms: </span>
           <span id="value9"> {provProp['farms']} </span>
         </button>
 
-        <button className='property_button'>
+        <button className='property_button' onClick={() => onBuildMenu('fort')} >
           <span id="name11"> Fortifications: </span>
           <span id="value11"> {provProp['forts']} </span>
         </button>
@@ -129,13 +157,6 @@ export default function Footer( {properties, onRaiseArmy} ) {
     <>
     {!isProvince && (
       <div className="footer">
-
-        <RaiseArmy 
-          active={useRaiseSlider} 
-          setActive={makeSliderInactive}
-          fromProvince = {provProp}
-          onRaiseArmy={raiseArmyAction} 
-        /> 
 
         <div className='footer_row'>
           <div className='property_name'>

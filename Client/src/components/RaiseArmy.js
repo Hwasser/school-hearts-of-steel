@@ -5,13 +5,13 @@ import './RaiseArmy.css';
 
 // Code inspired by from "https://codepen.io/rmichels/pen/WNegjyK"
 
-export default function RaiseArmy({ active, setActive, fromProvince, onRaiseArmy}) {
+export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseArmy}) {
 
   // When the "raise army" button has been pushed, 
   // update the workforce and push back to interface
   function onRaiseAction(toRaise) {
     const newValue = curWorkforce - toRaise; 
-    updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy)
+    updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy);
   }
 
   // Minimum amout to draft or to be left in province
@@ -46,8 +46,12 @@ export default function RaiseArmy({ active, setActive, fromProvince, onRaiseArmy
   }
 
   const closeErrorMsg = () => { 
-    setActive();
+    setInactive();
     setshowErrorState('');
+  }
+
+  const onCancelButton = () => { 
+    setInactive();
   }
 
   const toDraw = (active && errorState == 'none') ? "inline" : "none";
@@ -84,10 +88,16 @@ export default function RaiseArmy({ active, setActive, fromProvince, onRaiseArmy
               <span>{state}</span> 
           </div>
           <button 
-            className='raise_button'
+            className='confirm_button'
             onClick={() => {onRaiseAction(state)}} 
           > 
-          Raise Army 
+          Confirm
+          </button>
+          <button 
+            className='cancel_button'
+            onClick={() => {onCancelButton()}} 
+          > 
+          Cancel
           </button>
         </div>
         </>
