@@ -1,0 +1,43 @@
+
+
+.login_container {
+    display: flex-box;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
+
+.form_container {
+    background-color: rgba(255, 255, 255, 0.33);
+    margin:2px;
+    padding:8px;
+    text-align: center;
+}
+
+.submit_button {
+    padding: 4px 4px;
+    margin: 4px 8px;
+    width: 90%;
+    white-space: nowrap;
+}
+
+.register_container {
+    display: flex;
+    position:absolute;
+    top: 0px;
+    right: 16px;
+}
+
+.register_container > * {
+    padding: 8px;
+    margin: 16px;
+}
+
+
+.login_error {
+    background-color: rgba(255, 255, 255, 0.5);
+    color: red;
+    text-align: center;
+}
