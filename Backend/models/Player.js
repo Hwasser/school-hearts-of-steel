@@ -9,10 +9,6 @@ const PlayerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    slot: {
-        type: Number,
-        required: false
-    },
     food: {
         type: Number,
         required: false

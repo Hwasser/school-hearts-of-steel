@@ -2,7 +2,7 @@ import './Game.css';
 import Header from './Header';
 import GameUI from './GameUI';
 import Footer from './Footer';
-import Login from './Login';
+import MainMenu from './MainMenu';
 import axios from 'axios';
 import { armyMove, armyAttack } from './functionality/manageArmies';
 
@@ -153,7 +153,7 @@ export default function Game() {
         return (
             <>
             {!hasStarted && (
-                <Login loginAction={startGame} />
+                <MainMenu startGameAction={startGame} />
             )}
             {hasStarted && (
                 <div className='game_view'>
