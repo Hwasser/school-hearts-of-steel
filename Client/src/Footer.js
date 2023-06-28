@@ -80,7 +80,7 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding} ) {
         </div>
         <div className='property_name'>
           <span id="name1b"> Owner: </span>
-          <span id="value1b"> {provProp['owner']} </span>
+          <span id="value1b"> {provProp['owner_name']} </span>
         </div>
         <div className='property'>
           <span id="name10"> Manpower: </span>

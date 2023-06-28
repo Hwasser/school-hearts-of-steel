@@ -56,7 +56,7 @@ const ProvinceSchema = new mongoose.Schema({
 
     owner_id: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true
+        required: false
     },
     owner_name: {
         type: String,

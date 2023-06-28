@@ -1,5 +1,4 @@
 import './Header.css';
-import startNewGame from './functionality/startNewGame';
 
 export default function Header( {playerData} ) {
 

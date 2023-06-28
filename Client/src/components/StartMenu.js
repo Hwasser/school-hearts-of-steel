@@ -1,7 +1,8 @@
-import './StartMenu.css';
-
 import { useState } from 'react'; 
 import axios from 'axios';
+
+import './StartMenu.css';
+import startNewGame from './../functionality/startNewGame';
 
 export default function StartMenu( {selectLogin, startGameAction, playerData} ){
 
@@ -32,7 +33,6 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
     function GetSessionList() {
         const allSessionsView = []
             for (let i = 0; i < allSessions.length; i++) {
-                console.log("Got:", allSessions[i]);
                 allSessionsView.push(
                     <li> <button 
                         key={i}
@@ -40,7 +40,6 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
                     </button> </li>
                 );
             }
-        console.log("all views:", allSessionsView);
         return allSessionsView;
     }
 
@@ -56,6 +55,7 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
             console.log("Created new game!")
             // Refresh game list
             getAllSessions();
+            startNewGame(playerData, maxSlots);
           })
           .catch((err) => {
             console.log('cant find: ', err.response);

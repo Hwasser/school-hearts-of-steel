@@ -4,14 +4,11 @@ import axios from 'axios';
  * All logic for starting a new game
  */
 
-export default function startNewGame(updateProvinces) {
+export default function startNewGame(starterData, slots) {
     // TODO: Remember this is specified here!
     const nProvinces = 9;
 
-    // TODO: Get all players
-    // ...
-    const players = ["Player1", "Player2", "Player3"]; // TODO:
-    const playerPositions = setPlayerPositions(players);
+    const playerPositions = setPlayerPositions(starterData, slots);
 
     const allProvinces = setUpProvinces(playerPositions)
 
@@ -20,13 +17,15 @@ export default function startNewGame(updateProvinces) {
     .get('http://localhost:8082/api/provinces')
     .then((res) => {
       const response = res.data;
+
+      console.log(res.data);
       
       // If the list of provinces is empty, creaty new ones
       if (response.length == 0) {
-        createNewProvinces(allProvinces, updateProvinces);
+        createNewProvinces(allProvinces);
       } else {
         // Otherwise replace all provinces
-        replaceProvinces(allProvinces, response, updateProvinces)
+        replaceProvinces(allProvinces, response)
       }
     })
     .catch((err) => {
@@ -49,7 +48,7 @@ function setUpProvinces(playerPositions) {
 }
 
 // Replace the provinces in the db with the newly generated
-function replaceProvinces(allProvinces, response, updateProvinces) {
+function replaceProvinces(allProvinces, response) {
   const nProvinces = allProvinces.length;
   for (let i = 0; i < nProvinces; i++) {
     const id = response[i]['_id']
@@ -72,12 +71,10 @@ function replaceProvinces(allProvinces, response, updateProvinces) {
       console.log('Error in removing armies: ' + err);
     });
 
-    // Update the names of all provinces in the view
-    updateProvinces(allProvinces);
 }
 
 // Post newly generated provinces to db
-function createNewProvinces(allProvinces, updateProvinces) {
+function createNewProvinces(allProvinces) {
   const nProvinces = allProvinces.length;
     for (let i = 0; i < nProvinces; i++) {
       const province = allProvinces[i];
@@ -85,11 +82,6 @@ function createNewProvinces(allProvinces, updateProvinces) {
       .post('http://localhost:8082/api/provinces', province)
       .then( (res) => {
         allProvinces[i]['objectid'] = res.data.province._id;
-        
-        // on last iteration, update view
-        if (i == nProvinces-1) {
-          updateProvinces(allProvinces);
-        }
       })
       .catch((err) => {
           console.log('Error in creating a province: ' + err);
@@ -116,7 +108,8 @@ function generateProvince(id, player) {
       material: getRandomInt(100, 1000),
       tools: getRandomInt(100, 1000),
       workforce: getRandomInt(10, 100),
-      owner: player,
+      owner_name: player.name,
+      owner_id: player.id,
       army1: null,
       army2: null,
       army3: null,
@@ -175,24 +168,22 @@ const lastName = ['ville', 'town', 'bridge', 'river', 'ridge', 'by', 'wood', 'sh
 
 // Set up the position of all players
 // VARIANT: 1 <= n of players <= 4 
-function setPlayerPositions(players) {
-  const n = players.length;
+function setPlayerPositions(startPlayer, slots) {
+  const playerPositions = Array(9).fill({name: 'Neutral', id: null});
 
-  const playerPositions = Array(9).fill("Neutral");
+  playerPositions[0] = {name: startPlayer.name, id: startPlayer._id};
 
-  playerPositions[0] = players[0];
-
-  if (n == 2) {
-    playerPositions[8] = players[1];
+  if (slots == 2) {
+    playerPositions[8] = {name: 'player2', id: null};
   }
-  if (n == 3) {
-    playerPositions[2] = players[1];
-    playerPositions[7] = players[2];
+  if (slots == 3) {
+    playerPositions[2] = {name: 'player2', id: null};
+    playerPositions[7] = {name: 'player3', id: null};
   }
-  if (n == 4) {
-    playerPositions[2] = players[1];
-    playerPositions[6] = players[2];
-    playerPositions[8] = players[3];
+  if (slots == 4) {
+    playerPositions[2] = {name: 'player2', id: null};
+    playerPositions[6] = {name: 'player3', id: null};
+    playerPositions[8] = {name: 'player4', id: null};
   }
 
   return playerPositions;
