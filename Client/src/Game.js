@@ -41,29 +41,6 @@ export default function Game() {
         setProperties(provinceData);
     }
 
-    // Handle province names and owners for the view
-    function handleProvinceNames(allProvinces) {
-        // Get a list of all province names and owners
-        const provinceNamesLocal = Array(nProvinces);
-        const provinceOwnersLocal = Array(nProvinces);
-        const provinceIdLocal = Array(nProvinces);
-
-        for (let i = 0; i < nProvinces; i++) {
-            provinceNamesLocal[i]  = allProvinces[i]['name']
-            provinceOwnersLocal[i] = allProvinces[i]['owner']
-            provinceIdLocal[i] = allProvinces[i]['objectId']
-        }
-
-        console.log(allProvinces);
-
-        setProvinceNames(provinceNamesLocal);
-        setProvinceOwners(provinceOwnersLocal);
-        setProvinceId(provinceIdLocal);
-
-        // Reset all army slots
-        setArmies([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
-    }
-
     function handleRaiseArmy(provinceInfo) {
         const provinceId = provinceInfo['id'];
         try {
@@ -157,7 +134,7 @@ export default function Game() {
             )}
             {hasStarted && (
                 <div className='game_view'>
-                    <Header updateProvinceNames={handleProvinceNames} playerData={player} />
+                    <Header playerData={player} />
                     <GameUI 
                         onSelectAction={handleSelectProvince} 
                         updateArmies={handleUpdateArmies}
