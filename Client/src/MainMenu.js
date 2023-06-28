@@ -13,7 +13,8 @@ export default function MainMenu( {startGameAction} ) {
         setWhichMenu('start');        
     }
 
-    function onStartGame() {
+    function onStartGame(sessionData) {
+        console.log("STARTED GAME!");
         startGameAction(playerData);
     }
 

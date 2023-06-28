@@ -18,3 +18,11 @@ button {
     width: 90%;
     white-space: nowrap;
 }
+
+.start_game_container {
+    background-color: white;
+}
+
+.game_list_container {
+    background-color: white;
+}

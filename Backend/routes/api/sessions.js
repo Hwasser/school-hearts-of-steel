@@ -7,7 +7,7 @@ const Province = require('../../models/Session');
 // @description Get all sessions
 // @access Public
 router.get('/', (req, res) => {
-  Session.findMany()
+  Session.find()
     .then(session => res.json(session))
     .catch(err => res.status(404).json({ noplayerfound: 'No sessions found' }));
   });
