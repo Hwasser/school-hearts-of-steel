@@ -70,10 +70,10 @@ export default function Login( {loginAction, selectRegister} ) {
                 <button className='submit_button' type="submit"
                     onClick={onLogin}
                 >Login</button>
-                {loginError && (
-                    <p className='login_error'>No user exists with that name or password!</p>
-                )}
             </div>
+            {loginError && (
+                <p className='login_error'>No user exists with that name or password!</p>
+            )}
             <div className='register_container'>
                 <button onClick={selectRegister} >Register new account</button>
             </div>
