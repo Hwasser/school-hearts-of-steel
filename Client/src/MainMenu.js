@@ -15,7 +15,7 @@ export default function MainMenu( {startGameAction} ) {
 
     function onStartGame(sessionData) {
         console.log("STARTED GAME!");
-        startGameAction(playerData);
+        startGameAction(playerData, sessionData);
     }
 
     const setRegisterMenu = () => {setWhichMenu('register')};

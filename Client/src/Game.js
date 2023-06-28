@@ -8,7 +8,7 @@ import { armyMove, armyAttack } from './functionality/manageArmies';
 
 import { useState, useEffect } from 'react';  
 
-export default function Game() {
+export default function Game(sessionData) {
 
     const nProvinces = 9;
     
@@ -25,15 +25,18 @@ export default function Game() {
     const [armies, setArmies] = useState([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
     // Player data
     const [player, setPlayer] = useState({name: '', password: ''});
+    // About the game session
+    const [session, setSession] = useState(null);
 
     // If the program starts for the first time, init stuff. 
     // TODO: This should be replaced with a login screen
     const [hasStarted, setHasStarted] = useState(false);
 
-    function startGame(playerData) {
+    function startGame(playerData, sessionData) {
         initAllProvinces();
         setPlayer(playerData);
         setHasStarted(true);
+        setSession(sessionData);
     }
 
     // Handle selection of provinces from the database
@@ -142,8 +145,13 @@ export default function Game() {
                         owners={provinceOwners} 
                         objectIds={provinceId}
                         armies={armies}    
+                        session={session}
                         />
-                    <Footer properties={properties} onRaiseArmy={handleRaiseArmy} onBuildBuilding={handleBuildBuilding} />
+                    <Footer 
+                        properties={properties} 
+                        onRaiseArmy={handleRaiseArmy} 
+                        onBuildBuilding={handleBuildBuilding} 
+                        />
                 </div>
             )}
             </>

@@ -7,7 +7,7 @@ import './Province.css';
  * !! Does not contain the data for each province, that is handled by the db
  */
 
-export default function Province({ id, onProvinceClick, onArmyClick, name, owner, armies, moveArmy}) {
+export default function Province({ id, onProvinceClick, onArmyClick, name, owner, armies, moveArmy, session }) {
   // If start dragging an army  
   function handleOnDrag(e, whatArmy, fromProvince, fromSlot){
       //e.originalEvent.dataTranfser.setData("widgetType", widgetType);
@@ -28,16 +28,20 @@ export default function Province({ id, onProvinceClick, onArmyClick, name, owner
     function handleDragOver(e){
       e.preventDefault();
     }
+
+    const playerNames = session.slot_names;
   
-    const playerColors = {
-      Player1: "rgb(135, 245, 66)",
-      Player2: "rgb(219, 78, 46)",
-      Player3: "rgb(194, 85, 224)",
-      Player4: "rgb(82, 212, 217)",
-      Neutral: "rgb(216, 217, 167)"
-    };
+    const allColors = ["rgb(135, 245, 66)", "rgb(219, 78, 46)", "rgb(194, 85, 224)", 
+                       "rgb(82, 212, 217)", "rgb(216, 217, 167)"];
   
-    const color = playerColors[owner];
+    const playerColors = {'Neutral': allColors[4]};
+    for (let i = 0; i < playerNames.length; i++) {
+      const currentPlayer = playerNames[i];
+      playerColors[currentPlayer] = allColors[i];
+    }
+    console.log("playerColors:", playerColors, "| owner:", owner, "| id:", id);
+
+    const color = (playerColors[owner] == null) ? "white" : playerColors[owner];
     // If an army exists in a slot, show that it exists and make it draggable
     const army1Exists = (armies[0] == null) ? 0.2 : 1.0;
     const army2Exists = (armies[1] == null) ? 0.2 : 1.0;

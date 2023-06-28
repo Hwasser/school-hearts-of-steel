@@ -5,11 +5,7 @@ const ArmySchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    owner_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true
-    },
-    owner_name: {
+    owner: {
         type: String,
         required: true
     }
