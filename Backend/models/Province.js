@@ -54,7 +54,11 @@ const ProvinceSchema = new mongoose.Schema({
         required: true
     },
 
-    owner: {
+    owner_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    owner_name: {
         type: String,
         required: true
     },
@@ -63,17 +67,14 @@ const ProvinceSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: false
     },
-
     army2: {
         type: mongoose.Schema.Types.ObjectId,
         required: false
     },
-
     army3: {
         type: mongoose.Schema.Types.ObjectId,
         required: false
     },
-
     army4: {
         type: mongoose.Schema.Types.ObjectId,
         required: false
