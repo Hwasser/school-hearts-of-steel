@@ -2,31 +2,19 @@ const mongoose = require('mongoose');
 
 // A game session
 
-const PlayerSchema = new mongoose.Schema({
+const SessionSchema = new mongoose.Schema({
     max_slots: {
         type: Number,
         required: true
     },
-    slot1: {
-        type: String,
+    slot_names: {
+        type: [String],
         required: true
     },
-    food: {
-        type: Number,
-        required: false
-    },
-    fuel: {
-        type: Number,
-        required: false
-    },
-    material: {
-        type: Number,
-        required: false
-    },
-    tools: {
-        type: Number,
-        required: false
+    slot_ids: {
+        type: [mongoose.Schema.Types.ObjectId],
+        required: true
     }
 });
 
-module.exports = Player = mongoose.model('player', PlayerSchema);
+module.exports = Session = mongoose.model('session', SessionSchema);
