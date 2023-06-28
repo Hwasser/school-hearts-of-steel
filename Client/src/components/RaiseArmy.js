@@ -3,8 +3,11 @@ import { useState } from 'react';
 
 import './RaiseArmy.css';  
 
-// Code inspired by from "https://codepen.io/rmichels/pen/WNegjyK"
+// Slider code inspired by "https://codepen.io/rmichels/pen/WNegjyK"
 
+/**
+ * Contains the menu for raising armies within a province.
+ */
 export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseArmy}) {
 
   // When the "raise army" button has been pushed, 

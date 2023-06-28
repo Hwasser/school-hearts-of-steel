@@ -1,5 +1,10 @@
 import axios from 'axios';
 
+/**
+ * All action for the armies such as move, attack, battle, conquer etc
+ */
+
+
 /** @brief: Moves army between two provinces
  *  @param (number) fromProvince: Which province number to move from
  *  @param (number) toProvince: Which province number to move to

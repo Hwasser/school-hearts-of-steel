@@ -1,8 +1,12 @@
 import './Province.css';  
 
-// TODO: Break out province to its own component
-// TODO: We do not want armies as it is right now, it is ridiculous. Maybe eact province should have
-// armyslots and max armyslots as integers and the armies as a list instead
+/**
+ * Component for provinces in the main view. 
+ * Logic for clicking on a province, an army and drag and drop for armies
+ *  
+ * !! Does not contain the data for each province, that is handled by the db
+ */
+
 export default function Province({ id, onProvinceClick, onArmyClick, name, owner, armies, moveArmy}) {
   // If start dragging an army  
   function handleOnDrag(e, whatArmy, fromProvince, fromSlot){

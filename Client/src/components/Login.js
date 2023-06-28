@@ -3,6 +3,10 @@ import './Login.css';
 import { useState } from 'react'; 
 import axios from 'axios';
 
+/**
+ * Login menu for users/players
+ */
+
 export default function Login( {loginAction, selectRegister} ) {
     // An empty register form
     const initValue = () => {

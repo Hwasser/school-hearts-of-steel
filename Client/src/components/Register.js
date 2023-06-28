@@ -2,6 +2,10 @@ import './Register.css';
 import { useState } from 'react'; 
 import axios from 'axios';
 
+/**
+ * Menu for registering a new user/player
+ */
+
 export default function Register( {selectLogin} ) {
     // An empty register form
     const initValue = () => {

@@ -1,12 +1,10 @@
 import './Header.css';
-import StartNewGame from './components/StartNewGame';
+import startNewGame from './functionality/startNewGame';
 
 export default function Header( {updateProvinceNames, playerData} ) {
 
   // When starting a new game, reset all provinces and return names to view
-  function onStartNewGame() {
-    StartNewGame(updateProvinceNames);
-  }    
+  const onStartNewGame = () => { startNewGame(updateProvinceNames) }    
   
   return (
     <div className="header">
