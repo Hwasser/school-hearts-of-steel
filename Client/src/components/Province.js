@@ -29,8 +29,8 @@ export default function Province({ id, onProvinceClick, onArmyClick, name, owner
       e.preventDefault();
     }
 
+    // Setup province colors and set color for each player
     const playerNames = session.slot_names;
-  
     const allColors = ["rgb(135, 245, 66)", "rgb(219, 78, 46)", "rgb(194, 85, 224)", 
                        "rgb(82, 212, 217)", "rgb(216, 217, 167)"];
   
@@ -39,8 +39,8 @@ export default function Province({ id, onProvinceClick, onArmyClick, name, owner
       const currentPlayer = playerNames[i];
       playerColors[currentPlayer] = allColors[i];
     }
-    console.log("playerColors:", playerColors, "| owner:", owner, "| id:", id);
 
+    // Set color of current province
     const color = (playerColors[owner] == null) ? "white" : playerColors[owner];
     // If an army exists in a slot, show that it exists and make it draggable
     const army1Exists = (armies[0] == null) ? 0.2 : 1.0;

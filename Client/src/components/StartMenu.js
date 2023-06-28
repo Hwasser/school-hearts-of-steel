@@ -43,13 +43,24 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
         return allSessionsView;
     }
 
-    function onStartGame() {
+    async function onStartGame() {
+        // Setup a new session
         const newSession = {
             max_slots: maxSlots,
             slot_names: [playerData.name],
             slot_ids: [playerData._id]
         }
-        axios
+
+        // Remove all previous sessions
+        await axios
+        .delete('http://localhost:8082/api/sessions')
+        .then( () => {
+        })
+        .catch((err) => {
+            console.log('cant remove all sessions:', err);
+        });
+        // Post new sessions
+        await axios
         .post('http://localhost:8082/api/sessions', newSession)
           .then((res) => {
             console.log("Created new game!")

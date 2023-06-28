@@ -41,4 +41,13 @@ router.delete('/:id', (req, res) => {
     .catch(err => res.status(404).json({ error: 'No such a Session' }));
 });
 
+// @route DELETE api/Session/
+// @description Delete all sessions 
+// @access Public
+router.delete('/', (req, res) => {
+  Session.deleteMany({})
+    .then(province => res.json({ mgs: 'All sessions removed' }))
+    .catch(err => res.status(404).json({ error: 'Couldnt remove all sessions' }));
+});
+
 module.exports = router;
