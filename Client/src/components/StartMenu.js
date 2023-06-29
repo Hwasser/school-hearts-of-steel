@@ -28,16 +28,25 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
         //session.slot_ids[slotIndex]   = playerData._id;
         //const id = session._id;
         // Update the session
+        const placeholderName = session.slot_names[slotIndex]; // The name of the placeholder for the province
         session.slot_names[slotIndex] = playerData.name;
         session.slot_ids[slotIndex]   = playerData._id;
         session.purpose = 'add_player';
+        // Update session
         axios
         .put(`http://localhost:8082/api/sessions/${session._id}`, session)
           .then((res) => {
             console.log("Added player to session:", res.data);
           })
           .catch((err) => {
-            console.log('cant find: ', err.response);
+            console.log('Failed adding player to session:', err.response);
+          });
+        // Update empty slot in province
+        const provinceData = {oldName: placeholderName, newName: playerData.name, purpose: 'replace_empty_slot'};
+        axios
+        .put("http://localhost:8082/api/provinces", provinceData)
+          .catch((err) => {
+            console.log('StartMenu: Failed updating empty slot: ', err.response);
           });
     }
 
@@ -60,7 +69,6 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
             if (freeSlots > 0) {
                 addPlayerToSession(selectedSession, freeSlots);
                 // Start game
-                console.log("session:", selectedSession);
                 startGameAction(selectedSession);
             } else {
                 console.log("This game session is full!");
@@ -126,7 +134,7 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
             console.log("Created new game!")
             // Refresh game list
             getAllSessions();
-            startNewGame(playerData, maxSlots);
+            startNewGame(newSession);
           })
           .catch((err) => {
             console.log('cant find: ', err.response);

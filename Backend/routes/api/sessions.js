@@ -45,7 +45,7 @@ router.put('/:id', async (req, res) => {
 
   // If we update resources of the session
   } else {
-    
+
   }
 });
 

@@ -4,11 +4,14 @@ import axios from 'axios';
  * All logic for starting a new game
  */
 
-export default function startNewGame(starterData, slots) {
+export default function startNewGame(session) {
     // TODO: Remember this is specified here!
     const nProvinces = 9;
 
-    const playerPositions = setPlayerPositions(starterData, slots);
+    const slots = session.max_slots;
+    const playerNames = session.slot_names;
+    const startPlayerId = session.slot_ids[0];
+    const playerPositions = setPlayerPositions(playerNames, startPlayerId, slots);
 
     const allProvinces = setUpProvinces(playerPositions)
 
@@ -167,22 +170,22 @@ const lastName = ['ville', 'town', 'bridge', 'river', 'ridge', 'by', 'wood', 'sh
 
 // Set up the position of all players
 // VARIANT: 1 <= n of players <= 4 
-function setPlayerPositions(startPlayer, slots) {
+function setPlayerPositions(playerNames, startPlayerId, slots) {
   const playerPositions = Array(9).fill({name: 'Neutral', id: null});
 
-  playerPositions[0] = {name: startPlayer.name, id: startPlayer._id};
+  playerPositions[0] = {name: playerNames[0], id: startPlayerId};
 
   if (slots == 2) {
-    playerPositions[8] = {name: 'player2', id: null};
+    playerPositions[8] = {name: playerNames[1], id: null};
   }
   if (slots == 3) {
-    playerPositions[2] = {name: 'player2', id: null};
-    playerPositions[7] = {name: 'player3', id: null};
+    playerPositions[2] = {name: playerNames[1], id: null};
+    playerPositions[7] = {name: playerNames[2], id: null};
   }
   if (slots == 4) {
-    playerPositions[2] = {name: 'player2', id: null};
-    playerPositions[6] = {name: 'player3', id: null};
-    playerPositions[8] = {name: 'player4', id: null};
+    playerPositions[2] = {name: playerNames[1], id: null};
+    playerPositions[6] = {name: playerNames[2], id: null};
+    playerPositions[8] = {name: playerNames[3], id: null};
   }
 
   return playerPositions;
