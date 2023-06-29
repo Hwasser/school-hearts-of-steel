@@ -20,12 +20,49 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
           });
     }
 
+    function addPlayerToSession(session, freeSlots) {
+        // Which array index to put player in
+        const slotIndex = session.max_slots - freeSlots;
+        // Put player data in the session
+        //session.slot_names[slotIndex] = playerData.name;
+        //session.slot_ids[slotIndex]   = playerData._id;
+        //const id = session._id;
+        // Update the session
+        const updateValue = {name: playerData.name, id: playerData._id, slot: slotIndex};
+        axios
+        .put(`http://localhost:8082/api/sessions/${session._id}`, updateValue)
+          .then((res) => {
+            console.log("Added player to session:", res.data);
+          })
+          .catch((err) => {
+            console.log('cant find: ', err.response);
+          });
+    }
+
     function onJoinGame(selectedSession) {
-        if (selectedSession.slot_names.length < selectedSession.max_slots) {
+        // Check whether the player already is in the session
+        const playerJoined = selectedSession.slot_names.reduce(
+            (acc, cur) => (cur == playerData.name) ? acc + 1 : acc, 0
+            );
+                    
+        // Check how many free slots (how many slots that lack _id)
+        const freeSlots = selectedSession.slot_ids.reduce(
+            (acc, cur) => (cur == null) ? acc + 1 : acc, 0
+        );
+
+        if (playerJoined) {
+            // Start game
             startGameAction(selectedSession);
         } else {
-            console.log("This game session is full!");
-            // TODO: IMPLEMENT AN ERROR MESSAGE FOR THE PLAYER!
+            // Otherwise check if we can add the player to the session
+            if (freeSlots > 0) {
+                addPlayerToSession(selectedSession, freeSlots);
+                // Start game
+                startGameAction(selectedSession);
+            } else {
+                console.log("This game session is full!");
+                // TODO: IMPLEMENT AN ERROR MESSAGE FOR THE PLAYER!
+            }
         }
     }
 
