@@ -3,7 +3,7 @@ import RaiseArmy from './components/RaiseArmy';
 import ProvinceBuild from './components/ProvinceBuild';
 import { useState } from 'react';
 
-export default function Footer( {properties, onRaiseArmy, onBuildBuilding} ) {
+export default function Footer( {properties, onRaiseArmy, onBuildBuilding, session, slotIndex} ) {
 
   const [provProp, setProvProp] = useState(properties);
   const [useRaiseMenu, setuseRaiseMenu] = useState(false);
@@ -71,6 +71,8 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding} ) {
         setInactive={makeBuildInactive}
         fromProvince={provProp}
         onBuildMenu={buildMenuAction}
+        session={session}
+        slotIndex={slotIndex}
       />
 
       <div className='footer_row'>

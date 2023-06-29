@@ -27,7 +27,9 @@ export default function Game(sessionData) {
     const [player, setPlayer] = useState({name: '', password: ''});
     // About the game session
     const [session, setSession] = useState(null);
-
+    // Which player slot the player has in the session
+    let slotIndex = 0;
+    
     // If the program starts for the first time, init stuff. 
     // TODO: This should be replaced with a login screen
     const [hasStarted, setHasStarted] = useState(false);
@@ -37,6 +39,7 @@ export default function Game(sessionData) {
         setPlayer(playerData);
         setHasStarted(true);
         setSession(sessionData);
+        slotIndex = sessionData.slot_names.findIndex( (e) => e == playerData.name);
     }
 
     // Handle selection of provinces from the database
@@ -137,7 +140,7 @@ export default function Game(sessionData) {
             )}
             {hasStarted && (
                 <div className='game_view'>
-                    <Header playerData={player} sessionData={session} />
+                    <Header player={player} session={session} slotIndex={slotIndex} />
                     <GameUI 
                         onSelectAction={handleSelectProvince} 
                         updateArmies={handleUpdateArmies}
@@ -151,6 +154,8 @@ export default function Game(sessionData) {
                         properties={properties} 
                         onRaiseArmy={handleRaiseArmy} 
                         onBuildBuilding={handleBuildBuilding} 
+                        session={session}
+                        slotIndex={slotIndex}
                         />
                 </div>
             )}

@@ -7,29 +7,37 @@ import axios from 'axios';
 import { useState } from 'react';  
 
 export default function ProvinceBuild(
-    { buildingType, setInactive, fromProvince, onBuildMenu} ) {
+    { buildingType, setInactive, fromProvince, onBuildMenu, session, slotIndex} ) {
     const [errorMessage, setErrorMessage] = useState('');
+
+    // Whether we can afford this building
+    const canAffordFood     = costs[buildingType]['food']     <= session.food[slotIndex];
+    const canAffordFuel     = costs[buildingType]['fuel']     <= session.fuel[slotIndex];
+    const canAffordTools    = costs[buildingType]['tools']    <= session.tools[slotIndex];
+    const canAffordMaterial = costs[buildingType]['material'] <= session.material[slotIndex];
 
     function onConfirmButton() {
         const buildingTypes = buildingType + "s";
         if (fromProvince[buildingTypes] > 9) {
-            console.log("Cannot build more of that building");
             setErrorMessage("You cannot construct more buildings of that type in this province!");
             return;
+        } else if (!canAffordFood || !canAffordFuel || !canAffordTools || !canAffordMaterial) {
+            setErrorMessage("You cannot afford to construct this building!");
+            return;           
         }
         updateProvinceDatabase(fromProvince, buildingType, onBuildMenu);
         setInactive();
         setErrorMessage('');
-    }
+    }    
 
     function onCancelButton() {
         setInactive();
         setErrorMessage('');
-    }
+    }    
 
     if (buildingType == 'none' && errorMessage != '') {
         setErrorMessage('');
-    }
+    }    
 
     const toDraw = (buildingType != 'none') ? "inline" : "none";
 
@@ -47,19 +55,23 @@ export default function ProvinceBuild(
             <h2 className='build_desc'> Construct a {buildingType}</h2>
                 <div className='cost_field'> 
                 <span>Food:</span>
-                <span>{costs[buildingType]['food']}</span> 
+                <span style={{color: (canAffordFood) ? 'black' : 'red'}}>
+                    {costs[buildingType]['food']}</span> 
                 </div>
                 <div className='cost_field'> 
                 <span>Fuel:</span>
-                <span>{costs[buildingType]['fuel']}</span> 
+                <span style={{color: (canAffordFuel) ? 'black' : 'red'}}>
+                    {costs[buildingType]['fuel']}</span> 
                 </div>
                 <div className='cost_field'> 
                 <span>Tools:</span>
-                <span>{costs[buildingType]['tools']}</span> 
+                <span style={{color: (canAffordTools) ? 'black' : 'red'}}>
+                    {costs[buildingType]['tools']}</span> 
                 </div>
                 <div className='cost_field'> 
                 <span>Material:</span>
-                <span>{costs[buildingType]['material']}</span> 
+                <span style={{color: (canAffordMaterial) ? 'black' : 'red'}}>
+                    {costs[buildingType]['material']}</span> 
                 </div>
                 <button 
                     className='confirm_button'
