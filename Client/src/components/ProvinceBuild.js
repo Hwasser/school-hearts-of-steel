@@ -44,7 +44,7 @@ export default function ProvinceBuild(
         {
             errorMessage == '' && (
             <div className='build_building' style={{display: toDraw}}>
-            <h1 className='build_desc'> Construct a {buildingType}</h1>
+            <h2 className='build_desc'> Construct a {buildingType}</h2>
                 <div className='cost_field'> 
                 <span>Food:</span>
                 <span>{costs[buildingType]['food']}</span> 
