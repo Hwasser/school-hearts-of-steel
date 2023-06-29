@@ -137,7 +137,7 @@ export default function Game(sessionData) {
             )}
             {hasStarted && (
                 <div className='game_view'>
-                    <Header playerData={player} />
+                    <Header playerData={player} sessionData={session} />
                     <GameUI 
                         onSelectAction={handleSelectProvince} 
                         updateArmies={handleUpdateArmies}

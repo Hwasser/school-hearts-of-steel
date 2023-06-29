@@ -1,9 +1,9 @@
 import './Header.css';
 
-export default function Header( {playerData} ) {
+export default function Header( {playerData, sessionData} ) {
+  // Get slot index of player in session
+  const slotIndex = sessionData.slot_names.findIndex( (e) => e == playerData.name);
 
-  // When starting a new game, reset all provinces and return names to view
-  
   return (
     <div className="header">
 
@@ -14,22 +14,22 @@ export default function Header( {playerData} ) {
 
       <div className="header_box">
         <span id="name1"> Food: </span>
-        <span id="value1"> {(playerData.food == null) ? 0 : playerData.food} </span> 
+        <span id="value1"> {(sessionData == null) ? 0 : sessionData.food[slotIndex]} </span> 
       </div>
 
       <div className="header_box">
         <span id="name2"> Fuel: </span>
-        <span id="value2"> {(playerData.food == null) ? 0 : playerData.food} </span> 
+        <span id="value2"> {(sessionData == null == null) ? 0 : sessionData.fuel[slotIndex]} </span> 
       </div>
 
       <div className="header_box">
         <span id="name3"> Tools: </span>
-        <span id="value3"> {(playerData.food == null) ? 0 : playerData.food} </span> 
+        <span id="value3"> {(sessionData == null == null) ? 0 : sessionData.tools[slotIndex]} </span> 
       </div>
 
       <div className="header_box">
         <span id="name4"> Material: </span>
-        <span id="value4"> {(playerData.food == null) ? 0 : playerData.food} </span> 
+        <span id="value4"> {(sessionData == null == null) ? 0 : sessionData.material[slotIndex]} </span> 
       </div>
     </div>
   );
