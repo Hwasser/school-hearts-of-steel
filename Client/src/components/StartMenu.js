@@ -82,8 +82,7 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
         const allSessionsView = []
             for (let i = 0; i < allSessions.length; i++) {
                 allSessionsView.push(
-                    <li> <button 
-                        key={i}
+                    <li key={'game' + i}> <button 
                         onClick={() => onJoinGame(allSessions[i])}> Max_slots: {allSessions[i].max_slots} 
                     </button> </li>
                 );
@@ -153,9 +152,9 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
                 <h2>Start a new game</h2>
                 <p>Max number of players:</p>
                 <ul>
-                    <li><button key="slot1" onClick={() => setMaxSlots(2)} >2</button></li>
-                    <li><button key="slot2" onClick={() => setMaxSlots(3)} >3</button></li>
-                    <li><button key="slot3" onClick={() => setMaxSlots(4)} >4</button></li>
+                    <li key="slotsize2"><button onClick={() => setMaxSlots(2)} >2</button></li>
+                    <li key="slotsize3"><button onClick={() => setMaxSlots(3)} >3</button></li>
+                    <li key="slotsize4"><button onClick={() => setMaxSlots(4)} >4</button></li>
                 </ul> 
                 <button onClick={onStartGame}>Create new game</button>
             </div>

@@ -31,9 +31,6 @@ export default function Province({ id, onProvinceClick, onArmyClick, name, owner
 
     // Setup province colors and set color for each player
     const playerNames = session.slot_names;
-    const allColors = ["rgb(135, 245, 66)", "rgb(219, 78, 46)", "rgb(194, 85, 224)", 
-                       "rgb(82, 212, 217)", "rgb(216, 217, 167)"];
-  
     const playerColors = {'Neutral': allColors[4]};
     for (let i = 0; i < playerNames.length; i++) {
       const currentPlayer = playerNames[i];
@@ -70,3 +67,6 @@ export default function Province({ id, onProvinceClick, onArmyClick, name, owner
     );
   }
   
+  // Pre-defined colors to use for provinces
+  const allColors = ["rgb(135, 245, 66)", "rgb(219, 78, 46)", "rgb(194, 85, 224)", 
+  "rgb(82, 212, 217)", "rgb(216, 217, 167)"];

@@ -80,7 +80,6 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ob
             const provArmies = [armies[0][index], armies[1][index], armies[2][index], armies[3][index]]
               listItems.push(<Province 
                 id={index} 
-                key={index}
                 onProvinceClick={ () => onSelectProvince(index) }
                 onArmyClick={onSelectArmy}
                 owner={owner}
