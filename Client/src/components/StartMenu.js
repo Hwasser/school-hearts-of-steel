@@ -20,7 +20,7 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
           });
     }
 
-    function addPlayerToSession(session, freeSlots) {
+    async function addPlayerToSession(session, freeSlots) {
         // Which array index to put player in
         const slotIndex = session.max_slots - freeSlots;
         // Put player data in the session
@@ -33,7 +33,7 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
         session.slot_ids[slotIndex]   = playerData._id;
         session.purpose = 'add_player';
         // Update session
-        axios
+        await axios
         .put(`http://localhost:8082/api/sessions/${session._id}`, session)
           .then((res) => {
             console.log("Added player to session:", res.data);
@@ -43,14 +43,14 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
           });
         // Update empty slot in province
         const provinceData = {oldName: placeholderName, newName: playerData.name, purpose: 'replace_empty_slot'};
-        axios
+        await axios
         .put("http://localhost:8082/api/provinces", provinceData)
           .catch((err) => {
             console.log('StartMenu: Failed updating empty slot: ', err.response);
           });
     }
 
-    function onJoinGame(selectedSession) {
+    async function onJoinGame(selectedSession) {
         // Check whether the player already is in the session
         const playerJoined = selectedSession.slot_names.reduce(
             (acc, cur) => (cur == playerData.name) ? acc + 1 : acc, 0
@@ -67,7 +67,7 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
         } else {
             // Otherwise check if we can add the player to the session
             if (freeSlots > 0) {
-                addPlayerToSession(selectedSession, freeSlots);
+                await addPlayerToSession(selectedSession, freeSlots);
                 // Start game
                 startGameAction(selectedSession);
             } else {
