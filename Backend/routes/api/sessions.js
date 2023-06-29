@@ -1,3 +1,11 @@
+/**
+ * Exempel hur man uppdaterar bara ett värde:
+*     const document = await Session.findById(req.params.id);
+      document.slot_names[playerSlot] = playerName;
+      document.slot_ids[playerSlot] = playerId;
+      await document.save();
+ */
+
 const express = require('express');
 const Session = require('../../models/Session');
 const router = express.Router();
@@ -27,24 +35,14 @@ router.post('/', (req, res) => {
 // @access Public
 router.put('/:id', async (req, res) => {
   // If we are adding a player to the session
-  if (req.body.name != null) {
-    try {
-      // get data from message
-      const playerSlot = req.body.slot;
-      const playerName = req.body.name;
-      const playerId = req.body.id;
-      // Add into arrays
-      const document = await Session.findById(req.params.id);
-      document.slot_names[playerSlot] = playerName;
-      document.slot_ids[playerSlot] = playerId;
-      await document.save();
-      // Report success
-      console.log("Added", req.body.name, "to session", req.params.id);
-      res.status(200).send('Session updated');
-    } catch (error) {
-      res.status(500).send('Internal Server Error when updating session');
-    }
-  
+  if (req.body.purpose == 'add_player') {
+    delete req.body.purpose; // This is meta-data for PUT-requests
+    Session.findByIdAndUpdate(req.params.id, req.body)
+    .then(army => res.json({ msg: 'Updated successfully' }))
+    .catch(err =>
+      res.status(400).json({ error: 'Unable to update the Database' })
+    );
+
   // If we update resources of the session
   } else {
     

@@ -28,9 +28,11 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
         //session.slot_ids[slotIndex]   = playerData._id;
         //const id = session._id;
         // Update the session
-        const updateValue = {name: playerData.name, id: playerData._id, slot: slotIndex};
+        session.slot_names[slotIndex] = playerData.name;
+        session.slot_ids[slotIndex]   = playerData._id;
+        session.purpose = 'add_player';
         axios
-        .put(`http://localhost:8082/api/sessions/${session._id}`, updateValue)
+        .put(`http://localhost:8082/api/sessions/${session._id}`, session)
           .then((res) => {
             console.log("Added player to session:", res.data);
           })
@@ -58,6 +60,7 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
             if (freeSlots > 0) {
                 addPlayerToSession(selectedSession, freeSlots);
                 // Start game
+                console.log("session:", selectedSession);
                 startGameAction(selectedSession);
             } else {
                 console.log("This game session is full!");
