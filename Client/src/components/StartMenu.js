@@ -43,13 +43,33 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
         return allSessionsView;
     }
 
-    async function onStartGame() {
-        // Setup a new session
+    // Init a new session with the starter players name and _id and
+    // starting resources. Then it goes on to fill up with dummies.
+    function initSession() {
         const newSession = {
             max_slots: maxSlots,
             slot_names: [playerData.name],
-            slot_ids: [playerData._id]
+            slot_ids: [playerData._id],
+            food: [100],
+            fuel: [100],
+            material: [100],
+            tools: [100]
         }
+        for (let i = 1; i < maxSlots; i++) {
+            const nextPlayer = "Player" + (i+1);
+            newSession.slot_names.push(nextPlayer);
+            newSession.slot_ids.push(null);
+            newSession.food.push(100);
+            newSession.fuel.push(100);
+            newSession.material.push(100);
+            newSession.tools.push(100);
+        }
+        return newSession;
+    }
+
+    async function onStartGame() {
+        // Setup a new session
+        const newSession = initSession();
 
         // Remove all previous sessions
         await axios
