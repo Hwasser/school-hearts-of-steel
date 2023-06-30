@@ -4,7 +4,7 @@ const router = express.Router();
 
 const Province = require('../../models/Session');
 
-// @route GET api/armies/
+// @route GET api/Session/
 // @description Get all sessions
 // @access Public
 router.get('/', (req, res) => {
@@ -12,6 +12,15 @@ router.get('/', (req, res) => {
     .then(session => res.json(session))
     .catch(err => res.status(404).json({ noplayerfound: 'No sessions found' }));
   });
+
+// @route GET api/Session/:id
+// @description Get single army by id
+// @access Public
+router.get('/:id', (req, res) => {
+  Session.findById(req.params.id)
+    .then(session => res.json(session))
+    .catch(err => res.status(404).json({ noarmyfound: 'No Army found' }));
+});
 
 // @route POST api/Session
 // @description add/save Session

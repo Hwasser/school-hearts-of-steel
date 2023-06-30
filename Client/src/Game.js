@@ -47,6 +47,18 @@ export default function Game(sessionData) {
         setProperties(provinceData);
     }
 
+    function updateSession() {
+        axios
+        .get(`http://localhost:8082/api/sessions/${session._id}`)
+        .then((res) => {
+            setSession(res.data);
+        })
+        .catch((err) => {
+            console.log('Error in updating session: ' + err);
+            
+        });  
+    }
+
     function handleRaiseArmy(provinceInfo) {
         const provinceId = provinceInfo['id'];
         try {
@@ -66,10 +78,12 @@ export default function Game(sessionData) {
         } catch(err) {
             console.error("handleRaiseArmy: " + err);
         }
+        updateSession();
     }
 
     function handleBuildBuilding(provinceInfo) {
         setProperties(provinceInfo);
+        updateSession();
     }
 
     async function handleUpdateArmies(fromProvince, toProvince, army, fromSlot, isAttacking) {

@@ -2,6 +2,7 @@ import './Footer.css';
 import RaiseArmy from './components/RaiseArmy';
 import ProvinceBuild from './components/ProvinceBuild';
 import { useState } from 'react';
+import axios from 'axios';
 
 export default function Footer( {properties, onRaiseArmy, onBuildBuilding, session, slotIndex, player} ) {
 
@@ -35,12 +36,12 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding, sessi
   function raiseArmyAction(newProvinceInfo) {
     setProvProp(newProvinceInfo); 
     onRaiseArmyMenu();
-    onRaiseArmy(newProvinceInfo)
+    onRaiseArmy(newProvinceInfo);
   }
 
   function buildMenuAction(newProvinceInfo) {
     setProvProp(newProvinceInfo);
-    onBuildBuilding()
+    onBuildBuilding(newProvinceInfo);
   }
 
   // Whether to show properties for a province or an army

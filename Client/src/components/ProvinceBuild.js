@@ -16,6 +16,13 @@ export default function ProvinceBuild(
     const canAffordTools    = costs[buildingType]['tools']    <= session.tools[slotIndex];
     const canAffordMaterial = costs[buildingType]['material'] <= session.material[slotIndex];
 
+    const curCost = {
+        food: costs[buildingType]['food'],
+        fuel: costs[buildingType]['fuel'],
+        tools: costs[buildingType]['tools'],
+        material: costs[buildingType]['material']
+    };
+
     function onConfirmButton() {
         const buildingTypes = buildingType + "s";
         if (fromProvince[buildingTypes] > 9) {
@@ -25,6 +32,7 @@ export default function ProvinceBuild(
             setErrorMessage("You cannot afford to construct this building!");
             return;           
         }
+        updateSession(curCost, slotIndex, session._id);
         updateProvinceDatabase(fromProvince, buildingType, onBuildMenu);
         setInactive();
         setErrorMessage('');
@@ -150,9 +158,31 @@ function updateProvinceDatabase(fromProvince, buildingType, onBuildBuilding) {
     // Update province with army and new value of workforce
     axios
     .put(`http://localhost:8082/api/provinces/${id}`, province)
+    .then((res) => {
+        onBuildBuilding(fromProvince);
+    })
     .catch((err) => {
     console.log('Error in replacing province: ' + err);
     });
 
     
+  }
+
+  // Update the player resources in the session
+function updateSession(curCost, slotIndex, sessionId) {
+    // A package with data to send to the backend
+    const updatePackage = {
+      food: curCost['food'],
+      fuel: curCost['fuel'],
+      tools: curCost['tools'],
+      material: curCost['material'],
+      purpose: 'buy_stuff',
+      slotIndex: slotIndex,
+    };
+    
+    axios
+    .put(`http://localhost:8082/api/sessions/${sessionId}`, updatePackage)
+    .catch((err) => {
+        console.log('Couldnt update the session: ' + err);
+    });  
   }
