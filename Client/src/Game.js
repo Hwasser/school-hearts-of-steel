@@ -156,6 +156,7 @@ export default function Game(sessionData) {
                         onBuildBuilding={handleBuildBuilding} 
                         session={session}
                         slotIndex={slotIndex}
+                        player={player}
                         />
                 </div>
             )}
