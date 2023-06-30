@@ -18,17 +18,20 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
   const [curWorkforce, setCurWorkforce] = useState(workforce);
   // State of slide value
   const [state, setSlide] = useState(Math.floor(workforce / 2));
-  const [showErrorState, setshowErrorState] = useState('');
-
-  // Whether to draw the "raise army" bar at all
-  const errorState = (findArmySlot(fromProvince) == null) ? 'slots' :
-    ( (workforce < 20) ? 'workforce' : 'none' );
+  const [errorMessage, setErrorMessage] = useState('');
 
   // When the "raise army" button has been pushed, 
   // update the workforce and push back to interface
   function onRaiseAction(toRaise, curCost, canAfford) {
     if (!canAfford) {
-      setshowErrorState("You annot afford this army!");
+      setErrorMessage("You annot afford this army!");
+      return;
+    }
+    if (findArmySlot(fromProvince) == null) {
+      setErrorMessage("All army slots in the province are occupied!");
+      return;
+    } else if (workforce < 20) {
+      setErrorMessage("You need to have above 20 manpower to raise an army!");
       return;
     }
 
@@ -42,28 +45,17 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
     setCurWorkforce(workforce);
     setSlide(Math.floor(workforce/ 2));
   }
-  
-
-  // Show error message if raise army cannot be used!
-  if (active && errorState != 'none' && showErrorState == '') {
-    if (errorState == 'slots') {
-      setshowErrorState("All army slots in the province are occupied!");
-    }
-    if (errorState == 'workforce') {
-      setshowErrorState("You need to have above 20 manpower to raise an army!");
-    }
-  }
 
   const closeErrorMsg = () => { 
     setInactive();
-    setshowErrorState('');
+    setErrorMessage('');
   }
 
   const onCancelButton = () => { 
     setInactive();
   }
 
-  const toDraw = (active && errorState == 'none') ? "inline" : "none";
+  const toDraw = (active && errorMessage == '') ? "inline" : "none";
 
   const useSlider = (min, max, defaultState, label, id) => {
       
@@ -80,9 +72,9 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
       const Slider = () => (
         <>
 
-        {showErrorState != '' && (
+        {errorMessage != '' && (
           <div className="slider_error">
-            <p>{showErrorState}</p>
+            <p>{errorMessage}</p>
             <button onClick={closeErrorMsg}>ok</button>
           </div>
         )}
@@ -121,7 +113,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
         </div>
         </>
       );
-      return [state, Slider, setSlide, errorState];
+      return [state, Slider, setSlide, errorMessage];
     };
   
     // The values for the slider, min, max, default etc
