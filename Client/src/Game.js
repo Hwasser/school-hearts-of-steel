@@ -149,6 +149,7 @@ export default function Game(sessionData) {
                         objectIds={provinceId}
                         armies={armies}    
                         session={session}
+                        player={player}
                         />
                     <Footer 
                         properties={properties} 
@@ -156,6 +157,7 @@ export default function Game(sessionData) {
                         onBuildBuilding={handleBuildBuilding} 
                         session={session}
                         slotIndex={slotIndex}
+                        player={player}
                         />
                 </div>
             )}

@@ -7,9 +7,10 @@ import './Province.css';
  * !! Does not contain the data for each province, that is handled by the db
  */
 
-export default function Province({ id, onProvinceClick, onArmyClick, name, owner, armies, moveArmy, session }) {
+export default function Province({ id, onProvinceClick, onArmyClick, name, owner, armies, moveArmy, session, player }) {
   // If start dragging an army  
   function handleOnDrag(e, whatArmy, fromProvince, fromSlot){
+
       //e.originalEvent.dataTranfser.setData("widgetType", widgetType);
       e.dataTransfer.setData("whatArmy", whatArmy);
       e.dataTransfer.setData("fromProvince", fromProvince);
@@ -26,7 +27,7 @@ export default function Province({ id, onProvinceClick, onArmyClick, name, owner
     }
    
     function handleDragOver(e){
-      e.preventDefault();
+        e.preventDefault();
     }
 
     // Setup province colors and set color for each player
@@ -45,10 +46,10 @@ export default function Province({ id, onProvinceClick, onArmyClick, name, owner
     const army2Exists = (armies[1] == null) ? 0.2 : 1.0;
     const army3Exists = (armies[2] == null) ? 0.2 : 1.0;
     const army4Exists = (armies[3] == null) ? 0.2 : 1.0;
-    const army1Draggable = (armies[0] == null) ? false : true;
-    const army2Draggable = (armies[1] == null) ? false : true;
-    const army3Draggable = (armies[2] == null) ? false : true;
-    const army4Draggable = (armies[3] == null) ? false : true;
+    const army1Draggable = (armies[0] == null || player.name != owner) ? false : true;
+    const army2Draggable = (armies[1] == null || player.name != owner) ? false : true;
+    const army3Draggable = (armies[2] == null || player.name != owner) ? false : true;
+    const army4Draggable = (armies[3] == null || player.name != owner) ? false : true;
     
     return (
         <div className='province' id={id} owner={owner} style={{background: color}} 

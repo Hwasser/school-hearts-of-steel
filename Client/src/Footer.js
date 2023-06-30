@@ -3,7 +3,7 @@ import RaiseArmy from './components/RaiseArmy';
 import ProvinceBuild from './components/ProvinceBuild';
 import { useState } from 'react';
 
-export default function Footer( {properties, onRaiseArmy, onBuildBuilding, session, slotIndex} ) {
+export default function Footer( {properties, onRaiseArmy, onBuildBuilding, session, slotIndex, player} ) {
 
   const [provProp, setProvProp] = useState(properties);
   const [useRaiseMenu, setuseRaiseMenu] = useState(false);
@@ -54,6 +54,71 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding, sessi
     }
   }
 
+  // The buttons for constucting buildings
+  function BuildingButtons() {
+    return (
+      <div className='footer_row'>
+        {player.name == properties.owner && (
+          <>
+          <button className='property_button' onClick={() => onBuildMenu('house')} >
+            <span id="name6"> Houses: </span>
+            <span id="value6"> {provProp['houses']} </span>
+          </button>
+
+          <button className='property_button' onClick={() => onBuildMenu('mine')} >
+            <span id="name7"> Mines: </span>
+            <span id="value7"> {provProp['mines']} </span>
+          </button>
+
+          <button className='property_button' onClick={() => onBuildMenu('workshop')} >
+            <span id="name8"> Workshops: </span>
+            <span id="value8"> {provProp['workshops']} </span>
+          </button>
+
+          <button className='property_button' onClick={() => onBuildMenu('farm')}>
+            <span id="name9"> Farms: </span>
+            <span id="value9"> {provProp['farms']} </span>
+          </button>
+
+          <button className='property_button' onClick={() => onBuildMenu('fort')} >
+            <span id="name11"> Fortifications: </span>
+            <span id="value11"> {provProp['forts']} </span>
+          </button>
+          </>
+      )}
+      {player.name != properties.owner && (
+          <>
+          <div className='property_button_inactive'>
+            <span id="name6"> Houses: </span>
+            <span id="value6"> {provProp['houses']} </span>
+          </div>
+
+          <div className='property_button_inactive'>
+            <span id="name7"> Mines: </span>
+            <span id="value7"> {provProp['mines']} </span>
+          </div>
+
+          <div className='property_button_inactive'>
+            <span id="name8"> Workshops: </span>
+            <span id="value8"> {provProp['workshops']} </span>
+          </div>
+
+          <div className='property_button_inactive'>
+            <span id="name9"> Farms: </span>
+            <span id="value9"> {provProp['farms']} </span>
+          </div>
+
+          <div className='property_button_inactive'>
+            <span id="name11"> Fortifications: </span>
+            <span id="value11"> {provProp['forts']} </span>
+          </div>
+          </>
+      )}
+      
+        </div>
+    );
+  }
+
   const FooterProvince = () => (
     <>
     {isProvince && (
@@ -88,43 +153,19 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding, sessi
           <span id="name10"> Manpower: </span>
           <span id="value10"> {provProp['workforce']} </span>
         </div>
-        <button 
-          className='property_button'
-            onClick={onRaiseArmyMenu}
-          >
-          <span id="name12"> Raise Army </span>
-        </button>
+
+        {player.name == properties.owner && (
+          <button 
+            className='property_button'
+              onClick={onRaiseArmyMenu}
+            >
+            <span id="name12"> Raise Army </span>
+          </button>
+      )}
         
       </div>
 
-      <div className='footer_row'>
-
-        <button className='property_button' onClick={() => onBuildMenu('house')} >
-          <span id="name6"> Houses: </span>
-          <span id="value6"> {provProp['houses']} </span>
-        </button>
-
-        <button className='property_button' onClick={() => onBuildMenu('mine')} >
-          <span id="name7"> Mines: </span>
-          <span id="value7"> {provProp['mines']} </span>
-        </button>
-
-        <button className='property_button' onClick={() => onBuildMenu('workshop')} >
-          <span id="name8"> Workshops: </span>
-          <span id="value8"> {provProp['workshops']} </span>
-        </button>
-
-        <button className='property_button' onClick={() => onBuildMenu('farm')}>
-          <span id="name9"> Farms: </span>
-          <span id="value9"> {provProp['farms']} </span>
-        </button>
-
-        <button className='property_button' onClick={() => onBuildMenu('fort')} >
-          <span id="name11"> Fortifications: </span>
-          <span id="value11"> {provProp['forts']} </span>
-        </button>
-
-      </div>
+      <BuildingButtons />
   
       <div className='footer_row'>
 
