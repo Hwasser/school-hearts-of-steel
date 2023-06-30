@@ -8,7 +8,7 @@
 }
 
 .form_container {
-    background-color: rgba(255, 255, 255, 0.25);
+    background-color: rgba(255, 255, 255, 0.33);
     margin:2px;
     padding:6px;
     text-align: center;
@@ -41,4 +41,7 @@
     margin: 16px;
 }
 
-
+.login_button {
+    margin: 2px 0px;
+    padding: 0px 12px;
+}

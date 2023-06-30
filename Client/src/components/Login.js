@@ -71,7 +71,7 @@ export default function Login( {loginAction, selectRegister} ) {
                         onChange={onChange} 
                         required />
                 </div>
-                <button className='submit_button' type="submit"
+                <button className='login_button' type="submit"
                     onClick={onLogin}
                 >Login</button>
             </div>
