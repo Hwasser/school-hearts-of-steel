@@ -37,6 +37,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
 
     const newValue = curWorkforce - toRaise; 
     updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy);
+    updateSession(curCost, slotIndex, session._id);
   }
 
   
@@ -163,6 +164,25 @@ function updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy) {
   .catch((err) => {
       console.log('Error in creating army: ' + err);
       
+  });  
+}
+
+// Update the player resources in the session
+function updateSession(curCost, slotIndex, sessionId) {
+  // A package with data to send to the backend
+  const updatePackage = {
+    food: curCost['food'],
+    fuel: 0,
+    tools: curCost['tools'],
+    material: 0,
+    purpose: 'buy_stuff',
+    slotIndex: slotIndex,
+  };
+  
+  axios
+  .put(`http://localhost:8082/api/sessions/${sessionId}`, updatePackage)
+  .catch((err) => {
+      console.log('Couldnt update the session: ' + err);
   });  
 }
 

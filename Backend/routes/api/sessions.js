@@ -1,11 +1,3 @@
-/**
- * Exempel hur man uppdaterar bara ett värde:
-*     const document = await Session.findById(req.params.id);
-      document.slot_names[playerSlot] = playerName;
-      document.slot_ids[playerSlot] = playerId;
-      await document.save();
- */
-
 const express = require('express');
 const Session = require('../../models/Session');
 const router = express.Router();
@@ -34,6 +26,7 @@ router.post('/', (req, res) => {
 // @description Update Session
 // @access Public
 router.put('/:id', async (req, res) => {
+  console.log("Something happened:", req.body);
   // If we are adding a player to the session
   if (req.body.purpose == 'add_player') {
     delete req.body.purpose; // This is meta-data for PUT-requests
@@ -42,11 +35,25 @@ router.put('/:id', async (req, res) => {
     .catch(err =>
       res.status(400).json({ error: 'Unable to update the Database' })
     );
-
-  // If we update resources of the session
-  } else {
-
   }
+  // If a player buys something, update resources
+  if (req.body.purpose == 'buy_stuff') {
+    try {
+      const slotIndex = req.body.slotIndex;
+      const document = await Session.findById(req.params.id)
+      // Change value
+      document.food[slotIndex]     -= req.body.food;
+      document.fuel[slotIndex]     -= req.body.fuel;
+      document.tools[slotIndex]    -= req.body.tools;
+      document.material[slotIndex] -= req.body.material;
+      // Store value and show status
+      await document.save();
+      res.status(200).send('Session updated');
+    } catch {
+      res.status(500).json({ error: 'Unable to update empty slot in province' })
+    }
+  }
+
 });
 
 // @route DELETE api/Session/:id
