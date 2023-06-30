@@ -129,6 +129,8 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding, sessi
         setInactive={makeSliderInactive}
         fromProvince = {provProp}
         onRaiseArmy={raiseArmyAction} 
+        session={session}
+        slotIndex={slotIndex}
       /> 
 
       <ProvinceBuild 

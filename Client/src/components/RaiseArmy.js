@@ -8,7 +8,7 @@ import './RaiseArmy.css';
 /**
  * Contains the menu for raising armies within a province.
  */
-export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseArmy}) {
+export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseArmy, session, slotIndex}) {
 
   // When the "raise army" button has been pushed, 
   // update the workforce and push back to interface
@@ -65,6 +65,10 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
         setSlide(e.target.value);
       };
 
+      const canAffordFood = (state * costs['food'] <= session.food[slotIndex]) ? 'black' : 'red';
+      const canAffordTools = (state * costs['tools'] <= session.tools[slotIndex]) ? 'black' : 'red';
+      
+
       const Slider = () => (
         <>
 
@@ -75,7 +79,9 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
           </div>
         )}
         <div className='raise_army' style={{display: toDraw}}>
-          <p>Raise Army</p>
+          <h2>Raise Army</h2>
+          <p className='raise_army_costs' style={{color: canAffordFood}} >Food: {state * costs['food']}</p>
+          <p className='raise_army_costs' style={{color: canAffordTools }}>Tools: {state * costs['tools']}</p>
           <input
             className='slider'
             type="range"
@@ -170,4 +176,11 @@ function findArmySlot(province) {
     armySlot = 'army4';
   }  
   return armySlot;
+}
+
+const costs = {
+  food: 2,
+  fuel: 0,
+  tools: 1,
+  material: 0
 }
