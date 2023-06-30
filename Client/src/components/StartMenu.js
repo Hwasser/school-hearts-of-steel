@@ -50,16 +50,11 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
           });
     }
 
-    async function onJoinGame(selectedSession) {
+    async function onJoinGame(selectedSession, freeSlots) {
         // Check whether the player already is in the session
         const playerJoined = selectedSession.slot_names.reduce(
             (acc, cur) => (cur == playerData.name) ? acc + 1 : acc, 0
             );
-                    
-        // Check how many free slots (how many slots that lack _id)
-        const freeSlots = selectedSession.slot_ids.reduce(
-            (acc, cur) => (cur == null) ? acc + 1 : acc, 0
-        );
 
         if (playerJoined) {
             // Start game
@@ -81,9 +76,16 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
     function GetSessionList() {
         const allSessionsView = []
             for (let i = 0; i < allSessions.length; i++) {
+                // Get free slots
+                const curFreeSlots = allSessions[i].slot_ids.reduce(
+                    (acc, cur) => (cur == null) ? acc + 1 : acc, 0
+                );
+                const curMaxSlots = allSessions[i].max_slots;
+                const curTakenSlots = curMaxSlots - curFreeSlots;
+
                 allSessionsView.push(
-                    <li key={'game' + i}> <button className='startmenu_button'
-                        onClick={() => onJoinGame(allSessions[i])}> Max_slots: {allSessions[i].max_slots} 
+                    <li key={'game' + i} className="join_game_entry"> <button className='startmenu_button'
+                        onClick={() => onJoinGame(allSessions[i], curFreeSlots)}> Game ({curTakenSlots + "/" + curMaxSlots}) 
                     </button> </li>
                 );
             }
@@ -149,22 +151,25 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
         <div className='start_container'>
             <h2 className='welcome_text'>Welcome in {playerData.name}</h2>
             <div className='start_game_container'>
-                <h2>Start a new game</h2>
+                <h3>Create a new game</h3>
                 <p>Max number of players:</p>
-                <ul>
-                    <li key="slotsize2"><button className='startmenu_button' onClick={() => setMaxSlots(2)} >2</button></li>
-                    <li key="slotsize3"><button className='startmenu_button' onClick={() => setMaxSlots(3)} >3</button></li>
-                    <li key="slotsize4"><button className='startmenu_button' onClick={() => setMaxSlots(4)} >4</button></li>
-                </ul> 
-                <button onClick={onStartGame}>Create new game</button>
+                <div className='select_slot_container'>
+                    <button className='startmenu_button' onClick={() => setMaxSlots(2)} >2</button>
+                    <button className='startmenu_button' onClick={() => setMaxSlots(3)} >3</button>
+                    <button className='startmenu_button' onClick={() => setMaxSlots(4)} >4</button>
+
+                </div>
+                
+                 
+                <button className='startmenu_button' onClick={onStartGame}>Create new game</button>
             </div>
             <div className='game_list_container'>
-            <h2>List all games</h2>
+            <h3>Join a game</h3>
             <ul>
                 <GetSessionList />
             </ul>
             </div>
-            <button onClick={selectLogin}>Log out</button>
+            <button className='startmenu_button' onClick={selectLogin}>Log out</button>
         </div>
         </>
     );
