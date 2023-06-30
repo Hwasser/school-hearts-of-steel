@@ -149,6 +149,7 @@ export default function Game(sessionData) {
                         objectIds={provinceId}
                         armies={armies}    
                         session={session}
+                        player={player}
                         />
                     <Footer 
                         properties={properties} 
