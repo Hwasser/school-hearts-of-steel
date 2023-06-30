@@ -1,0 +1,28 @@
+.start_container {
+        display: flexbox;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+}
+
+.welcome_text {
+    text-align: center;
+    margin: 8px;
+}
+
+.startmenu_button {
+    padding: 4 4px;
+    margin: 4px;
+    width: 90%;
+    white-space: nowrap;
+}
+
+.start_game_container {
+    background-color: white;
+}
+
+.game_list_container {
+    background-color: white;
+}

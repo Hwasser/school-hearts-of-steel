@@ -8,7 +8,7 @@ import { armyMove, armyAttack } from './functionality/manageArmies';
 
 import { useState, useEffect } from 'react';  
 
-export default function Game() {
+export default function Game(sessionData) {
 
     const nProvinces = 9;
     
@@ -25,43 +25,26 @@ export default function Game() {
     const [armies, setArmies] = useState([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
     // Player data
     const [player, setPlayer] = useState({name: '', password: ''});
-
+    // About the game session
+    const [session, setSession] = useState(null);
+    // Which player slot the player has in the session
+    let slotIndex = 0;
+    
     // If the program starts for the first time, init stuff. 
     // TODO: This should be replaced with a login screen
     const [hasStarted, setHasStarted] = useState(false);
 
-    function startGame(playerData) {
+    function startGame(playerData, sessionData) {
         initAllProvinces();
         setPlayer(playerData);
         setHasStarted(true);
+        setSession(sessionData);
+        slotIndex = sessionData.slot_names.findIndex( (e) => e == playerData.name);
     }
 
     // Handle selection of provinces from the database
     function handleSelectProvince(provinceData, selecting) { 
         setProperties(provinceData);
-    }
-
-    // Handle province names and owners for the view
-    function handleProvinceNames(allProvinces) {
-        // Get a list of all province names and owners
-        const provinceNamesLocal = Array(nProvinces);
-        const provinceOwnersLocal = Array(nProvinces);
-        const provinceIdLocal = Array(nProvinces);
-
-        for (let i = 0; i < nProvinces; i++) {
-            provinceNamesLocal[i]  = allProvinces[i]['name']
-            provinceOwnersLocal[i] = allProvinces[i]['owner']
-            provinceIdLocal[i] = allProvinces[i]['objectId']
-        }
-
-        console.log(allProvinces);
-
-        setProvinceNames(provinceNamesLocal);
-        setProvinceOwners(provinceOwnersLocal);
-        setProvinceId(provinceIdLocal);
-
-        // Reset all army slots
-        setArmies([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
     }
 
     function handleRaiseArmy(provinceInfo) {
@@ -157,7 +140,7 @@ export default function Game() {
             )}
             {hasStarted && (
                 <div className='game_view'>
-                    <Header updateProvinceNames={handleProvinceNames} playerData={player} />
+                    <Header player={player} session={session} slotIndex={slotIndex} />
                     <GameUI 
                         onSelectAction={handleSelectProvince} 
                         updateArmies={handleUpdateArmies}
@@ -165,8 +148,15 @@ export default function Game() {
                         owners={provinceOwners} 
                         objectIds={provinceId}
                         armies={armies}    
+                        session={session}
                         />
-                    <Footer properties={properties} onRaiseArmy={handleRaiseArmy} onBuildBuilding={handleBuildBuilding} />
+                    <Footer 
+                        properties={properties} 
+                        onRaiseArmy={handleRaiseArmy} 
+                        onBuildBuilding={handleBuildBuilding} 
+                        session={session}
+                        slotIndex={slotIndex}
+                        />
                 </div>
             )}
             </>

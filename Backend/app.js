@@ -6,6 +6,7 @@ const cors = require('cors');
 const provinces = require('./routes/api/provinces');
 const armies    = require('./routes/api/armies');
 const players   = require('./routes/api/players');
+const sessions   = require('./routes/api/sessions');
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.get('/', (req, res) => res.send('Hello world!'));
 app.use('/api/provinces', provinces);
 app.use('/api/armies',    armies);
 app.use('/api/players',   players);
+app.use('/api/sessions',  sessions);
 
 const port = process.env.PORT || 8082;
 

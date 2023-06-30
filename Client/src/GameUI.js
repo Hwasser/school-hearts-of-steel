@@ -3,7 +3,7 @@ import './GameUI.css';
 import Province from './components/Province';
 import React, { useEffect } from 'react';  
 
-export default function GameUI( {onSelectAction, updateArmies, names, owners, objectIds, armies} ) {
+export default function GameUI( {onSelectAction, updateArmies, names, owners, objectIds, armies, session} ) {
   const worldSize = 3;
 
   function onSelectProvince(index) {
@@ -78,16 +78,15 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ob
             const owner = owners[index];
             // Armies in province -> provArmies[slot][province index]
             const provArmies = [armies[0][index], armies[1][index], armies[2][index], armies[3][index]]
-              // TODO: click-function just placeholder
               listItems.push(<Province 
                 id={index} 
-                key={index}
                 onProvinceClick={ () => onSelectProvince(index) }
                 onArmyClick={onSelectArmy}
                 owner={owner}
                 name={name} 
                 armies={provArmies}
                 moveArmy={onMoveArmy}
+                session={session}
               />);
           }
           body.push(<div className='world_row'> {listItems} </div>);

@@ -1,13 +1,21 @@
 import Login from './components/Login';
 import Register from './components/Register';
+import StartMenu from './components/StartMenu';
 import './MainMenu.css';
 import { useState } from 'react'; 
 
 export default function MainMenu( {startGameAction} ) {
     const [whichMenu, setWhichMenu] = useState('login');
+    const [playerData, setPlayerData] = useState(null);
 
-    function onLogin(playerData) {
-        startGameAction(playerData);
+    function onLogin(newPlayerData) {
+        setPlayerData(newPlayerData);
+        setWhichMenu('start');        
+    }
+
+    function onStartGame(sessionData) {
+        console.log("STARTED GAME!");
+        startGameAction(playerData, sessionData);
     }
 
     const setRegisterMenu = () => {setWhichMenu('register')};
@@ -21,6 +29,12 @@ export default function MainMenu( {startGameAction} ) {
             )}
             {whichMenu == 'register' && (
                 <Register selectLogin={setLoginMenu} />
+            )}
+            {whichMenu == 'start' && (
+                <StartMenu 
+                    selectLogin={setLoginMenu} 
+                    startGameAction={onStartGame} 
+                    playerData={playerData} />
             )}
             </div>
         </>

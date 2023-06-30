@@ -1,45 +1,34 @@
 import './Header.css';
-import startNewGame from './functionality/startNewGame';
 
-export default function Header( {updateProvinceNames, playerData} ) {
+export default function Header( {player, session, slotIndex} ) {
 
-  // When starting a new game, reset all provinces and return names to view
-  const onStartNewGame = () => { startNewGame(updateProvinceNames) }    
-  
   return (
     <div className="header">
 
       <div className="header_box">
         <span id="player_text"> Player: </span>
-        <span id="player_value"> {playerData.name} </span> 
+        <span id="player_value"> {player.name} </span> 
       </div>
 
       <div className="header_box">
         <span id="name1"> Food: </span>
-        <span id="value1"> 100 </span> 
+        <span id="value1"> {(session == null) ? 0 : session.food[slotIndex]} </span> 
       </div>
 
       <div className="header_box">
         <span id="name2"> Fuel: </span>
-        <span id="value2"> 100 </span> 
+        <span id="value2"> {(session == null == null) ? 0 : session.fuel[slotIndex]} </span> 
       </div>
 
       <div className="header_box">
         <span id="name3"> Tools: </span>
-        <span id="value3"> 100 </span> 
+        <span id="value3"> {(session == null == null) ? 0 : session.tools[slotIndex]} </span> 
       </div>
 
       <div className="header_box">
         <span id="name4"> Material: </span>
-        <span id="value4"> 100 </span> 
+        <span id="value4"> {(session == null == null) ? 0 : session.material[slotIndex]} </span> 
       </div>
-
-
-
-      <button className='restart_button' onClick={onStartNewGame}> 
-        Restart Game 
-      </button>
-
     </div>
   );
 }
