@@ -9,14 +9,6 @@ import './RaiseArmy.css';
  * Contains the menu for raising armies within a province.
  */
 export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseArmy, session, slotIndex}) {
-
-  // When the "raise army" button has been pushed, 
-  // update the workforce and push back to interface
-  function onRaiseAction(toRaise) {
-    const newValue = curWorkforce - toRaise; 
-    updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy);
-  }
-
   // Minimum amout to draft or to be left in province
   const minLimit = 10;
   const workforce = fromProvince['workforce'];
@@ -27,6 +19,23 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
   // State of slide value
   const [state, setSlide] = useState(Math.floor(workforce / 2));
   const [showErrorState, setshowErrorState] = useState('');
+
+  // Whether to draw the "raise army" bar at all
+  const errorState = (findArmySlot(fromProvince) == null) ? 'slots' :
+    ( (workforce < 20) ? 'workforce' : 'none' );
+
+  // When the "raise army" button has been pushed, 
+  // update the workforce and push back to interface
+  function onRaiseAction(toRaise, curCost, canAfford) {
+    if (!canAfford) {
+      setshowErrorState("You annot afford this army!");
+      return;
+    }
+
+    const newValue = curWorkforce - toRaise; 
+    updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy);
+  }
+
   
   // Whether to reset the slider
   if (workforce != curWorkforce) {
@@ -34,9 +43,6 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
     setSlide(Math.floor(workforce/ 2));
   }
   
-  // Whether to draw the "raise army" bar at all
-  const errorState = (findArmySlot(fromProvince) == null) ? 'slots' :
-    ( (workforce < 20) ? 'workforce' : 'none' );
 
   // Show error message if raise army cannot be used!
   if (active && errorState != 'none' && showErrorState == '') {
@@ -65,10 +71,12 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
         setSlide(e.target.value);
       };
 
-      const canAffordFood = (state * costs['food'] <= session.food[slotIndex]) ? 'black' : 'red';
-      const canAffordTools = (state * costs['tools'] <= session.tools[slotIndex]) ? 'black' : 'red';
+      // The price to build an army at slider position
+      const curPrice = {food: state * costs['food'], tools: state * costs['tools']}
+      const canAffordFood  = curPrice['food']  <= session.food[slotIndex];
+      const canAffordTools = curPrice['tools'] <= session.tools[slotIndex];
+      const canAfford = canAffordFood && canAffordTools;
       
-
       const Slider = () => (
         <>
 
@@ -80,8 +88,10 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
         )}
         <div className='raise_army' style={{display: toDraw}}>
           <h2>Raise Army</h2>
-          <p className='raise_army_costs' style={{color: canAffordFood}} >Food: {state * costs['food']}</p>
-          <p className='raise_army_costs' style={{color: canAffordTools }}>Tools: {state * costs['tools']}</p>
+          <p className='raise_army_costs' style={{color: (canAffordFood)  ? 'black' : 'red'}}>
+            Food: {state * costs['food']}</p>
+          <p className='raise_army_costs' style={{color: (canAffordTools) ? 'black' : 'red' }}>
+            Tools: {state * costs['tools']}</p>
           <input
             className='slider'
             type="range"
@@ -98,7 +108,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
           </div>
           <button 
             className='confirm_button'
-            onClick={() => {onRaiseAction(state)}} 
+            onClick={() => {onRaiseAction(state, curPrice, canAfford)}} 
           > 
           Confirm
           </button>

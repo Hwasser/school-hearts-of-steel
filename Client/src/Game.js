@@ -146,7 +146,6 @@ export default function Game(sessionData) {
                         updateArmies={handleUpdateArmies}
                         names={provinceNames} 
                         owners={provinceOwners} 
-                        objectIds={provinceId}
                         armies={armies}    
                         session={session}
                         player={player}
