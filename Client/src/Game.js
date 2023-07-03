@@ -28,7 +28,7 @@ export default function Game(sessionData) {
     // About the game session
     const [session, setSession] = useState(null);
     // Which player slot the player has in the session
-    let slotIndex = 0;
+    const [slotIndex, setSlotIndex] = useState(0);
     
     // If the program starts for the first time, init stuff. 
     // TODO: This should be replaced with a login screen
@@ -39,7 +39,9 @@ export default function Game(sessionData) {
         setPlayer(playerData);
         setHasStarted(true);
         setSession(sessionData);
-        slotIndex = sessionData.slot_names.findIndex( (e) => e == playerData.name);
+        const curSlot = sessionData.slot_names.findIndex( (e) => e == playerData.name);
+        setSlotIndex(curSlot);
+
     }
 
     // Handle selection of provinces from the database
