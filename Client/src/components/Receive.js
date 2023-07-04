@@ -13,9 +13,16 @@ function Receive({setSession, setArmies, setProvinceOwners }) {
     eventSource.onmessage = (event) => {
       const message = event.data;
       try {
+        console.log(message);
         const document = JSON.parse(message)
-        if (document.max_slots != null) {
-          setSession(document);
+        if (document.purpose == 'update_resources') {
+          setSession(document.package);
+          // TODO: And update the province view
+        } else if (document.purpose == 'army_moved') {
+          // TODO: Update the provinces on the map
+        } else if (document.purpose == 'army_won') {
+          // TODO: Update the provinces on the map
+          // TODO: Update the province owners
         }
       } catch {
         console.log('Received message:', message);
