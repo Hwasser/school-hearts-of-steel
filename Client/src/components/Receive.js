@@ -4,15 +4,23 @@ import React, { useEffect } from 'react';
  * A component for receiving push events from the backend
  */
 
-const Receive = () => {
+function Receive({setSession, setArmies, setProvinceOwners }) {
   useEffect(() => {
     const eventSource = new EventSource('http://localhost:5001/rec');
+
 
     // Event handler for receiving SSE messages
     eventSource.onmessage = (event) => {
       const message = event.data;
-      console.log('Received message:', message);
-      // Handle the received message as needed
+      try {
+        const document = JSON.parse(message)
+        if (document.max_slots != null) {
+          setSession(document);
+        }
+      } catch {
+        console.log('Received message:', message);
+      }
+      
     };
 
     // Event handler for SSE errors
@@ -37,5 +45,14 @@ const Receive = () => {
     </div>
   );
 };
+
+function testJSON(input) {
+  try {
+      JSON.parse(input);
+      return true;
+  } catch (error) {
+      return false;
+  }
+}
 
 export default Receive;

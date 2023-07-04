@@ -7,10 +7,10 @@ let broadcastClients = [];
 
 function gameSessionStart(id) {
     try {
-        Console.log("broadcast: started game session", id);
+        console.log("broadcast: started game session", id);
         // A loop for updating resources for all users
         const sessionLoop = setInterval(() => {
-            updateResuources(id);
+            updateResources(id);
         }, timePerUpdate);
         // Add session to list of sessions
         const gameSession = {id: id, loop: sessionLoop};
@@ -32,23 +32,29 @@ function gameSessionSetupClients(clients) {
     broadcastClients = clients;
 }
 
+
 // Function to send SSE messages to all clients
 function broadcastMessage(message) {
-    clients.forEach(client => {
+    broadcastClients.forEach(client => {
       client.res.write(`data: ${message}\n\n`); // Send SSE message to client
     });
   }
 
-async function updateResuources(id) {
-    const document = await Session.findById(id);
-    // Change value
-    for (let i = 0; i < document.max_slots; i++) {
-        updatePerUser(i, document);
+async function updateResources(id) {
+    console.log("Updates resources!");
+    try {
+        const document = await Session.findById(id);
+        // Change value
+        for (let i = 0; i < document.max_slots; i++) {
+            updatePerUser(i, document);
+        }
+        // Store and broadcast updated value
+        const message = JSON.stringify(document);
+        broadcastMessage(message);
+        document.save();
+    } catch (err) {
+        console.log("Couldnt update res:", err);
     }
-    // Store and broadcast updated value
-    const message = JSON.stringify(document);
-    broadcastMessage(message);
-    await document.save();
 }
 
 // TODO: Do correct updates per user depending on provinces

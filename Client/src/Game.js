@@ -3,6 +3,7 @@ import Header from './Header';
 import GameUI from './GameUI';
 import Footer from './Footer';
 import MainMenu from './MainMenu';
+import Receive from './components/Receive';
 
 import axios from 'axios';
 import { armyMove, armyAttack } from './functionality/manageArmies';
@@ -149,47 +150,11 @@ export default function Game(sessionData) {
             console.log(e)
         });
     }
-
-    const Receive = () => {
-        const [message, setMessage] = useState('');
-        useEffect(() => {
-        const eventSource = new EventSource('http://localhost:5001/rec');
-    
-        // Event handler for receiving SSE messages
-        eventSource.onmessage = (event) => {
-        const message = event.data;
-        console.log('Received message:', message);
-        // Handle the received message as needed
-        setMessage(message);
-        };
-    
-        // Event handler for SSE errors
-        eventSource.onerror = (error) => {
-        console.error('SSE error:', error);
-        };
-    
-        // Event handler for SSE connection closure
-        eventSource.onclose = () => {
-        console.log('SSE connection closed');
-        };
-    
-        // Clean up the event source when the component unmounts
-        return () => {
-            eventSource.close();
-        };
-        }, []);
-        
-        return (
-            <div>
-            <p>{message}</p>
-            </div>
-        );
-    };
         
     const renderGame = () => {
         return (
             <>
-            <Receive />
+            <Receive setSession={setSession} setArmies={setArmies} setProvinceOwners={setProvinceOwners} />
             {!hasStarted && (
                 <MainMenu startGameAction={startGame} />
             )}
