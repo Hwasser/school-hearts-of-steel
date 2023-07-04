@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Session = require('../../models/Session');
 const Province = require('../../models/Province');
-const gameSession = require('../../gameSession');
+const { gameSessionStart, gameSessionStop } = require('../../broadcast');
 
 // @route GET api/Session/
 // @description Get all sessions
@@ -28,7 +28,7 @@ router.get('/:id', (req, res) => {
 router.post('/', (req, res) => {
   Session.create(req.body)
     .then(session => {
-      gameSession.gameSessionStart(session._id); // Start a game loop
+      gameSessionStart(session._id); // Start a game loop
       res.json({ session: session, msg: 'Session added successfully' });
     })
     .catch(err => res.status(400).json({ error: 'Unable to add this Session' }));
@@ -52,7 +52,7 @@ router.put('/:id', async (req, res) => {
   if (req.body.purpose == 'buy_stuff') {
     try {
       const slotIndex = req.body.slotIndex;
-      const document = await Session.findById(req.params.id)
+      const document = await Session.findById(req.params.id);
       // Change value
       document.food[slotIndex]     -= req.body.food;
       document.fuel[slotIndex]     -= req.body.fuel;
@@ -83,7 +83,7 @@ router.delete('/:id', (req, res) => {
 router.delete('/', (req, res) => {
   Session.deleteMany({})
     .then(session => {
-      gameSession.gameSessionClose(session); // Close all current game sessions;
+      gameSessionStop(); // Close all current game sessions;
       res.json({ mgs: 'All sessions removed' });
     })
     .catch(err => res.status(404).json({ error: 'Couldnt remove all sessions' }));

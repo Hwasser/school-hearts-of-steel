@@ -3,6 +3,7 @@ import Header from './Header';
 import GameUI from './GameUI';
 import Footer from './Footer';
 import MainMenu from './MainMenu';
+
 import axios from 'axios';
 import { armyMove, armyAttack } from './functionality/manageArmies';
 
@@ -33,7 +34,8 @@ export default function Game(sessionData) {
     // If the program starts for the first time, init stuff. 
     // TODO: This should be replaced with a login screen
     const [hasStarted, setHasStarted] = useState(false);
-
+    
+    // Stuff to setup as soon as the player joins the game
     function startGame(playerData, sessionData) {
         initAllProvinces();
         setPlayer(playerData);
@@ -41,7 +43,6 @@ export default function Game(sessionData) {
         setSession(sessionData);
         const curSlot = sessionData.slot_names.findIndex( (e) => e == playerData.name);
         setSlotIndex(curSlot);
-
     }
 
     // Handle selection of provinces from the database
@@ -49,6 +50,7 @@ export default function Game(sessionData) {
         setProperties(provinceData);
     }
 
+    // Update a game session with the newest information from the backend
     function updateSession() {
         axios
         .get(`http://localhost:8082/api/sessions/${session._id}`)
@@ -147,10 +149,47 @@ export default function Game(sessionData) {
             console.log(e)
         });
     }
+
+    const Receive = () => {
+        const [message, setMessage] = useState('');
+        useEffect(() => {
+        const eventSource = new EventSource('http://localhost:5001/rec');
+    
+        // Event handler for receiving SSE messages
+        eventSource.onmessage = (event) => {
+        const message = event.data;
+        console.log('Received message:', message);
+        // Handle the received message as needed
+        setMessage(message);
+        };
+    
+        // Event handler for SSE errors
+        eventSource.onerror = (error) => {
+        console.error('SSE error:', error);
+        };
+    
+        // Event handler for SSE connection closure
+        eventSource.onclose = () => {
+        console.log('SSE connection closed');
+        };
+    
+        // Clean up the event source when the component unmounts
+        return () => {
+            eventSource.close();
+        };
+        }, []);
+        
+        return (
+            <div>
+            <p>{message}</p>
+            </div>
+        );
+    };
         
     const renderGame = () => {
         return (
             <>
+            <Receive />
             {!hasStarted && (
                 <MainMenu startGameAction={startGame} />
             )}
