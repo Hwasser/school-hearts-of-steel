@@ -53,6 +53,9 @@ async function updateResources(id) {
         }
         // Store and broadcast updated value
         sessions.save();
+        for (let i = 0; i < provinces.length; i++) {
+            provinces[i].save();
+        }
         const message = JSON.stringify({purpose: 'update_resources', package: sessions});
         broadcastMessage(message);
     } catch (err) {
