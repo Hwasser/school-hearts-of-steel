@@ -1,3 +1,5 @@
+import React from 'react'
+
 import './Game.css';
 import Header from './Header';
 import GameUI from './GameUI';
@@ -40,10 +42,10 @@ export default function Game(sessionData) {
     function startGame(playerData, sessionData) {
         initAllProvinces();
         setPlayer(playerData);
-        setHasStarted(true);
         setSession(sessionData);
         const curSlot = sessionData.slot_names.findIndex( (e) => e == playerData.name);
         setSlotIndex(curSlot);
+        setHasStarted(true);
     }
 
     // Handle selection of provinces from the database
@@ -154,12 +156,20 @@ export default function Game(sessionData) {
     const renderGame = () => {
         return (
             <>
-            <Receive setSession={setSession} setArmies={setArmies} setProvinceOwners={setProvinceOwners} />
+
             {!hasStarted && (
                 <MainMenu startGameAction={startGame} />
             )}
             {hasStarted && (
                 <div className='game_view'>
+                <Receive 
+                setSession={setSession} 
+                setArmies={setArmies} 
+                setProvinceOwners={setProvinceOwners} 
+                armies={armies}
+                provinceOwners={provinceOwners}    
+                hasStarted={hasStarted}
+                />
                     <Header player={player} session={session} slotIndex={slotIndex} />
                     <GameUI 
                         onSelectAction={handleSelectProvince} 

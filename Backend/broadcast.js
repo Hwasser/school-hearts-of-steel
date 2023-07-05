@@ -33,6 +33,15 @@ function gameSessionSetupClients(clients) {
     broadcastClients = clients;
 }
 
+function updateProvince(province) {
+    try {
+        const message = JSON.stringify({purpose: 'update_province', package: province});
+        broadcastMessage(message);
+    } catch (err) {
+        console.log("Failed to update province:", err);
+    }
+}
+
 
 // Function to send SSE messages to all clients
 function broadcastMessage(message) {
@@ -97,7 +106,7 @@ function mineResources(nUsers, provinces, users) {
         scavangeMaterial = scavangeResource(provinces, i, province.workforce, 'material');
         userResources[slot].material += province.mines * 5 + scavangeMaterial;
         // Also add manpower to the province
-        provinces[i]['workforce'] += province.farms;
+        provinces[i]['workforce'] += province.houses;
     }
 
     return userResources;
@@ -120,5 +129,5 @@ function scavangeResource(provinces, n, workforce, resource) {
     return scavangeResActual;
 }
 
-module.exports = { gameSessionStart, gameSessionStop, gameSessionSetupClients };
+module.exports = { gameSessionStart, gameSessionStop, gameSessionSetupClients, updateProvince };
 

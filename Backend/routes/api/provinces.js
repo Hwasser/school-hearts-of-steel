@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { updateProvince } = require('../../broadcast');
 
 const Province = require('../../models/Province');
 
@@ -35,7 +36,10 @@ router.post('/', (req, res) => {
 // @access Public
 router.put('/:id', (req, res) => {
   Province.findByIdAndUpdate(req.params.id, req.body)
-    .then(province => res.json({ msg: 'Updated successfully' }))
+    .then(province => {
+      updateProvince(req.body);
+      res.json({ msg: 'Updated successfully' });
+    })
     .catch(err =>
       res.status(400).json({ error: 'Unable to update the Database' })
     );
