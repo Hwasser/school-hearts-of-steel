@@ -172,6 +172,7 @@ export default function Game(sessionData) {
                 const updatedSession = receiveResourceUpdate({... session}, slotIndex);
                 setSession(updatedSession);
             } else if (document.purpose == 'update_province') {
+                //TODO: Can this be removed?s
                 const province = document.package;
                 // Make a copy of old state
                 const armiesCopy = [... armies];
@@ -186,6 +187,7 @@ export default function Game(sessionData) {
                 // Replace with copy
                 setArmies(armiesCopy);
                 setProvinceOwners(ownersCopy);
+                // TODO: ..?
             } else if (document.purpose == 'move_army') {
                 const armiesCopy = receiveMoveArmy(document.package, [... armies]);
                 setArmies(armiesCopy);
