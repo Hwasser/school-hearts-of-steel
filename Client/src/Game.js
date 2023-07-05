@@ -163,13 +163,13 @@ export default function Game(sessionData) {
         // Event handler for receiving SSE messages
         eventSource.onmessage = (event) => {
 
+            
             const message = event.data;
-            try {
-                //console.log(message);   
+            try {   
             const document = JSON.parse(message)
             if (document.purpose == 'update_resources') {
                 // Update players resources at each tick
-                const updatedSession = receiveResourceUpdate({... session}, slotIndex);
+                const updatedSession = receiveResourceUpdate(document.package, {... session}, slotIndex);
                 setSession(updatedSession);
             } else if (document.purpose == 'update_province') {
                 //TODO: Can this be removed?s
