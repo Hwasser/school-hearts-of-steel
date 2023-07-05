@@ -205,6 +205,10 @@ export default function Game(sessionData) {
                 console.log(replaceIndex, newOwner, ownersCopy);
                 setProvinceOwners(ownersCopy);
                 updateSession();
+            } else if (document.purpose == 'player_won') {
+                console.log(winner, "won the game!");
+                const winner = document.package.whoWon;
+                setHasStarted(false);
             }
             } catch {
             console.log('Received message:', message);
