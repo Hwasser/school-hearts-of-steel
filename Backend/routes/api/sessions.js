@@ -1,8 +1,8 @@
 const express = require('express');
-const Session = require('../../models/Session');
 const router = express.Router();
-
-const Province = require('../../models/Session');
+const Session = require('../../models/Session');
+const Province = require('../../models/Province');
+const { gameSessionStart, gameSessionStop } = require('../../broadcast');
 
 // @route GET api/Session/
 // @description Get all sessions
@@ -27,7 +27,10 @@ router.get('/:id', (req, res) => {
 // @access Public
 router.post('/', (req, res) => {
   Session.create(req.body)
-    .then(province => res.json({ province: province, msg: 'Session added successfully' }))
+    .then(session => {
+      gameSessionStart(session._id); // Start a game loop
+      res.json({ session: session, msg: 'Session added successfully' });
+    })
     .catch(err => res.status(400).json({ error: 'Unable to add this Session' }));
 });
 
@@ -35,7 +38,6 @@ router.post('/', (req, res) => {
 // @description Update Session
 // @access Public
 router.put('/:id', async (req, res) => {
-  console.log("Something happened:", req.body);
   // If we are adding a player to the session
   if (req.body.purpose == 'add_player') {
     delete req.body.purpose; // This is meta-data for PUT-requests
@@ -49,7 +51,7 @@ router.put('/:id', async (req, res) => {
   if (req.body.purpose == 'buy_stuff') {
     try {
       const slotIndex = req.body.slotIndex;
-      const document = await Session.findById(req.params.id)
+      const document = await Session.findById(req.params.id);
       // Change value
       document.food[slotIndex]     -= req.body.food;
       document.fuel[slotIndex]     -= req.body.fuel;
@@ -79,7 +81,10 @@ router.delete('/:id', (req, res) => {
 // @access Public
 router.delete('/', (req, res) => {
   Session.deleteMany({})
-    .then(province => res.json({ mgs: 'All sessions removed' }))
+    .then(session => {
+      gameSessionStop(); // Close all current game sessions;
+      res.json({ mgs: 'All sessions removed' });
+    })
     .catch(err => res.status(404).json({ error: 'Couldnt remove all sessions' }));
 });
 
