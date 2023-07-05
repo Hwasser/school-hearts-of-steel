@@ -75,7 +75,6 @@ router.put('/', async (req, res) => {
 });
 
 async function attackOrMoveArmy(package, purpose) {
-  console.log(purpose); // TODO: REMOVE
   const fromProvince = package.from;
   const toProvince = package.to;
   const armies     = package.armies;
@@ -96,7 +95,6 @@ async function attackOrMoveArmy(package, purpose) {
   if (purpose == 'move_army') {
     moveArmy(fromDocument, toDocument);
   } else {
-    console.log("33333333"); // TODO: REMOVE
     toDocument.owner = package.winner;
     attackArmy(fromDocument, toDocument);
   }
