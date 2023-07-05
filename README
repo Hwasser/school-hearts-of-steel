@@ -1,21 +1,21 @@
-Hearts of steel v 0.0.2
+## Hearts of steel v 0.1.0
 author: Victor Hwasser
 email: victorhwasser@gmail.com
 
-Features:
+### Features:
 - Frontend
 - Backend with RESTful interface
 - Database
-- Generates provinces
-- Selectable provinces
+- You can build armies in provinces, build buildings and attack other provinces and their armies.
+
+### Run instructions
 
 Run by first starting the backend: npm run app
 Then by starting the frontend: npm start
 
 PS: You need a local MongoDB server up and running for it to work right now
 
-
-Game instructions:
+### Game instructions:
 
 - The goal is to conquer all provinces.
 - The topbar shows the player name and all resources that can be used.
