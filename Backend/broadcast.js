@@ -33,9 +33,39 @@ function gameSessionSetupClients(clients) {
     broadcastClients = clients;
 }
 
-function updateProvince(province) {
+async function updateProvince(province) {
     try {
         const message = JSON.stringify({purpose: 'update_province', package: province});
+        broadcastMessage(message);
+    } catch (err) {
+        console.log("Failed to update province:", err);
+    }
+}
+
+async function moveArmy(fromProvince, toProvince) {
+    try {
+        const message = JSON.stringify({purpose: 'move_army', 
+            package: {fromProvince: fromProvince, toProvince: toProvince}});
+        broadcastMessage(message);
+    } catch (err) {
+        console.log("Failed to move army:", err);
+    }
+}
+
+async function attackArmy(fromProvince, toProvince) {
+    try {
+        const message = JSON.stringify({purpose: 'attack_army', 
+            package: {fromProvince: fromProvince, toProvince: toProvince}});
+        broadcastMessage(message);
+    } catch (err) {
+        console.log("Failed to attack with army:", err);
+    }
+}
+
+async function playerJoined(province) {
+    try {
+        console.log("Player joined game");
+        const message = JSON.stringify({purpose: 'player_joined', package: province});
         broadcastMessage(message);
     } catch (err) {
         console.log("Failed to update province:", err);
@@ -72,7 +102,6 @@ async function updateResources(id) {
     }
 }
 
-// TODO: Do correct updates per user depending on provinces
 function updatePerUser(slotIndex, document, userResources) {
     document.food[slotIndex]     += userResources[slotIndex].food;
     document.fuel[slotIndex]     += userResources[slotIndex].fuel;
@@ -129,5 +158,13 @@ function scavangeResource(provinces, n, workforce, resource) {
     return scavangeResActual;
 }
 
-module.exports = { gameSessionStart, gameSessionStop, gameSessionSetupClients, updateProvince };
+module.exports = { 
+    gameSessionStart, 
+    gameSessionStop, 
+    gameSessionSetupClients, 
+    updateProvince, 
+    playerJoined, 
+    moveArmy,
+    attackArmy
+};
 

@@ -25,8 +25,7 @@ export async function armyMove(fromProvince, toProvince, army, fromSlot, armiesC
     }
 
     // Replace armies in provinces in the database
-    replaceArmyInProvince(fromProvince, armiesCopy, null);
-    replaceArmyInProvince(toProvince, armiesCopy, null);
+    postMovement(fromProvince, toProvince, armiesCopy);
 }
 
 
@@ -73,15 +72,14 @@ export async function armyAttack(fromProvince, toProvince, army, fromSlot, armie
     }
 
     // If the attacker survived, make sure he's been placed in the new province
-    replaceArmyInProvince(fromProvince, armiesCopy);
     if (attackingArmy['soldiers'] > 0) {
         armiesCopy[0][toProvince] = army;
         updateArmy(attackingArmy);
-        replaceArmyInProvince(toProvince, armiesCopy, attackingArmy['owner']);
+        postAttack(fromProvince, toProvince, armiesCopy, attackingArmy['owner']);
         console.log(army, "won and will be moved to province.", "Soldiers left:", attackingArmy['soldiers']);
         return attackingArmy['owner'];
     } else {
-        replaceArmyInProvince(toProvince, armiesCopy, null);
+        postAttack(fromProvince, toProvince, armiesCopy, null);
         return '';
     }
 }
@@ -152,30 +150,27 @@ function updateArmy(army){
         });
 }
 
-function replaceArmyInProvince(provinceId, armies, player) {
-    // First we must get the latest properties of the province
-    axios.get('http://localhost:8082/api/provinces/', {
-    params: { id: provinceId}
-    })
-    .then( (res) => {
-        // Update province with new army data
-        const province = res.data[0];
-        const id = province['_id'];
-        province['army1'] = armies[0][provinceId];
-        province['army2'] = armies[1][provinceId];
-        province['army3'] = armies[2][provinceId];
-        province['army4'] = armies[3][provinceId];
-        // Update owner if player conquers province
-        if (player != null) {
-            province['owner'] = player;
-        }
-        axios
-        .put(`http://localhost:8082/api/provinces/${id}`, province)
-        .catch((err) => {
-        console.log('Error in replacing armies in province: ' + err);
-        });
-    })
-    .catch( (e) => {
-    console.log(e)
+function postAttack(fromProvince, toProvince, armies, player) {
+    // If the attacker lost then just re-use the postMovement function
+    if (player == null) {
+        postMovement(fromProvince, toProvince, armies);
+    }
+    // Replace province owner if battle is won
+    const postPackage = { from: fromProvince, to: toProvince, armies: armies, winner: player};
+    // Post changes in both provinces
+    axios
+    .put('http://localhost:8082/api/provinces', {package: postPackage, purpose: 'attack_army'})
+    .catch((err) => {
+    console.log('Error in attack armies in province: ' + err);
+    });
+}
+
+function postMovement(fromProvince, toProvince, armies) {
+    const postPackage = { from: fromProvince, to: toProvince, armies: armies};
+    // Post changes in both provinces
+    axios
+    .put('http://localhost:8082/api/provinces', {package: postPackage, purpose: 'move_army'})
+    .catch((err) => {
+    console.log('Error in replacing armies in province: ' + err);
     });
 }

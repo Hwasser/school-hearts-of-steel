@@ -38,7 +38,6 @@ router.post('/', (req, res) => {
 // @description Update Session
 // @access Public
 router.put('/:id', async (req, res) => {
-  console.log("Something happened:", req.body);
   // If we are adding a player to the session
   if (req.body.purpose == 'add_player') {
     delete req.body.purpose; // This is meta-data for PUT-requests

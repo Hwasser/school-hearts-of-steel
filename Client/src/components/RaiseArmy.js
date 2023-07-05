@@ -132,7 +132,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
 // Update the amount of workers in province in database
 function updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy) {
   // Replace the province value with one with the new workforce
-  const province = fromProvince;
+  const province = {... fromProvince};
   // Get the document id of the province
   const id = province['_id'];
   // Check which province army slot to put army in
