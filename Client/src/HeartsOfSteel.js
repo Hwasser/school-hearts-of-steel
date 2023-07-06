@@ -3,27 +3,30 @@ import { useState } from 'react';
 
 import Receiver from './components/Receiver';
 import MainMenu from './components/menu/MainMenu';
-//import Game from './components/Game';
+import Game from './components/game/Game';
 
 export default function HeartsOfSteel() {
     const [hasStarted, setHasStarted] = useState(false);
+    const [sessionData, setSessionData] = useState(null);
+    const [playerData, setPlayerData] = useState({name: '', password: ''});
 
-    function handleStartGame(playerData, sessionData) {
+    function handleJoinGame(inputPlayerData, inputSessionData) {
+        setSessionData(inputSessionData);
+        setPlayerData(inputPlayerData);
         setHasStarted(true);
     }
-
+    
     return (
         <>
             {!hasStarted && (
-                <MainMenu onStartGame={handleStartGame} />
+                <MainMenu onJoinGame={handleJoinGame} />
             )}
-            {hasStarted && (
+            {hasStarted && sessionData != null && (
                 <div>
                     <Receiver />
-
+                    <Game playerData={playerData} sessionData={sessionData} />
                 </div>
             )}
         </>
-
     );
 }

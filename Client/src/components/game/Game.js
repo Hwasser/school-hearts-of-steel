@@ -6,20 +6,18 @@ import {
     receiveResourceUpdate, 
     receiveJoinedPlayer, 
     receiveUpdateProvince} 
-    from './functionality/receiveEvents';
+    from './../../functionality/receiveEvents';
 
 import './Game.css';
 import Header from './Header';
 import GameUI from './GameUI';
 import Footer from './Footer';
-import MainMenu from './MainMenu';
 
-import { armyMove, armyAttack } from './functionality/manageArmies';
+import { armyMove, armyAttack } from '../../functionality/manageArmies';
 
 import { useState, useEffect } from 'react';  
 
-export default function Game(sessionData) {
-
+export default function Game({playerData, sessionData}) {
     const nProvinces = 9;
     
     // All properties for a province or an army
@@ -39,20 +37,17 @@ export default function Game(sessionData) {
     const [session, setSession] = useState(null);
     // Which player slot the player has in the session
     const [slotIndex, setSlotIndex] = useState(0);
-    
-    // If the program starts for the first time, init stuff. 
-    // TODO: This should be replaced with a login screen
-    const [hasStarted, setHasStarted] = useState(false);
-    
-    // Stuff to setup as soon as the player joins the game
-    function handleStartGame(playerData, sessionData) {
-        initAllProvinces();
-        setPlayer(playerData);
+    if (sessionData != session) {
+        const curSlot = sessionData['slot_names'].findIndex( (e) => e == playerData.name);
         setSession(sessionData);
-        const curSlot = sessionData.slot_names.findIndex( (e) => e == playerData.name);
-        setSlotIndex(curSlot);
-        setHasStarted(true);
+        setPlayer(playerData);
     }
+
+
+    console.log("RUNS AGAIN!");
+    
+    // Setup all provinces
+    initAllProvinces();
 
     // Handle selection of provinces from the database
     function handleSelectProvince(provinceData, selecting) { 
@@ -213,7 +208,7 @@ export default function Game(sessionData) {
                 console.log("ASDASDASDSDA!!");
                 const winner = document.package;
                 console.log(winner, "won the game!");
-                setHasStarted(false);
+    
             }
             } catch {
             console.log('Received message:', message);
@@ -247,24 +242,26 @@ export default function Game(sessionData) {
     const renderGame = () => {
         return (
             <>
-            <Header player={player} session={session} slotIndex={slotIndex} />
-            <GameUI 
-                onSelectAction={handleSelectProvince} 
-                updateArmies={handleUpdateArmies}
-                names={provinceNames} 
-                owners={provinceOwners} // Pass the updated provinceOwners state here
-                armies={armies}    
-                session={session}
-                player={player}
-            />
-            <Footer 
-                properties={properties} 
-                onRaiseArmy={handleRaiseArmy} 
-                onBuildBuilding={handleBuildBuilding} 
-                session={session}
-                slotIndex={slotIndex}
-                player={player}
-            />
+            <div className='game_view'>
+                <Header player={player} session={session} slotIndex={slotIndex} />
+                <GameUI 
+                    onSelectAction={handleSelectProvince} 
+                    updateArmies={handleUpdateArmies}
+                    names={provinceNames} 
+                    owners={provinceOwners} // Pass the updated provinceOwners state here
+                    armies={armies}    
+                    session={session}
+                    player={player}
+                />
+                <Footer 
+                    properties={properties} 
+                    onRaiseArmy={handleRaiseArmy} 
+                    onBuildBuilding={handleBuildBuilding} 
+                    session={session}
+                    slotIndex={slotIndex}
+                    player={player}
+                />
+            </div>
             </>
         )
         

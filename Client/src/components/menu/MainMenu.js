@@ -4,7 +4,7 @@ import StartMenu from './StartMenu';
 import './MainMenu.css';
 import { useState } from 'react'; 
 
-export default function MainMenu( {onStartGame} ) {
+export default function MainMenu( {onJoinGame} ) {
     const [whichMenu, setWhichMenu] = useState('login');
     const [playerData, setPlayerData] = useState(null);
 
@@ -15,7 +15,7 @@ export default function MainMenu( {onStartGame} ) {
 
     function handleJoinGame(sessionData) {
         console.log("STARTED GAME!");
-        onStartGame(playerData, sessionData);
+        onJoinGame(playerData, sessionData);
     }
 
     const setRegisterMenu = () => {setWhichMenu('register')};
