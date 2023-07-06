@@ -15,6 +15,8 @@ export default function HeartsOfSteel() {
         setPlayerData(inputPlayerData);
         setHasStarted(true);
     }
+
+    console.log("MENU HAPPENS");
     
     return (
         <>
@@ -24,7 +26,7 @@ export default function HeartsOfSteel() {
             {hasStarted && sessionData != null && (
                 <div>
                     <Receiver />
-                    <Game playerData={playerData} sessionData={sessionData} />
+                    <Game playerData={{... playerData}} sessionData={{... sessionData}} />
                 </div>
             )}
         </>

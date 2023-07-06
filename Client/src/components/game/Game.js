@@ -18,6 +18,7 @@ import { armyMove, armyAttack } from '../../functionality/manageArmies';
 import { useState, useEffect } from 'react';  
 
 export default function Game({playerData, sessionData}) {
+    
     const nProvinces = 9;
     
     // All properties for a province or an army
@@ -32,22 +33,22 @@ export default function Game({playerData, sessionData}) {
     // VARIANT: armies[slot][province index]  
     const [armies, setArmies] = useState([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
     // Player data
-    const [player, setPlayer] = useState({name: '', password: ''});
+    const [player, setPlayer] = useState(playerData);
     // About the game session
-    const [session, setSession] = useState(null);
+    const [session, setSession] = useState(sessionData);
     // Which player slot the player has in the session
     const [slotIndex, setSlotIndex] = useState(0);
-    if (sessionData != session) {
+    const [hasStarted, setHasStarted] = useState(false);
+
+    // Fetch province information from the server once when opening the game
+    // and set slot index of the player.
+    // (in the game session each player fits in a slot in arrays of information)
+    if (!hasStarted) {
         const curSlot = sessionData['slot_names'].findIndex( (e) => e == playerData.name);
-        setSession(sessionData);
-        setPlayer(playerData);
+        setSlotIndex(curSlot);
+        initAllProvinces();
+        setHasStarted(true);
     }
-
-
-    console.log("RUNS AGAIN!");
-    
-    // Setup all provinces
-    initAllProvinces();
 
     // Handle selection of provinces from the database
     function handleSelectProvince(provinceData, selecting) { 
@@ -208,7 +209,6 @@ export default function Game({playerData, sessionData}) {
                 console.log("ASDASDASDSDA!!");
                 const winner = document.package;
                 console.log(winner, "won the game!");
-    
             }
             } catch {
             console.log('Received message:', message);
@@ -243,6 +243,7 @@ export default function Game({playerData, sessionData}) {
         return (
             <>
             <div className='game_view'>
+                <Receive />
                 <Header player={player} session={session} slotIndex={slotIndex} />
                 <GameUI 
                     onSelectAction={handleSelectProvince} 
