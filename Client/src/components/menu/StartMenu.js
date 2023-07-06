@@ -42,7 +42,11 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
             console.log('Failed adding player to session:', err.response);
           });
         // Update empty slot in province
-        const provinceData = {oldName: placeholderName, newName: playerData.name, purpose: 'replace_empty_slot'};
+        const provinceData = {
+            oldName: placeholderName, 
+            newName: playerData.name, 
+            sessionId: session._id,
+            purpose: 'replace_empty_slot'};
         await axios
         .put("http://localhost:8082/api/provinces", provinceData)
           .catch((err) => {

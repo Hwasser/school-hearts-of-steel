@@ -58,11 +58,10 @@ router.put('/', async (req, res) => {
   // When a player joins a gamez
   if (req.body.purpose == 'replace_empty_slot') {
     try {
-      delete req.body.purpose; // We don't need the meta-data anymore
       const documents = await Province.find({owner: req.body.oldName});
       const document = documents[0]; // Players only start with one province
       document.owner = req.body.newName;
-      broadcastPlayerJoined(document);
+      broadcastPlayerJoined(document, req.body.sessionId);
       await document.save();
       res.status(200).send('Session updated');
     } catch {

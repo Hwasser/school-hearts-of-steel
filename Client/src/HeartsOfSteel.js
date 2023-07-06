@@ -1,15 +1,7 @@
 import React, { useState } from 'react'
 
-import Receiver from './components/Receiver';
 import MainMenu from './components/menu/MainMenu';
 import Game from './components/game/Game';
-import {
-    receiveMoveArmy, 
-    receiveAttackArmy, 
-    receiveResourceUpdate, 
-    receiveJoinedPlayer, 
-    receiveUpdateProvince} 
-    from './functionality/receiveEvents';
 
 export default function HeartsOfSteel() {
     const [hasStarted, setHasStarted] = useState(false);
@@ -24,31 +16,6 @@ export default function HeartsOfSteel() {
         setPlayerData(inputPlayerData);
         setHasStarted(true);
     }
-
-    const handleUpdateResources = (message) => {
-        const updatedSession = receiveResourceUpdate(message, {... sessionData}, slotIndex);
-        setSessionData(updatedSession);
-    }
-
-    const handleUpdateProvince = (message) => {
-        //    
-    }
-
-    const handleMoveArmy = (message) => {
-        //
-    }
-
-    const handleAttackArmy = (message) => {
-        //
-    }
-
-    const handlePlayerJoined = (message) => {
-        //
-    }
-
-    const handlePlayerWon = (message) => {
-        //
-    }
     
     return (
         <>
@@ -56,16 +23,7 @@ export default function HeartsOfSteel() {
                 <MainMenu onJoinGame={handleJoinGame} />
             )}
             {hasStarted && sessionData != null && (
-                <div>
-                    <Receiver 
-                        onUpdateResources={handleUpdateResources} 
-                        onUpdateProvince={handleUpdateProvince} 
-                        onMoveArmy={handleMoveArmy}
-                        onAttackArmy={handleAttackArmy}
-                        onPlayerJoined={handlePlayerJoined}
-                        onPlayerWon={handlePlayerWon} />
-                    <Game player={playerData} session={sessionData} />
-                </div>
+                <Game player={playerData} sessionData={{... sessionData}} slotIndex={slotIndex} />
             )}
         </>
     );

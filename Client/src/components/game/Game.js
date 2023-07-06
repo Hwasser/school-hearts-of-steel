@@ -5,12 +5,23 @@ import './Game.css';
 import Header from './Header';
 import GameUI from './GameUI';
 import Footer from './Footer';
+import Receiver from '../Receiver';
+import {
+    receiveMoveArmy, 
+    receiveAttackArmy, 
+    receiveResourceUpdate, 
+    receiveJoinedPlayer, 
+    receiveUpdateProvince} 
+    from '../../functionality/receiveEvents';
 
 import { armyMove, armyAttack } from '../../functionality/manageArmies';
 
 import { useState } from 'react';  
 
-export default function Game({player, session}) {    
+export default function Game({player, sessionData, slotIndex}) {    
+
+    // ------------- Init data ------------
+
     const nProvinces = 9;
     
     // All properties for a province or an army
@@ -24,19 +35,114 @@ export default function Game({player, session}) {
     // Contains the documentId of each army in each slot and province
     // VARIANT: armies[slot][province index]  
     const [armies, setArmies] = useState([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
-    // Which player slot the player has in the session
-    const [slotIndex, setSlotIndex] = useState(0);
+    // We keep another session state in the HeartsOfSteel-module to store the session when
+    // starting the game. This one is regularly updated.
+    // It stores the name of all players and their resources
+    const [session, setSession] = useState(sessionData);
+    // We keep this state so we can fetch province data and stuff when the game starts
     const [hasStarted, setHasStarted] = useState(false);
 
     // Fetch province information from the server once when opening the game
     // and set slot index of the player.
     // (in the game session each player fits in a slot in arrays of information)
     if (!hasStarted) {
-        const curSlot = session['slot_names'].findIndex( (e) => e == player.name);
-        setSlotIndex(curSlot);
         initAllProvinces();
         setHasStarted(true);
     }
+
+    // Init all provinces when booting up the game
+    function initAllProvinces(index) {
+        const localProvinceNames = Array(nProvinces);
+        const localProvinceOwners = Array(nProvinces);
+        const localProvinceId = Array(nProvinces);
+        const localArmy1 = Array(nProvinces);
+        const localArmy2 = Array(nProvinces);
+        const localArmy3 = Array(nProvinces);
+        const localArmy4 = Array(nProvinces);
+        
+        axios.get('http://localhost:8082/api/provinces/')
+        .then( (res) => {
+            if (res.data.length !== 0) {
+                for (let i = 0; i < nProvinces; i++) {
+                    const province = res.data[i];
+                    localProvinceNames[i] = province['name'];
+                    localProvinceOwners[i] = province['owner'];
+                    localProvinceId[i] = province['_id']
+                    localArmy1[i] = province['army1'];
+                    localArmy2[i] = province['army2'];
+                    localArmy3[i] = province['army3'];
+                    localArmy4[i] = province['army4'];
+                }
+
+                setProvinceNames(localProvinceNames);
+                setProvinceOwners(localProvinceOwners);
+                setProvinceId(localProvinceId);
+                setArmies([localArmy1, localArmy2, localArmy3, localArmy4]);
+            }
+        })
+        .catch( (e) => {
+            console.log(e)
+        });
+    }
+
+    // --------- Handle updates from the server --------
+
+    const handleUpdateResources = (message) => {
+        const updatedSession = receiveResourceUpdate(message, {... session}, slotIndex);
+        setSession(updatedSession);
+    }
+
+    const handleUpdateProvince = (message) => {
+        //TODO: Can this be removed?s
+        const province = message;
+        // Make a copy of old state
+        const armiesCopy = [... armies];
+        const ownersCopy = [... provinceOwners];
+        console.log("provinceOwners:", provinceOwners);
+        // Put new values into copy
+        armiesCopy[0][province.id] = province['army1']
+        armiesCopy[1][province.id] = province['army2']
+        armiesCopy[2][province.id] = province['army3']
+        armiesCopy[3][province.id] = province['army4']
+        ownersCopy[province.id] = province.owner;
+        // Replace with copy
+        setArmies(armiesCopy);
+        setProvinceOwners(ownersCopy);
+        // TODO: ..?   
+    }
+
+    const handleMoveArmy = (message) => {
+        const armiesCopy = receiveMoveArmy(message, [... armies]);
+        setArmies(armiesCopy);
+        console.log("Moved army received!");
+    }
+
+    const handleAttackArmy = (message) => {
+        const updateData = receiveAttackArmy(message, [... armies], [... provinceOwners]);
+        setArmies(updateData.armies);
+        setProvinceOwners(updateData.owners);
+        console.log("Attack army received!");
+    }
+
+    const handlePlayerJoined = (message) => {
+        // Update session to include new user
+        const newSession     = message.session;
+        setSession(newSession);
+        // Update the owner of the province to show the joined players name in the province
+        const playerProvince = message.province; // Province of joining player
+        const ownersCopy = [... provinceOwners];
+        const replaceIndex = playerProvince.id;
+        const newOwner     = playerProvince.owner;;
+        ownersCopy[replaceIndex] = newOwner;
+        setProvinceOwners(ownersCopy);
+    }
+
+    const handlePlayerWon = (message) => {
+        const winner = message;
+        console.log(winner, "won the game!");
+    }
+
+    // --------- Handle game actions ---------
 
     // Handle selection of provinces from the database
     function handleSelectProvince(provinceData, selecting) { 
@@ -90,46 +196,19 @@ export default function Game({player, session}) {
         }
 
     }
-
-    // Init all provinces when booting up the game
-    function initAllProvinces(index) {
-        const localProvinceNames = Array(nProvinces);
-        const localProvinceOwners = Array(nProvinces);
-        const localProvinceId = Array(nProvinces);
-        const localArmy1 = Array(nProvinces);
-        const localArmy2 = Array(nProvinces);
-        const localArmy3 = Array(nProvinces);
-        const localArmy4 = Array(nProvinces);
-        
-        axios.get('http://localhost:8082/api/provinces/')
-        .then( (res) => {
-            if (res.data.length !== 0) {
-                for (let i = 0; i < nProvinces; i++) {
-                    const province = res.data[i];
-                    localProvinceNames[i] = province['name'];
-                    localProvinceOwners[i] = province['owner'];
-                    localProvinceId[i] = province['_id']
-                    localArmy1[i] = province['army1'];
-                    localArmy2[i] = province['army2'];
-                    localArmy3[i] = province['army3'];
-                    localArmy4[i] = province['army4'];
-                }
-
-                setProvinceNames(localProvinceNames);
-                setProvinceOwners(localProvinceOwners);
-                setProvinceId(localProvinceId);
-                setArmies([localArmy1, localArmy2, localArmy3, localArmy4]);
-            }
-        })
-        .catch( (e) => {
-            console.log(e)
-        });
-    }
         
     const renderGame = () => {
         return (
             <>
             <div className='game_view'>
+                <Receiver 
+                        onUpdateResources={handleUpdateResources} 
+                        onUpdateProvince={handleUpdateProvince} 
+                        onMoveArmy={handleMoveArmy}
+                        onAttackArmy={handleAttackArmy}
+                        onPlayerJoined={handlePlayerJoined}
+                        onPlayerWon={handlePlayerWon} 
+                />
                 <Header player={player} session={session} slotIndex={slotIndex} />
                 <GameUI 
                     onSelectAction={handleSelectProvince} 

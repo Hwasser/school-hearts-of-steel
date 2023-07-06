@@ -62,10 +62,13 @@ async function broadcastAttackArmy(fromProvince, toProvince) {
     }
 }
 
-async function broadcastPlayerJoined(province) {
+async function broadcastPlayerJoined(province, sessionId) {
     try {
         console.log("Player joined game");
-        const message = JSON.stringify({purpose: 'player_joined', package: province});
+        const sessionDocument = await Session.find({_id: sessionId});
+        const message = JSON.stringify({
+            purpose: 'player_joined', 
+            package: {province: province, session: sessionDocument[0]}});
         broadcastMessage(message);
     } catch (err) {
         console.log("Failed to update province:", err);
