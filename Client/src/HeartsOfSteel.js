@@ -27,6 +27,11 @@ export default function HeartsOfSteel() {
         // to keep a copy so that other players may not create a new game and remove
         // the old one.
     }
+
+    // Return from the winner screen
+    const handleWinBack = () => {
+        return setWinner('');
+    }
     
     return (
         <>
@@ -34,7 +39,7 @@ export default function HeartsOfSteel() {
                 <MainMenu onJoinGame={handleJoinGame} />
             )}
             {!hasStarted && winner != '' && (
-                <WinScreen winner={winner} sessionEndData={sessionData} />
+                <WinScreen winner={winner} sessionEndData={sessionData} onWinBack={handleWinBack} />
             )}
             {hasStarted && sessionData != null && (
                 <Game 
