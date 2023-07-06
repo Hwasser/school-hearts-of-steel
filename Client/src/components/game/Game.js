@@ -18,9 +18,10 @@ import { armyMove, armyAttack } from '../../functionality/manageArmies';
 
 import { useState } from 'react';  
 
-export default function Game({player, sessionData, slotIndex}) {    
+export default function Game({player, sessionData, slotIndex, onWonGame}) {    
 
-    // ------------- Init data ------------
+    //--------------------------------------
+    // ------------- Init data -------------
 
     const nProvinces = 9;
     
@@ -85,6 +86,8 @@ export default function Game({player, sessionData, slotIndex}) {
         });
     }
 
+
+    //--------------------------------------------------
     // --------- Handle updates from the server --------
 
     const handleUpdateResources = (message) => {
@@ -138,10 +141,11 @@ export default function Game({player, sessionData, slotIndex}) {
     }
 
     const handlePlayerWon = (message) => {
-        const winner = message;
-        console.log(winner, "won the game!");
+        onWonGame(message);
     }
 
+
+    //----------------------------------------
     // --------- Handle game actions ---------
 
     // Handle selection of provinces from the database

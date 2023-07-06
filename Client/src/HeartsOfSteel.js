@@ -16,6 +16,10 @@ export default function HeartsOfSteel() {
         setPlayerData(inputPlayerData);
         setHasStarted(true);
     }
+
+    function handleWonGame(whoWon) {
+        setHasStarted(false);
+    }
     
     return (
         <>
@@ -23,7 +27,12 @@ export default function HeartsOfSteel() {
                 <MainMenu onJoinGame={handleJoinGame} />
             )}
             {hasStarted && sessionData != null && (
-                <Game player={playerData} sessionData={{... sessionData}} slotIndex={slotIndex} />
+                <Game 
+                    player={playerData} 
+                    sessionData={{... sessionData}} 
+                    slotIndex={slotIndex} 
+                    onWonGame={handleWonGame}
+                />
             )}
         </>
     );
