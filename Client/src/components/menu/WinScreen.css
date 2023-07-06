@@ -1,0 +1,20 @@
+.you_won {
+    background-color: darkblue;
+    text-align: center;
+    font-family: 'Atari';
+    font-size: 60pt;
+    color: lightgreen;
+}
+
+.you_lost {
+    background-color: darkblue;
+    text-align: center;
+    font-family: 'Atari';
+    font-size: 60pt;
+    color: red;
+}
+
+.win_back_button{
+    text-align: center;
+    padding: 8px;
+}
