@@ -141,7 +141,11 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
     }
 
     const handlePlayerWon = (message) => {
-        onWonGame(message);
+        if (player.name == message) {
+            onWonGame('you', {... session});
+        } else {
+            onWonGame('other', {... session});
+        }
     }
 
 
