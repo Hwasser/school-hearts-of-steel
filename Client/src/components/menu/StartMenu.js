@@ -2,9 +2,9 @@ import { useState } from 'react';
 import axios from 'axios';
 
 import './StartMenu.css';
-import startNewGame from './../functionality/startNewGame';
+import startNewGame from './../../functionality/startNewGame';
 
-export default function StartMenu( {selectLogin, startGameAction, playerData} ){
+export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
 
     const [allSessions, setAllSessions] = useState([]);
     const [maxSlots, setMaxSlots] = useState(2);
@@ -42,7 +42,11 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
             console.log('Failed adding player to session:', err.response);
           });
         // Update empty slot in province
-        const provinceData = {oldName: placeholderName, newName: playerData.name, purpose: 'replace_empty_slot'};
+        const provinceData = {
+            oldName: placeholderName, 
+            newName: playerData.name, 
+            sessionId: session._id,
+            purpose: 'replace_empty_slot'};
         await axios
         .put("http://localhost:8082/api/provinces", provinceData)
           .catch((err) => {
@@ -50,7 +54,7 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
           });
     }
 
-    async function onJoinGame(selectedSession, freeSlots) {
+    async function handleJoinGame(selectedSession, freeSlots) {
         // Check whether the player already is in the session
         const playerJoined = selectedSession.slot_names.reduce(
             (acc, cur) => (cur == playerData.name) ? acc + 1 : acc, 0
@@ -58,13 +62,13 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
 
         if (playerJoined) {
             // Start game
-            startGameAction(selectedSession);
+            onJoinGame(selectedSession);
         } else {
             // Otherwise check if we can add the player to the session
             if (freeSlots > 0) {
                 await addPlayerToSession(selectedSession, freeSlots);
                 // Start game
-                startGameAction(selectedSession);
+                onJoinGame(selectedSession);
             } else {
                 console.log("This game session is full!");
                 // TODO: IMPLEMENT AN ERROR MESSAGE FOR THE PLAYER!
@@ -85,7 +89,7 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
 
                 allSessionsView.push(
                     <li key={'game' + i} className="join_game_entry"> <button className='startmenu_button'
-                        onClick={() => onJoinGame(allSessions[i], curFreeSlots)}> Game ({curTakenSlots + "/" + curMaxSlots}) 
+                        onClick={() => handleJoinGame(allSessions[i], curFreeSlots)}> Game ({curTakenSlots + "/" + curMaxSlots}) 
                     </button> </li>
                 );
             }
@@ -116,7 +120,7 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
         return newSession;
     }
 
-    async function onStartGame() {
+    async function handleStartGame() {
         // Setup a new session
         const newSession = initSession();
 
@@ -161,7 +165,7 @@ export default function StartMenu( {selectLogin, startGameAction, playerData} ){
                 </div>
                 
                  
-                <button className='startmenu_button' onClick={onStartGame}>Create new game</button>
+                <button className='startmenu_button' onClick={handleStartGame}>Create new game</button>
             </div>
             <div className='game_list_container'>
             <h3>Join a game</h3>

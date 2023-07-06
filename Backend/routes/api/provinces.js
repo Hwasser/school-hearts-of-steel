@@ -1,6 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { updateProvince, playerJoined, moveArmy, attackArmy } = require('../../broadcast');
+const { 
+  broadcastUpdateProvince, 
+  broadcastPlayerJoined, 
+  broadcastMoveArmy, 
+  broadcastAttackArmy,
+  broadcastHasWon } = require('../../broadcast');
 
 const Province = require('../../models/Province');
 const Session = require('../../models/Session');
@@ -38,7 +43,7 @@ router.post('/', (req, res) => {
 router.put('/:id', (req, res) => {
   Province.findByIdAndUpdate(req.params.id, req.body)
     .then(province => {
-      updateProvince(req.body); 
+      broadcastUpdateProvince(req.body); 
       res.json({ msg: 'Updated successfully' });
     })
     .catch(err =>
@@ -53,11 +58,10 @@ router.put('/', async (req, res) => {
   // When a player joins a gamez
   if (req.body.purpose == 'replace_empty_slot') {
     try {
-      delete req.body.purpose; // We don't need the meta-data anymore
       const documents = await Province.find({owner: req.body.oldName});
       const document = documents[0]; // Players only start with one province
       document.owner = req.body.newName;
-      playerJoined(document);
+      broadcastPlayerJoined(document, req.body.sessionId);
       await document.save();
       res.status(200).send('Session updated');
     } catch {
@@ -74,6 +78,22 @@ router.put('/', async (req, res) => {
   }
 });
 
+// @route GET api/Provinces/:id
+// @description Delete Province by id
+// @access Public
+router.delete('/:id', (req, res) => {
+  Province.remove({id: req.params.id})
+    .then(province => res.json({ mgs: 'Province entry deleted successfully' }))
+    .catch(err => res.status(404).json({ error: 'No such a Province' }));
+});
+
+/**
+ * @brief: Move armies between provinces and store data to db and broadcast
+ * 
+ * @param {JSON} package: Contains the number index of two provinces (from, to),
+ *                        all armies in all province slots and who won in battle 
+ * @param {String} purpose: Whether to attack or move
+ */
 async function attackOrMoveArmy(package, purpose) {
   const fromProvince = package.from;
   const toProvince = package.to;
@@ -92,23 +112,34 @@ async function attackOrMoveArmy(package, purpose) {
   toDocument.army2 = armies[1][toProvince];
   toDocument.army3 = armies[2][toProvince];
   toDocument.army4 = armies[3][toProvince];
+  // Broadcast this information to the clients
   if (purpose == 'move_army') {
-    moveArmy(fromDocument, toDocument);
+    broadcastMoveArmy(fromDocument, toDocument);
   } else {
     toDocument.owner = package.winner;
-    attackArmy(fromDocument, toDocument);
+    broadcastAttackArmy(fromDocument, toDocument);
   }
+  // Store the data to database
   await fromDocument.save();
   await toDocument.save();
+  // If attacking, check if a player has won!
+  if (purpose == 'attack_army') {
+    hasWon();
+  }
 }
 
-// @route GET api/Provinces/:id
-// @description Delete Province by id
-// @access Public
-router.delete('/:id', (req, res) => {
-  Province.remove({id: req.params.id})
-    .then(province => res.json({ mgs: 'Province entry deleted successfully' }))
-    .catch(err => res.status(404).json({ error: 'No such a Province' }));
-});
+async function hasWon() {
+  const allProvinces = await Province.find({});
+  const firstOwner = allProvinces[0].owner;
+  for (let i = 1; i < allProvinces.length; i++) {
+    // If all provinces doesn't have the same owner, no one has won!
+    if (firstOwner != allProvinces[i].owner) {
+      return;
+    }
+  }
+  broadcastHasWon(firstOwner);  
+}
+
+
 
 module.exports = router;

@@ -1,21 +1,21 @@
-import Login from './components/Login';
-import Register from './components/Register';
-import StartMenu from './components/StartMenu';
+import Login from './Login';
+import Register from './Register';
+import StartMenu from './StartMenu';
 import './MainMenu.css';
 import { useState } from 'react'; 
 
-export default function MainMenu( {startGameAction} ) {
+export default function MainMenu( {onJoinGame} ) {
     const [whichMenu, setWhichMenu] = useState('login');
     const [playerData, setPlayerData] = useState(null);
 
-    function onLogin(newPlayerData) {
+    function handleLogin(newPlayerData) {
         setPlayerData(newPlayerData);
         setWhichMenu('start');        
     }
 
-    function onStartGame(sessionData) {
+    function handleJoinGame(sessionData) {
         console.log("STARTED GAME!");
-        startGameAction(playerData, sessionData);
+        onJoinGame(playerData, sessionData);
     }
 
     const setRegisterMenu = () => {setWhichMenu('register')};
@@ -25,7 +25,7 @@ export default function MainMenu( {startGameAction} ) {
         <>
             <div className='menu_main'>
             {whichMenu == 'login' && (
-                <Login loginAction={onLogin} selectRegister={setRegisterMenu} />
+                <Login onLoginAction={handleLogin} selectRegister={setRegisterMenu} />
             )}
             {whichMenu == 'register' && (
                 <Register selectLogin={setLoginMenu} />
@@ -33,7 +33,7 @@ export default function MainMenu( {startGameAction} ) {
             {whichMenu == 'start' && (
                 <StartMenu 
                     selectLogin={setLoginMenu} 
-                    startGameAction={onStartGame} 
+                    onJoinGame={handleJoinGame} 
                     playerData={playerData} />
             )}
             </div>

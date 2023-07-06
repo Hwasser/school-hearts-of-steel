@@ -7,7 +7,7 @@ import axios from 'axios';
  * Login menu for users/players
  */
 
-export default function Login( {loginAction, selectRegister} ) {
+export default function Login( {onLoginAction, selectRegister} ) {
     // An empty register form
     const initValue = () => {
         return {
@@ -20,12 +20,12 @@ export default function Login( {loginAction, selectRegister} ) {
     const [player, setPlayer] = useState(initValue);
     const [loginError, setLoginError] = useState(false);
 
-    const onChange = (e) => {
+    const handleChange = (e) => {
         setPlayer({ ...player, [e.target.name]: e.target.value})
     };
 
     // When pressing the login button
-    function onLogin() {
+    function handleLogin() {
         console.log("Tried to login with:", player.name, player.password);
         axios
           .get('http://localhost:8082/api/players', {
@@ -36,7 +36,7 @@ export default function Login( {loginAction, selectRegister} ) {
             if (res.data != null) {
                 // TODO: Change to going to a start game menu
                 setLoginError(false);
-                loginAction(res.data);
+                onLoginAction(res.data);
             } else {
                 setLoginError(true);
             }
@@ -58,7 +58,7 @@ export default function Login( {loginAction, selectRegister} ) {
                         placeholder='Enter Username' 
                         name='name' 
                         value={player.name}
-                        onChange={onChange} 
+                        onChange={handleChange} 
                         required />
                 </div> 
                 <div className='form_container'>
@@ -68,11 +68,11 @@ export default function Login( {loginAction, selectRegister} ) {
                         placeholder='Enter Password' 
                         name='password' 
                         value={player.password}
-                        onChange={onChange} 
+                        onChange={handleChange} 
                         required />
                 </div>
                 <button className='login_button' type="submit"
-                    onClick={onLogin}
+                    onClick={handleLogin}
                 >Login</button>
             </div>
             {loginError && (

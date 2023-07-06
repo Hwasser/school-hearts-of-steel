@@ -1,8 +1,7 @@
 import './Footer.css';  
-import RaiseArmy from './components/RaiseArmy';
-import ProvinceBuild from './components/ProvinceBuild';
+import RaiseArmy from './RaiseArmy';
+import ProvinceBuild from './ProvinceBuild';
 import { useState } from 'react';
-import axios from 'axios';
 
 export default function Footer( {properties, onRaiseArmy, onBuildBuilding, session, slotIndex, player} ) {
 
@@ -19,7 +18,7 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding, sessi
   const onRaiseArmyMenu = () => { setuseRaiseMenu(!useRaiseMenu); };
   // When clicking on a building
   function onBuildMenu(setBuildingType) {
-    if (useBuildMenu == setBuildingType) {
+    if (useBuildMenu === setBuildingType) {
       setUseBuildMenu('none')  
     } else {
       setUseBuildMenu(setBuildingType);
@@ -27,7 +26,7 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding, sessi
   }
   
   // Only change properties if they have actually changed
-  if (properties != provProp) {
+  if (properties !== provProp) {
     setProvProp(properties);
     makeSliderInactive();
     makeBuildInactive();
@@ -46,11 +45,11 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding, sessi
 
   // Whether to show properties for a province or an army
   if (properties['soldiers'] == null) {
-    if (isProvince == false) {
+    if (isProvince === false) {
       setIsProvince(true);
     }
   } else {
-    if (isProvince == true) {
+    if (isProvince === true) {
       setIsProvince(false);
     }
   }
@@ -59,7 +58,7 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding, sessi
   function BuildingButtons() {
     return (
       <div className='footer_row'>
-        {player.name == properties.owner && (
+        {player.name === properties.owner && (
           <>
           <button className='property_button' onClick={() => onBuildMenu('house')} >
             <span id="name6"> Houses: </span>
@@ -87,7 +86,7 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding, sessi
           </button>
           </>
       )}
-      {player.name != properties.owner && (
+      {player.name !== properties.owner && (
           <>
           <div className='property_button_inactive'>
             <span id="name6"> Houses: </span>
@@ -157,7 +156,7 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding, sessi
           <span id="value10"> {provProp['workforce']} </span>
         </div>
 
-        {player.name == properties.owner && (
+        {player.name === properties.owner && (
           <button 
             className='property_button'
               onClick={onRaiseArmyMenu}

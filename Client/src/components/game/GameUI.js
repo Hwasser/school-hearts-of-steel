@@ -1,6 +1,6 @@
 import axios from 'axios';
 import './GameUI.css';
-import Province from './components/Province';
+import Province from './Province';
 import React, { useEffect } from 'react';  
 
 export default function GameUI( {onSelectAction, updateArmies, names, owners, armies, session, player} ) {

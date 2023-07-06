@@ -33,7 +33,7 @@ function gameSessionSetupClients(clients) {
     broadcastClients = clients;
 }
 
-async function updateProvince(province) {
+async function broadcastUpdateProvince(province) {
     try {
         const message = JSON.stringify({purpose: 'update_province', package: province});
         broadcastMessage(message);
@@ -42,7 +42,7 @@ async function updateProvince(province) {
     }
 }
 
-async function moveArmy(fromProvince, toProvince) {
+async function broadcastMoveArmy(fromProvince, toProvince) {
     try {
         const message = JSON.stringify({purpose: 'move_army', 
             package: {fromProvince: fromProvince, toProvince: toProvince}});
@@ -52,7 +52,7 @@ async function moveArmy(fromProvince, toProvince) {
     }
 }
 
-async function attackArmy(fromProvince, toProvince) {
+async function broadcastAttackArmy(fromProvince, toProvince) {
     try {
         const message = JSON.stringify({purpose: 'attack_army', 
             package: {fromProvince: fromProvince, toProvince: toProvince}});
@@ -62,13 +62,26 @@ async function attackArmy(fromProvince, toProvince) {
     }
 }
 
-async function playerJoined(province) {
+async function broadcastPlayerJoined(province, sessionId) {
     try {
         console.log("Player joined game");
-        const message = JSON.stringify({purpose: 'player_joined', package: province});
+        const sessionDocument = await Session.find({_id: sessionId});
+        const message = JSON.stringify({
+            purpose: 'player_joined', 
+            package: {province: province, session: sessionDocument[0]}});
         broadcastMessage(message);
     } catch (err) {
         console.log("Failed to update province:", err);
+    }
+}
+
+async function broadcastHasWon(whoWon) {
+    try {
+        console.log(whoWon, "won the game!");
+        const message = JSON.stringify({purpose: 'player_won', package: whoWon});
+        broadcastMessage(message);
+    } catch (err) {
+        console.log("Failed to broadcast winner:", err);
     }
 }
 
@@ -162,9 +175,10 @@ module.exports = {
     gameSessionStart, 
     gameSessionStop, 
     gameSessionSetupClients, 
-    updateProvince, 
-    playerJoined, 
-    moveArmy,
-    attackArmy
+    broadcastUpdateProvince, 
+    broadcastPlayerJoined, 
+    broadcastMoveArmy,
+    broadcastAttackArmy,
+    broadcastHasWon
 };
 
