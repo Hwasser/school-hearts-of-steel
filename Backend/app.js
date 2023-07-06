@@ -40,11 +40,12 @@ appSSE.get('/rec', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.flushHeaders();
 
+  
   // Send initial SSE message to client
   res.write('data: Connected to SSE\n\n');
-
+  
   const client = { res };
-
+  
   // Add the client to the list of connected clients
   clients.push(client);
 

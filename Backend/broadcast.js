@@ -75,7 +75,7 @@ async function broadcastPlayerJoined(province) {
 async function broadcastHasWon(whoWon) {
     try {
         console.log(whoWon, "won the game!");
-        const message = JSON.stringify({purpose: 'player_won', package: {whoWon: whoWon}});
+        const message = JSON.stringify({purpose: 'player_won', package: whoWon});
         broadcastMessage(message);
     } catch (err) {
         console.log("Failed to broadcast winner:", err);
