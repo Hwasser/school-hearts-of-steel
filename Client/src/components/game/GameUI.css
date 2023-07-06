@@ -1,0 +1,23 @@
+.main_screen {
+    position: relative;
+    display: flexbox;
+    align-items: center;
+    justify-content: center;
+    background-color: greenyellow;
+    width: 1000px;
+    height: fit-content;
+    padding:  4px 4px;
+
+    width:80%;
+    -webkit-transform: translate(10%, 20px);
+    transform: translate(10%, 20px);
+
+}
+
+
+
+.world_row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
