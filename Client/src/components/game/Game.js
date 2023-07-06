@@ -1,12 +1,5 @@
 import React from 'react'
 import axios from 'axios';
-import {
-    receiveMoveArmy, 
-    receiveAttackArmy, 
-    receiveResourceUpdate, 
-    receiveJoinedPlayer, 
-    receiveUpdateProvince} 
-    from './../../functionality/receiveEvents';
 
 import './Game.css';
 import Header from './Header';
@@ -15,10 +8,9 @@ import Footer from './Footer';
 
 import { armyMove, armyAttack } from '../../functionality/manageArmies';
 
-import { useState, useEffect } from 'react';  
+import { useState } from 'react';  
 
-export default function Game({playerData, sessionData}) {
-    
+export default function Game({player, session}) {    
     const nProvinces = 9;
     
     // All properties for a province or an army
@@ -32,10 +24,6 @@ export default function Game({playerData, sessionData}) {
     // Contains the documentId of each army in each slot and province
     // VARIANT: armies[slot][province index]  
     const [armies, setArmies] = useState([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
-    // Player data
-    const [player, setPlayer] = useState(playerData);
-    // About the game session
-    const [session, setSession] = useState(sessionData);
     // Which player slot the player has in the session
     const [slotIndex, setSlotIndex] = useState(0);
     const [hasStarted, setHasStarted] = useState(false);
@@ -44,7 +32,7 @@ export default function Game({playerData, sessionData}) {
     // and set slot index of the player.
     // (in the game session each player fits in a slot in arrays of information)
     if (!hasStarted) {
-        const curSlot = sessionData['slot_names'].findIndex( (e) => e == playerData.name);
+        const curSlot = session['slot_names'].findIndex( (e) => e == player.name);
         setSlotIndex(curSlot);
         initAllProvinces();
         setHasStarted(true);
@@ -53,19 +41,6 @@ export default function Game({playerData, sessionData}) {
     // Handle selection of provinces from the database
     function handleSelectProvince(provinceData, selecting) { 
         setProperties(provinceData);
-    }
-
-    // Update a game session with the newest information from the backend
-    function updateSession() {
-        axios
-        .get(`http://localhost:8082/api/sessions/${session._id}`)
-        .then((res) => {
-            setSession(res.data);
-        })
-        .catch((err) => {
-            console.log('Error in updating session: ' + err);
-            
-        });  
     }
 
     function handleRaiseArmy(provinceInfo) {
@@ -84,12 +59,11 @@ export default function Game({playerData, sessionData}) {
         } catch(err) {
             console.error("handleRaiseArmy: " + err);
         }
-        updateSession();
+
     }
 
     function handleBuildBuilding(provinceInfo) {
         setProperties(provinceInfo);
-        updateSession();
     }
 
     async function handleUpdateArmies(fromProvince, toProvince, army, fromSlot, isAttacking) {
@@ -151,99 +125,11 @@ export default function Game({playerData, sessionData}) {
             console.log(e)
         });
     }
-
-    // Receive messages
-    function Receive() {
-    useEffect(() => {
-        const eventSource = new EventSource('http://localhost:5001/rec');
-        // Event handler for receiving SSE messages
-        eventSource.onmessage = (event) => {            
-            const message = event.data;
-            try {   
-            const document = JSON.parse(message)
-
-            // TODO: DEBUG
-            if (document.purpose == 'player_won') {
-                console.log("WHAT THE HELL!?");
-            }
-
-            if (document.purpose == 'update_resources') {
-                // Update players resources at each tick
-                const updatedSession = receiveResourceUpdate(document.package, {... session}, slotIndex);
-                setSession(updatedSession);
-            } else if (document.purpose == 'update_province') {
-                //TODO: Can this be removed?s
-                const province = document.package;
-                // Make a copy of old state
-                const armiesCopy = [... armies];
-                const ownersCopy = [... provinceOwners];
-                console.log("provinceOwners:", provinceOwners);
-                // Put new values into copy
-                armiesCopy[0][province.id] = province['army1']
-                armiesCopy[1][province.id] = province['army2']
-                armiesCopy[2][province.id] = province['army3']
-                armiesCopy[3][province.id] = province['army4']
-                ownersCopy[province.id] = province.owner;
-                // Replace with copy
-                setArmies(armiesCopy);
-                setProvinceOwners(ownersCopy);
-                // TODO: ..?
-            } else if (document.purpose == 'move_army') {
-                const armiesCopy = receiveMoveArmy(document.package, [... armies]);
-                setArmies(armiesCopy);
-                console.log("Moved army received!");
-            } else if (document.purpose == 'attack_army') {
-                const updateData = receiveAttackArmy(document.package, [... armies], [... provinceOwners]);
-                setArmies(updateData.armies);
-                setProvinceOwners(updateData.owners);
-                console.log("Attack army received!");
-            } else if (document.purpose == 'player_joined') {
-                const ownersCopy = [... provinceOwners];
-                const replaceIndex = document.package.id;
-                const newOwner = document.package.owner;;
-                ownersCopy[replaceIndex] = newOwner;
-                console.log(replaceIndex, newOwner, ownersCopy);
-                setProvinceOwners(ownersCopy);
-                updateSession();
-            } else if (document.purpose == 'player_won') {
-                console.log("ASDASDASDSDA!!");
-                const winner = document.package;
-                console.log(winner, "won the game!");
-            }
-            } catch {
-            console.log('Received message:', message);
-            }
-    
-        };
-
-        // Event handler for SSE errors
-        eventSource.onerror = (error) => {
-        console.error('SSE error:', error);
-        };
-
-        // Event handler for SSE connection closure
-        eventSource.onclose = () => {
-        console.log('SSE connection closed');
-        };
-
-        // Clean up the event source when the component unmounts
-        return () => {
-        eventSource.close();
-        };
-    }, []);
-
-    return (
-        <div>
-        {/* Your component JSX here */}
-        </div>
-    );
-    };
         
     const renderGame = () => {
         return (
             <>
             <div className='game_view'>
-                <Receive />
                 <Header player={player} session={session} slotIndex={slotIndex} />
                 <GameUI 
                     onSelectAction={handleSelectProvince} 
