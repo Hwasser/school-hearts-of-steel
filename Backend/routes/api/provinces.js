@@ -132,6 +132,9 @@ async function hasWon() {
   const allProvinces = await Province.find({});
   const firstOwner = allProvinces[0].owner;
   for (let i = 1; i < allProvinces.length; i++) {
+    if (allProvinces[i].owner == 'Neutral') {
+      continue;
+    }
     // If all provinces doesn't have the same owner, no one has won!
     if (firstOwner != allProvinces[i].owner) {
       return;
