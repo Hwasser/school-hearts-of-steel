@@ -23,9 +23,6 @@ export default function HeartsOfSteel() {
         setHasStarted(false);
         setWinner(whoWon);
         setSessionData(endSession);
-        // TODO: Might wanna bring end session to show stats at the end, we want
-        // to keep a copy so that other players may not create a new game and remove
-        // the old one.
     }
 
     // Return from the winner screen

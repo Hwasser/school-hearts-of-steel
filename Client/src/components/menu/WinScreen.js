@@ -15,7 +15,7 @@ export default function WinScreen({winner, gameSession, onWinBack}) {
         {winner == 'other' && (
             <div className='you_lost'>
                 <h1>You lose!</h1>
-                <button onClick={onWinBack} className='win_back_button'>OH NOEZ!</button>
+                <button onClick={onWinBack} rclassName='win_back_button'>OH NOEZ!</button>
             </div>
         )}
         </>
