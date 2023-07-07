@@ -90,7 +90,8 @@ router.delete('/:id', (req, res) => {
 /**
  * @brief: Move armies between provinces and store data to db and broadcast
  * 
- * @param {JSON} package: Contains the number index of two provinces (from, to),
+ * @param {JSON} package: {from: number, to: number, armies: [[Army._id]], winner: string}
+ *                        Contains the number of two provinces (from, to),
  *                        all armies in all province slots and who won in battle 
  * @param {String} purpose: Whether to attack or move
  */
@@ -128,15 +129,22 @@ async function attackOrMoveArmy(package, purpose) {
   }
 }
 
+/**
+ * @brief: Check whether a player has won. The rule is that if one player
+ * has defeated all all player he/she has won.
+ */
 async function hasWon() {
   const allProvinces = await Province.find({});
+  // There will always be a player who owns province 0
   const firstOwner = allProvinces[0].owner;
   for (let i = 1; i < allProvinces.length; i++) {
-    if (allProvinces[i].owner == 'Neutral') {
+    const province = allProvinces[i];
+    // Ignore neutral provinces, you only need to defeat all players to win!
+    if (province.owner == 'Neutral') {
       continue;
     }
-    // If all provinces doesn't have the same owner, no one has won!
-    if (firstOwner != allProvinces[i].owner) {
+    // If there is another player that owns territory, no one has won!
+    if (firstOwner != province.owner) {
       return;
     }
   }
