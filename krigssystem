@@ -1,0 +1,12 @@
+Krigssystem
+
+Soldater har soft attack, hard attack och hardness.
+
+Varje soldat oavsett typ har 10 hp.
+
+Om t ex 10 soldater med soft attack 12 anfaller så kommer de skada 120 hp och 
+kan alltså döda 12 soldater om de har 0% hardness.
+
+Om vi har 10 soldater med 10 soft attack och 3 hard attack och fienden har 
+10 soldater med 50% hardness så kommer de skadas 10 * (10 * 0.5 + 3 * 0.5) hp = 65 hp och 
+alltså kommer 6 fiender att dö. 
