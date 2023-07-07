@@ -219,7 +219,7 @@ export default function Footer( {
     <>
     <FooterProvince /> 
     {!isProvince && (
-      <ArmyView provProp={provProp} /> 
+      <ArmyView provProp={{... provProp}} /> 
     )}
     </>
   );

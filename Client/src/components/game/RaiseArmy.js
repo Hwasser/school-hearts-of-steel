@@ -15,10 +15,16 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
   const id = fromProvince['id'];
 
   // State of workforce in province
-  const [curWorkforce, setCurWorkforce] = useState(workforce);
+  const [curWorkforce, setCurWorkforce] = useState(0);
   // State of slide value
-  const [state, setSlide] = useState(Math.floor(workforce / 2));
   const [errorMessage, setErrorMessage] = useState('');
+
+    // Whether to reset the slider
+    if (workforce != curWorkforce) {
+      console.log("this happens!");
+      setCurWorkforce(workforce);
+    }
+  
 
   // When the "raise army" button has been pushed, 
   // update the workforce and push back to interface
@@ -40,13 +46,6 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
     updateSession(curCost, slotIndex, session._id);
   }
 
-  
-  // Whether to reset the slider
-  if (workforce != curWorkforce) {
-    setCurWorkforce(workforce);
-    setSlide(Math.floor(workforce/ 2));
-  }
-
   const closeErrorMsg = () => { 
     setInactive();
     setErrorMessage('');
@@ -59,6 +58,8 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
   const toDraw = (active && errorMessage == '') ? "inline" : "none";
 
   const useSlider = (min, max, defaultState, label, id) => {
+
+      const [state, setSlide] = useState(Math.floor(defaultState / 2));
       
       const handleChange = e => {
         setSlide(e.target.value);
@@ -121,7 +122,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
     const [slideValue, Slider] = useSlider(
       10,
       curWorkforce-minLimit,
-      curWorkforce-minLimit,
+      curWorkforce/2,
       "Threshold",
       "threshold"
     );
