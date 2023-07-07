@@ -96,6 +96,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
     }
 
     const handleUpdateProvince = (message) => {
+        console.log("handleUpdateProvince happens!");
         //TODO: Can this be removed?s
         const province = message;
         // Make a copy of old state
@@ -148,6 +149,20 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         }
     }
 
+    // Fetch player resources from database
+    function fetchResourceUpdates() {
+        axios
+        .get(`http://localhost:8082/api/sessions/${session._id}`)
+        .then((res) => {
+            const updatedSession = receiveResourceUpdate(res.data, {... session}, slotIndex);
+            setSession(updatedSession);
+        })
+        .catch((err) => {
+            console.log('Error in updating session: ' + err);
+            
+        });  
+    }
+
 
     //----------------------------------------
     // --------- Handle game actions ---------
@@ -169,6 +184,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
             armiesCopy[2][provinceId] = provinceInfo['army3']
             armiesCopy[3][provinceId] = provinceInfo['army4']
             setArmies(armiesCopy);
+            fetchResourceUpdates()
 
         } catch(err) {
             console.error("handleRaiseArmy: " + err);
@@ -178,6 +194,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
 
     function handleBuildBuilding(provinceInfo) {
         setProperties(provinceInfo);
+        fetchResourceUpdates()
     }
 
     async function handleUpdateArmies(fromProvince, toProvince, army, fromSlot, isAttacking) {
