@@ -24,11 +24,6 @@
   background: rgba(0, 0, 0, 0.20);
 }
 
-@keyframes click_army {
-  from {background-color: rgba(0, 0, 0, 0.50); left: 12px;}
-  to {background-color: rgba(200, 200, 0, 0.50); left: 20px;}
-}
-
 .province_army{
   position: absolute;
   bottom: 8px;
@@ -37,6 +32,7 @@
   color: lightcyan;
   background: rgba(0, 0, 0, 0.50);
   cursor: grab;
+  transition: background-color 0.2s, scale 0.2s;
 }
 
 .province_army:hover {
@@ -45,17 +41,11 @@
 
 .drag_army_start{
   cursor: grabbing;
-  animation-name: click_army;
-  animation-duration: 0.35s;
-  background-color: rgba(200, 200, 0, 0.50);
-  left: 20px;
+  background-color: rgba(0, 0, 0, 0.1);
+  scale: 1.1;
 }
 
 
-.drag_army_stop{
-  animation-name: click_army;
-  animation-duration: 0.25s;
-}
 
 .province_army#army1 {
   top: 10px;

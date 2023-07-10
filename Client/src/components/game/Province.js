@@ -24,14 +24,16 @@ export default function Province({ id, onProvinceClick, onArmyClick, name, owner
     const whatArmy = e.dataTransfer.getData("whatArmy");
     const fromProvince   = e.dataTransfer.getData("fromProvince");
     const fromSlot   = e.dataTransfer.getData("fromSlot");
-    
+
+    e.target.style.animation = 'army_appear 1s';
+    console.log(e.target.style.animation);
 
     moveArmy(fromProvince, toProvince, whatArmy, fromSlot);
   }
 
+  // Stop dragging animation when dropping the element
   const handleDragEnd = (e) => {
     e.target.classList.remove('drag_army_start');
-    e.target.classList.add('drag_army_stop');
   };
   
   function handleDragOver(e){
