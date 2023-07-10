@@ -8,7 +8,8 @@ import Army from './Army.js'
  * !! Does not contain the data for each province, that is handled by the db
  */
 
-export default function Province({ id, onProvinceClick, onArmyClick, name, owner, armies, moveArmy, session, player }) {
+export default function Province(
+  { id, onProvinceClick, onArmyClick, onMoveArmy, name, owner, armies, session, player }) {
   // If start dragging an army  
 
   // Setup province colors and set color for each player
@@ -34,11 +35,15 @@ export default function Province({ id, onProvinceClick, onArmyClick, name, owner
     const fromProvince   = e.dataTransfer.getData("fromProvince");
     const fromSlot   = e.dataTransfer.getData("fromSlot");
 
-    moveArmy(fromProvince, toProvince, whatArmy, fromSlot);
+    onMoveArmy(fromProvince, toProvince, whatArmy, fromSlot);
   }
   
   function handleDragOver(e){
       e.preventDefault();
+  }
+
+  function handleMergeArmies(army1, army2) {
+    console.log(army1, "dropped on", army2);
   }
   
   return (
@@ -47,13 +52,13 @@ export default function Province({ id, onProvinceClick, onArmyClick, name, owner
       
       <button className='province_name' onClick={onProvinceClick}>{name}</button>
       <Army key={name + '_army1'} name='army1' provinceNumber={id} slotNumber={0} exists={armies[0] != null} 
-        ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[0]} />
+        ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[0]} onMergeArmies={handleMergeArmies} />
       <Army key={name + '_army2'} name='army2' provinceNumber={id} slotNumber={1} exists={armies[1] != null} 
-        ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[1]} />
+        ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[1]} onMergeArmies={handleMergeArmies} />
       <Army key={name + '_army3'} name='army3' provinceNumber={id} slotNumber={2} exists={armies[2] != null} 
-        ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[2]} />
+        ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[2]} onMergeArmies={handleMergeArmies} />
       <Army key={name + '_army4'} name='army4' provinceNumber={id} slotNumber={3} exists={armies[3] != null} 
-        ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[3]} />
+        ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[3]} onMergeArmies={handleMergeArmies} />
   
       </div>
       

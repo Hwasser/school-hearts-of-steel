@@ -239,7 +239,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
     const gameui = React.useMemo( () => 
     <GameUI 
         onSelectAction={handleSelectProvince} 
-        updateArmies={handleUpdateArmies}
+        onUpdateArmies={handleUpdateArmies}
         names={provinceNames} 
         owners={provinceOwners} // Pass the updated provinceOwners state here
         armies={armies}    
