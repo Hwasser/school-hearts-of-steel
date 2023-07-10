@@ -11,7 +11,7 @@ export default function Province({ id, onProvinceClick, onArmyClick, name, owner
   // If start dragging an army  
   function handleOnDrag(e, whatArmy, fromProvince, fromSlot){
 
-    e.target.classList.add('drag_army');
+    e.target.classList.add('drag_army_start');
     
     //e.originalEvent.dataTranfser.setData("widgetType", widgetType);
     e.dataTransfer.setData("whatArmy", whatArmy);
@@ -30,7 +30,8 @@ export default function Province({ id, onProvinceClick, onArmyClick, name, owner
   }
 
   const handleDragEnd = (e) => {
-    e.target.classList.remove('drag_army');
+    e.target.classList.remove('drag_army_start');
+    e.target.classList.add('drag_army_stop');
   };
   
   function handleDragOver(e){
