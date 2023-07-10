@@ -9,7 +9,7 @@ import Army from './Army.js'
  */
 
 export default function Province(
-  { id, onProvinceClick, onArmyClick, onMoveArmy, name, owner, armies, session, player }) {
+  { id, onProvinceClick, onArmyClick, onMoveArmy, onMergeArmies, name, owner, armies, session, player }) {
   // If start dragging an army  
 
   // Setup province colors and set color for each player
@@ -43,7 +43,7 @@ export default function Province(
   }
 
   function handleMergeArmies(army1, army2) {
-    console.log(army1, "dropped on", army2);
+    onMergeArmies(army1, army2, id);
   }
   
   return (

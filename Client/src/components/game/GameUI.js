@@ -3,7 +3,8 @@ import './GameUI.css';
 import Province from './Province';
 import React, { useEffect } from 'react';  
 
-export default function GameUI( {onSelectAction, onUpdateArmies, names, owners, armies, session, player} ) {
+export default function GameUI( 
+  {onSelectAction, onUpdateArmies, onMergeArmies, names, owners, armies, session, player} ) {
   const worldSize = 3;
 
   function onSelectProvince(index) {
@@ -82,10 +83,11 @@ export default function GameUI( {onSelectAction, onUpdateArmies, names, owners, 
                 id={index} 
                 onProvinceClick={ () => onSelectProvince(index) }
                 onArmyClick={onSelectArmy}
+                onMoveArmy={handleMoveArmy}
+                onMergeArmies={onMergeArmies}
                 owner={owner}
                 name={name} 
                 armies={provArmies}
-                onMoveArmy={handleMoveArmy}
                 session={session}
                 player={player}
               />);

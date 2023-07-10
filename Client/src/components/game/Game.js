@@ -219,7 +219,45 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
             provinceOwnersLocal[toProvince] = newOwner;
             setProvinceOwners(provinceOwnersLocal);
         }
+    }
 
+    /**
+     * @brief: Merge two armies. Updates the database and state.
+     * @param {*} army1: The document id of a army
+     * @param {*} army2: The document id of a army
+     * @param {*} inProvince: Which province number the merge happens in 
+     */
+    function handleMergeArmies(army1, army2, inProvince) {
+        const armyCopy = [... armies];
+        const armySlotPos = []; // The new position of armies in slots in province
+        const maxSlots = 4;
+
+        // Push all armies but the one that we are going to merge
+        for (let i = 0; i < maxSlots; i++) {
+            if (armyCopy[i][inProvince] != army2) {
+                armySlotPos.push(armyCopy[i][inProvince]);
+            }
+        }  
+        // replace armies in current province with the one in the list
+        for (let i = 0; i < armySlotPos.length; i++) {
+            const curArmy = armySlotPos[i];
+            armyCopy[i][inProvince] = curArmy;
+        }
+        // Update the armies on the map
+        setArmies(armyCopy);
+        // Push the changes to server
+        const updatePackage = {
+            purpose: "merges_armies",
+            armySlotPos: armySlotPos,
+            provinceId: inProvince,
+            army1: army1,
+            army2: army2
+        };
+        axios
+        .put(`http://localhost:8082/api/provinces`, updatePackage)
+        .catch((err) => {
+            console.log('Couldnt merge armies: ' + err);
+  });  
     }
 
     // Specify exactly which states that re-renders this component
@@ -240,6 +278,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
     <GameUI 
         onSelectAction={handleSelectProvince} 
         onUpdateArmies={handleUpdateArmies}
+        onMergeArmies={handleMergeArmies}
         names={provinceNames} 
         owners={provinceOwners} // Pass the updated provinceOwners state here
         armies={armies}    
