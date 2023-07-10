@@ -166,7 +166,7 @@ function mineResources(nUsers, provinces, users) {
 function scavangeResource(provinces, n, workforce, resource) {
     const scavangeRatio = 0.10; // How much resources to scavange per manpower
     const scavangeRes = Math.floor(workforce * scavangeRatio);
-    const scavangeResActual = (scavangeRes > provinces[n][resource]) ? 0 : scavangeRes; 
+    const scavangeResActual = (scavangeRes > provinces[n][resource]) ? provinces[n][resource] : scavangeRes; 
     provinces[n][resource] -= scavangeResActual;
     return scavangeResActual;
 }
