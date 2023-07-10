@@ -24,11 +24,16 @@
   background: rgba(0, 0, 0, 0.20);
 }
 
+@keyframes click_army {
+  from {background-color: rgba(0, 0, 0, 0.50); left: 12px;}
+  to {background-color: rgba(200, 200, 0, 0.50); left: 20px;}
+}
+
 .province_army{
   position: absolute;
   bottom: 8px;
   height: 24px;
-  left: 20px;
+  left: 12px;
   color: lightcyan;
   background: rgba(0, 0, 0, 0.50);
   cursor: grab;
@@ -38,9 +43,14 @@
   background: rgba(0, 0, 0, 0.70);
 }
 
-.province_army:active {
+.drag_army{
   cursor: grabbing;
+  animation-name: click_army;
+  animation-duration: 0.25s;
+  background-color: rgba(200, 200, 0, 0.50);
+  left: 20px;
 }
+
 
 .province_army#army1 {
   top: 10px;
