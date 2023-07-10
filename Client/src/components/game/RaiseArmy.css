@@ -4,9 +4,9 @@
     border: 2px solid rgba(0, 0, 0, 0.25);
     border-radius: 4px;
     width: 250px;
-    height: 400px;
+    height: 350px;
     right: 4px;
-    top: -440px;
+    top: -365px;
     padding: 4px;
     text-align: center;
 }
@@ -14,6 +14,11 @@
 .raise_army_costs {
   padding: 0;
   margin: 0;
+}
+
+.raise_army_title {
+  padding: 0;
+  margin: 14px;
 }
 
 .slider {
@@ -86,4 +91,8 @@
 
   .army_type_selected {
     background-color: rgba(90, 255, 90, 0.75);
+  }
+
+  .army_type {
+    margin-bottom:8px;
   }

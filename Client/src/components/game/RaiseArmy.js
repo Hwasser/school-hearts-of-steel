@@ -87,8 +87,8 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
           </div>
         )}
         <div className='raise_army' style={{display: toDraw}}>
-          <h2>Raise Army</h2>
-          <h3>Requirements:</h3>
+          <h2 className='raise_army_title'>Raise Army</h2>
+          <h3 className='raise_army_title'>Requirements:</h3>
           <p className='raise_army_costs' style={{color: (canAffordFood)  ? 'black' : 'red'}}>
             Food: {state * costs[selectedUnit]['food']}</p>
           <p className='raise_army_costs' style={{color: (canAffordTools) ? 'black' : 'red' }}>
@@ -96,7 +96,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
           <p className='raise_army_costs' style={{color: (canAffordFuel) ? 'black' : 'red' }}>
             Fuel: {state * costs[selectedUnit]['fuel']}</p>
 
-          <h3>Specifications:</h3>
+          <h3 className='raise_army_title'>Specifications:</h3>
           
           <div>
             <button className={(selectedUnit == 'militia' ? 'army_type_selected' : 'army_type')} 
@@ -111,19 +111,23 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
               onClick={() => onSelectUnit('power_suit')} >Power Suit</button>
           </div>
 
-          <input
-            className='slider'
-            type="range"
-            id={id}
-            min={min}
-            max={max}
-            step={1.0}
-            value={state}
-            onChange={handleChange}
-          />
+          {curWorkforce >= 20 && (
+            <>
+            <input
+              className='slider'
+              type="range"
+              id={id}
+              min={min}
+              max={max}
+              step={1.0}
+              value={state}
+              onChange={handleChange}
+            />
+            </>
+          )}
           <div> 
-              <span>Amount:</span>
-              <span>{state}</span> 
+              <span>Amount: </span>
+              <span style={{color: curWorkforce < 20 ? 'red' : 'black'}}>{state}</span> 
           </div>
           <button 
             className='confirm_button'
