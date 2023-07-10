@@ -15,13 +15,12 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
   const id = fromProvince['id'];
 
   // State of workforce in province
-  const [curWorkforce, setCurWorkforce] = useState(0);
+  const [curWorkforce, setCurWorkforce] = useState(workforce);
   // State of slide value
   const [errorMessage, setErrorMessage] = useState('');
 
     // Whether to reset the slider
     if (workforce != curWorkforce) {
-      console.log("this happens!");
       setCurWorkforce(workforce);
     }
   
@@ -59,7 +58,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
 
   const useSlider = (min, max, defaultState, label, id) => {
 
-      const [state, setSlide] = useState(Math.floor(defaultState / 2));
+      const [state, setSlide] = useState(Math.floor(curWorkforce / 2));
       
       const handleChange = e => {
         setSlide(e.target.value);
@@ -120,7 +119,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
   
     // The values for the slider, min, max, default etc
     const [slideValue, Slider] = useSlider(
-      10,
+      minLimit,
       curWorkforce-minLimit,
       curWorkforce/2,
       "Threshold",

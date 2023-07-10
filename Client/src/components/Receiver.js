@@ -58,7 +58,6 @@ export default function Receiver({
           const document = JSON.parse(message);
           switch (document.purpose) {
             case 'update_resources':
-              console.log("Received: update_resources");
               onUpdateResources(document.package);
               break;
             case 'update_province':

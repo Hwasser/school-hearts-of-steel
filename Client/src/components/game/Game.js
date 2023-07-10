@@ -16,7 +16,7 @@ import {
 
 import { armyMove, armyAttack } from '../../functionality/manageArmies';
 
-import { useState } from 'react';  
+import { useState, useMemo } from 'react';  
 
 export default function Game({player, sessionData, slotIndex, onWonGame}) {    
 
@@ -221,6 +221,32 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         }
 
     }
+
+    // Specify exactly which states that re-renders this component
+    // and remember the states of the rest.
+    const footer = React.useMemo( () => 
+        <Footer 
+            properties={properties} 
+            onRaiseArmy={handleRaiseArmy} 
+            onBuildBuilding={handleBuildBuilding} 
+            session={session}
+            slotIndex={slotIndex}
+            player={player}
+        />, [properties] );
+
+    // Specify exactly which states that re-renders this component
+    // and remember the states of the rest.
+    const gameui = React.useMemo( () => 
+    <GameUI 
+        onSelectAction={handleSelectProvince} 
+        updateArmies={handleUpdateArmies}
+        names={provinceNames} 
+        owners={provinceOwners} // Pass the updated provinceOwners state here
+        armies={armies}    
+        session={session}
+        player={player}
+    />, [properties, armies, provinceOwners]);
+    
         
     const renderGame = () => {
         return (
@@ -235,23 +261,8 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
                         onPlayerWon={handlePlayerWon} 
                 />
                 <Header player={player} session={session} slotIndex={slotIndex} />
-                <GameUI 
-                    onSelectAction={handleSelectProvince} 
-                    updateArmies={handleUpdateArmies}
-                    names={provinceNames} 
-                    owners={provinceOwners} // Pass the updated provinceOwners state here
-                    armies={armies}    
-                    session={session}
-                    player={player}
-                />
-                <Footer 
-                    properties={properties} 
-                    onRaiseArmy={handleRaiseArmy} 
-                    onBuildBuilding={handleBuildBuilding} 
-                    session={session}
-                    slotIndex={slotIndex}
-                    player={player}
-                />
+                {gameui}
+                {footer}
             </div>
             </>
         )
