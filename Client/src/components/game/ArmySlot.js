@@ -1,6 +1,6 @@
-import React, { useState } from 'react';  
+import React from 'react';  
 
-import './Army.css';  
+import './ArmySlot.css';  
 
 export default function Army( 
   {name, provinceNumber, slotNumber, exists, ownsArmy, armyObject, onArmyClick, onMergeArmies}) {
@@ -41,9 +41,6 @@ export default function Army(
     if (whatArmy != toArmyObject && fromProvince == toProvince) {
       onMergeArmies(whatArmy, toArmyObject);
     }
-
-
-    //moveArmy(fromProvince, toProvince, whatArmy, fromSlot);
   }
     
     // Stop dragging animation when dropping the element

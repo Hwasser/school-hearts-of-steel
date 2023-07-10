@@ -228,6 +228,8 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
      * @param {*} inProvince: Which province number the merge happens in 
      */
     function handleMergeArmies(army1, army2, inProvince) {
+
+
         const armyCopy = [... armies];
         const armySlotPos = []; // The new position of armies in slots in province
         const maxSlots = 4;
@@ -247,12 +249,14 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         setArmies(armyCopy);
         // Push the changes to server
         const updatePackage = {
-            purpose: "merges_armies",
+            purpose: "merge_armies",
             armySlotPos: armySlotPos,
             provinceId: inProvince,
             army1: army1,
             army2: army2
         };
+
+        console.log("updatePackage:", updatePackage);
         axios
         .put(`http://localhost:8082/api/provinces`, updatePackage)
         .catch((err) => {

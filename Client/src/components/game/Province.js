@@ -1,5 +1,5 @@
 import './Province.css';  
-import Army from './Army.js'
+import Army from './ArmySlot.js'
 
 /**
  * Component for provinces in the main view. 

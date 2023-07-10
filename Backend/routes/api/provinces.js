@@ -1,5 +1,4 @@
 const express = require('express');
-const { default: Army } = require('../../../Client/src/components/game/Army');
 const router = express.Router();
 const { 
   broadcastUpdateProvince, 
@@ -7,9 +6,13 @@ const {
   broadcastMoveArmy, 
   broadcastAttackArmy,
   broadcastHasWon } = require('../../broadcast');
+const {
+  mergeArmies
+} = require('../../queryfunctions');
 
 const Province = require('../../models/Province');
-const Session = require('../../models/Session');
+const Army = require('../../models/Army');
+
 
 router.get('/test', (req, res) => res.send('test route for provinces'));
 
@@ -79,26 +82,11 @@ router.put('/', async (req, res) => {
   }
   if (req.body.purpose == "merge_armies") {
     try {
-      // Get data of both armies
-      const army1Document = await Army.find({_id: req.body.army1});
-      const army2Document = await Army.find({_id: req.body.army2});
-      // Remove one of the armies
-      Army.deleteOne({_id: req.body.army2});
-      army1Document.soldiers += army2Document.soldiers;
-      // TODO: Also add different kind of troops
-      army1Document.save(); 
-      // Store armies in province slots
-      const armySlotPos = req.body.armySlotPos;
-      const provinceId = req.body.provinceId;
-      const provinceDocument = await Province.find({id: provinceId});
-      provinceDocument.army1 = (armySlotPos.length > 0) ? armySlotPos[0] : null;
-      provinceDocument.army1 = (armySlotPos.length > 1) ? armySlotPos[1] : null;
-      provinceDocument.army1 = (armySlotPos.length > 2) ? armySlotPos[2] : null; 
-      provinceDocument.army1 = (armySlotPos.length > 3) ? armySlotPos[3] : null;
-      provinceDocument.save();
+      mergeArmies(req.body);
 
     } catch (err) {
-      res.status(500).json({ error: 'Unable to merge armies' })
+      //res.status(500).json({ error: 'Unable to merge armies' })
+      console.log(err);
     }
   }
 });
