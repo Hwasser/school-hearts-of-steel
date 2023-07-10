@@ -1,3 +1,5 @@
+import React, { useState } from 'react';  
+
 import './Army.css';  
 
 export default function Army( {name, provinceNumber, slotNumber, exists, ownsArmy, onArmyClick, armyObject}) {

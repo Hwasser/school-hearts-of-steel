@@ -18,12 +18,16 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
   const [curWorkforce, setCurWorkforce] = useState(workforce);
   // State of slide value
   const [errorMessage, setErrorMessage] = useState('');
+  // Which type of unit to create
+  const [selectedUnit, setSelectedUnit] = useState('militia');
+  const onSelectUnit = (unit) => {
+    setSelectedUnit(unit);
+  }
 
-    // Whether to reset the slider
-    if (workforce != curWorkforce) {
-      setCurWorkforce(workforce);
-    }
-  
+  if (workforce != curWorkforce) {
+    setCurWorkforce(workforce);
+  }
+
 
   // When the "raise army" button has been pushed, 
   // update the workforce and push back to interface
@@ -41,7 +45,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
     }
 
     const newValue = curWorkforce - toRaise; 
-    updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy);
+    postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selectedUnit);
     updateSession(curCost, slotIndex, session._id);
   }
 
@@ -65,10 +69,13 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
       };
 
       // The price to build an army at slider position
-      const curPrice = {food: state * costs['food'], tools: state * costs['tools']}
+      const curPrice = {food: state * costs[selectedUnit]['food'], 
+        tools: state * costs[selectedUnit]['tools'],
+        fuel: state * costs[selectedUnit]['fuel']};
       const canAffordFood  = curPrice['food']  <= session.food[slotIndex];
       const canAffordTools = curPrice['tools'] <= session.tools[slotIndex];
-      const canAfford = canAffordFood && canAffordTools;
+      const canAffordFuel  = curPrice['fuel']  <= session.fuel[slotIndex];
+      const canAfford = canAffordFood && canAffordTools && canAffordFuel;
       
       const Slider = () => (
         <>
@@ -81,10 +88,29 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
         )}
         <div className='raise_army' style={{display: toDraw}}>
           <h2>Raise Army</h2>
+          <h3>Requirements:</h3>
           <p className='raise_army_costs' style={{color: (canAffordFood)  ? 'black' : 'red'}}>
-            Food: {state * costs['food']}</p>
+            Food: {state * costs[selectedUnit]['food']}</p>
           <p className='raise_army_costs' style={{color: (canAffordTools) ? 'black' : 'red' }}>
-            Tools: {state * costs['tools']}</p>
+            Tools: {state * costs[selectedUnit]['tools']}</p>
+          <p className='raise_army_costs' style={{color: (canAffordFuel) ? 'black' : 'red' }}>
+            Fuel: {state * costs[selectedUnit]['fuel']}</p>
+
+          <h3>Specifications:</h3>
+          
+          <div>
+            <button className={(selectedUnit == 'militia' ? 'army_type_selected' : 'army_type')} 
+              onClick={() => onSelectUnit('militia')} >Militia</button>
+            <button className={(selectedUnit == 'demolition_maniac' ? 'army_type_selected' : 'army_type')} 
+              onClick={() => onSelectUnit('demolition_maniac')} >Demolition Maniac</button>
+            <button className={(selectedUnit == 'gun_nut' ? 'army_type_selected' : 'army_type')}
+              onClick={() => onSelectUnit('gun_nut')} >Gun Nut</button>
+            <button className={(selectedUnit == 'fortified_truck' ? 'army_type_selected' : 'army_type')}
+              onClick={() => onSelectUnit('fortified_truck')} >Fortified Truck</button>
+            <button className={(selectedUnit == 'power_suit' ? 'army_type_selected' : 'army_type')}
+              onClick={() => onSelectUnit('power_suit')} >Power Suit</button>
+          </div>
+
           <input
             className='slider'
             type="range"
@@ -130,7 +156,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
 }
 
 // Update the amount of workers in province in database
-function updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy) {
+function postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selectedUnit) {
   // Replace the province value with one with the new workforce
   const province = {... fromProvince};
   // Get the document id of the province
@@ -146,6 +172,9 @@ function updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy) {
     soldiers: toRaise,
     owner: province['owner']
   };
+  army[selectedUnit] = toRaise;
+  console.log("Raising army:", army);
+
   axios
   .post('http://localhost:8082/api/armies', army)
   .then( (res2) => {
@@ -201,8 +230,35 @@ function findArmySlot(province) {
 }
 
 const costs = {
-  food: 2,
-  fuel: 0,
-  tools: 1,
-  material: 0
-}
+  'militia': {
+    food: 2,
+    fuel: 0,
+    tools: 1,
+    material: 0
+  },
+  'demolition_maniac': {
+    food: 3,
+    fuel: 1,
+    tools: 1,
+    material: 0
+  },
+  'gun_nut': {
+    food: 3,
+    fuel: 0,
+    tools: 2,
+    material: 0
+  },
+  'fortified_truck': {
+    food: 3,
+    fuel: 5,
+    tools: 5,
+    material: 0
+  },
+  'power_suit': {
+    food: 2,
+    fuel: 5,
+    tools: 10,
+    material: 0
+  }
+
+};
