@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useState } from 'react';  
 
 import './RaiseArmy.css';  
+const { units } = require('../../unitStats');
 
 // Slider code inspired by "https://codepen.io/rmichels/pen/WNegjyK"
 
@@ -69,13 +70,15 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
       };
 
       // The price to build an army at slider position
-      const curPrice = {food: state * costs[selectedUnit]['food'], 
-        tools: state * costs[selectedUnit]['tools'],
-        fuel: state * costs[selectedUnit]['fuel']};
+      const curPrice = {food: state * units[selectedUnit]['cost']['food'], 
+        tools: state * units[selectedUnit]['cost']['tools'],
+        fuel: state * units[selectedUnit]['cost']['fuel'],
+        material: state * units[selectedUnit]['cost']['material']};
       const canAffordFood  = curPrice['food']  <= session.food[slotIndex];
       const canAffordTools = curPrice['tools'] <= session.tools[slotIndex];
       const canAffordFuel  = curPrice['fuel']  <= session.fuel[slotIndex];
-      const canAfford = canAffordFood && canAffordTools && canAffordFuel;
+      const canAffordMaterial  = curPrice['material']  <= session.material[slotIndex];
+      const canAfford = canAffordFood && canAffordTools && canAffordFuel && canAffordMaterial;
       
       const Slider = () => (
         <>
@@ -90,11 +93,13 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
           <h2 className='raise_army_title'>Raise Army</h2>
           <h3 className='raise_army_title'>Requirements:</h3>
           <p className='raise_army_costs' style={{color: (canAffordFood)  ? 'black' : 'red'}}>
-            Food: {state * costs[selectedUnit]['food']}</p>
+            Food: {state * units[selectedUnit]['cost']['food']}</p>
           <p className='raise_army_costs' style={{color: (canAffordTools) ? 'black' : 'red' }}>
-            Tools: {state * costs[selectedUnit]['tools']}</p>
+            Tools: {state * units[selectedUnit]['cost']['tools']}</p>
           <p className='raise_army_costs' style={{color: (canAffordFuel) ? 'black' : 'red' }}>
-            Fuel: {state * costs[selectedUnit]['fuel']}</p>
+            Fuel: {state * units[selectedUnit]['cost']['fuel']}</p>
+          <p className='raise_army_costs' style={{color: (canAffordMaterial) ? 'black' : 'red' }}>
+            Material: {state * units[selectedUnit]['cost']['material']}</p>
 
           <h3 className='raise_army_title'>Specifications:</h3>
           
@@ -232,37 +237,3 @@ function findArmySlot(province) {
   }  
   return armySlot;
 }
-
-const costs = {
-  'militia': {
-    food: 2,
-    fuel: 0,
-    tools: 1,
-    material: 0
-  },
-  'demolition_maniac': {
-    food: 3,
-    fuel: 1,
-    tools: 1,
-    material: 0
-  },
-  'gun_nut': {
-    food: 3,
-    fuel: 0,
-    tools: 2,
-    material: 0
-  },
-  'fortified_truck': {
-    food: 3,
-    fuel: 5,
-    tools: 5,
-    material: 0
-  },
-  'power_suit': {
-    food: 2,
-    fuel: 5,
-    tools: 10,
-    material: 0
-  }
-
-};
