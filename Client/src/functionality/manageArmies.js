@@ -117,10 +117,14 @@ function performBattle(attackingArmy, defendingArmy) {
         for (let i = 0; i < defendingArmyTroops.length; i++) {
             performAttack(defendingArmyTroops, attackingArmyTroops, i);
         }
-        // After the attack, kill all units with HP < 0
-        // TODO:
+        // TODO: After the attacks, kill all units with HP < 0
+        // ...
     }
+    
+    // TODO: After the battle, update both armies with the new number of troops
+    /// ...
 
+    // TODO: then return the state of the battle similar to below 
     /**
      if (attackingSoldiers == defendingSoldiers) {
          attackingArmy['soldiers'] = 0;
