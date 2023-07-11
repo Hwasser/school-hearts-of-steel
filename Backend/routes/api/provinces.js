@@ -83,7 +83,6 @@ router.put('/', async (req, res) => {
   if (req.body.purpose == "merge_armies") {
     try {
       mergeArmies(req.body);
-
     } catch (err) {
       //res.status(500).json({ error: 'Unable to merge armies' })
       console.log(err);
@@ -113,10 +112,9 @@ async function attackOrMoveArmy(package, purpose) {
   const toProvince = package.to;
   const armies     = package.armies;
   // Fetch provinces
-  const fromDocuments = await Province.find({id: fromProvince});
-  const toDocuments   = await Province.find({id: toProvince});
-  const fromDocument = fromDocuments[0];
-  const toDocument   = toDocuments[0];
+  const fromDocument = await Province.findOne({id: fromProvince});
+  const toDocument   = await Province.findOne({id: toProvince});
+
   // Update provinces
   fromDocument.army1 = armies[0][fromProvince];
   fromDocument.army2 = armies[1][fromProvince];
