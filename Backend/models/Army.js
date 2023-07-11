@@ -25,7 +25,7 @@ const ArmySchema = new mongoose.Schema({
         type: Number,
         required: false
     },
-    raiders: {
+    raider: {
         type: Number,
         required: false
     },
