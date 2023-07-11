@@ -112,11 +112,13 @@ function performBattle(attackingArmy, defendingArmy) {
     while (attackingArmyTroops.length > 0 && defendingArmyTroops.length > 0) {
         // Let both sides attack
         for (let i = 0; i < attackingArmyTroops.length; i++) {
-            
+            performAttack(attackingArmyTroops, defendingArmyTroops, i);
         }
         for (let i = 0; i < defendingArmyTroops.length; i++) {
-            
+            performAttack(defendingArmyTroops, attackingArmyTroops, i);
         }
+        // After the attack, kill all units with HP < 0
+        // TODO:
     }
 
     /**
@@ -137,6 +139,13 @@ function performBattle(attackingArmy, defendingArmy) {
      }
      
      */
+}
+
+function performAttack(attacker, attacked, n) {
+    const soldier = attacker[n];
+    const enemyNumber = Math.floor(Math.random()*attacked.length)
+    const enemy = attacked[enemyNumber];
+    enemy.hp -=  soldier.soft_attack * (1-enemy.hardness) + soldier.hard_attack;
 }
 
 function setUpSoldiers(army) {
