@@ -1,4 +1,5 @@
 import axios from 'axios';
+const { units } = require('../unitStats');
 
 /**
  * All action for the armies such as move, attack, battle, conquer etc
@@ -98,24 +99,87 @@ function rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy) {
 }
 
 function performBattle(attackingArmy, defendingArmy) {
-    const attackingSoldiers = attackingArmy['soldiers'];
-    const defendingSoldiers = defendingArmy['soldiers'];
+    let round = 1;
 
-    if (attackingSoldiers == defendingSoldiers) {
-        attackingArmy['soldiers'] = 0;
-        defendingArmy['soldiers'] = 0;
-        return 'draw';
+    // Set up an array of troops of all different kinds and put them in an array
+    // VARIANT: 6 soldiers, 4 militia och 2 raiders:
+    //          [militia][militia][militia][militia][raider][raider]
+    //          each cell containing an entry from units in the unitStats-file
+    const attackingArmyTroops    = setUpSoldiers(attackingArmy);
+    const defendingArmyTroops = setUpSoldiers(defendingArmy);
+
+    // While at least one side has troops left, continue the battle
+    while (attackingArmyTroops.length > 0 && defendingArmyTroops.length > 0) {
+        // Let both sides attack
+        for (let i = 0; i < attackingArmyTroops.length; i++) {
+            
+        }
+        for (let i = 0; i < defendingArmyTroops.length; i++) {
+            
+        }
     }
-    if (attackingSoldiers < defendingSoldiers) {
-        attackingArmy['soldiers'] = 0;
-        defendingArmy['soldiers'] -= attackingSoldiers;
-        return 'lose';
+
+    /**
+     if (attackingSoldiers == defendingSoldiers) {
+         attackingArmy['soldiers'] = 0;
+         defendingArmy['soldiers'] = 0;
+         return 'draw';
+     }
+     if (attackingSoldiers < defendingSoldiers) {
+         attackingArmy['soldiers'] = 0;
+         defendingArmy['soldiers'] -= attackingSoldiers;
+         return 'lose';
+     }
+     if (attackingSoldiers > defendingSoldiers) {
+         defendingArmy['soldiers'] = 0;
+         attackingArmy['soldiers'] -= defendingSoldiers;
+         return 'win';
+     }
+     
+     */
+}
+
+function setUpSoldiers(army) {
+    const armySoldiers = new Array(army.soldiers);
+    let n = 0;
+    // Add all army types to the list of troops
+    if (army.militia != null) {
+        for (let i = n; n + army.militia; i++) {
+            armySoldiers[i] = {... units.militia};
+        }
+        n += army.militia;
     }
-    if (attackingSoldiers > defendingSoldiers) {
-        defendingArmy['soldiers'] = 0;
-        attackingArmy['soldiers'] -= defendingSoldiers;
-        return 'win';
+    if (army.demolition_maniac != null) {
+        for (let i = n; n + army.demolition_maniac; i++) {
+            armySoldiers[i] = {... units.demolition_maniac};
+        }
+        n += army.demolition_maniac;
     }
+    if (army.gun_nut != null) {
+        for (let i = n; n + army.gun_nut; i++) {
+            armySoldiers[i] = {... units.gun_nut};
+        }
+        n += army.gun_nut;
+    }
+    if (army.fortified_truck != null) {
+        for (let i = n; n + army.fortified_truck; i++) {
+            armySoldiers[i] = {... units.fortified_truck};
+        }
+        n += army.fortified_truck;
+    }
+    if (army.power_suit != null) {
+        for (let i = n; n + army.power_suit; i++) {
+            armySoldiers[i] = {... units.power_suit};
+        }
+        n += army.power_suit;
+    }
+    if (army.raider != null) {
+        for (let i = n; n + army.raider; i++) {
+            armySoldiers[i] = {... units.raider};
+        }
+        n += army.raider;
+    }
+    return armySoldiers;
 }
 
 // Remove army from database
