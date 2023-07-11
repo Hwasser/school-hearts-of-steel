@@ -62,6 +62,16 @@ async function broadcastAttackArmy(fromProvince, toProvince) {
     }
 }
 
+async function broadcastMergeArmies(province) {
+    try {
+        const message = JSON.stringify({purpose: 'merge_armies', 
+            package: {province: province}});
+        broadcastMessage(message);
+    } catch (err) {
+        console.log("Failed to move army:", err);
+    }
+}
+
 async function broadcastPlayerJoined(province, sessionId) {
     try {
         console.log("Player joined game");
@@ -179,6 +189,7 @@ module.exports = {
     broadcastPlayerJoined, 
     broadcastMoveArmy,
     broadcastAttackArmy,
-    broadcastHasWon
+    broadcastHasWon,
+    broadcastMergeArmies
 };
 

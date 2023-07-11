@@ -2,12 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { 
   broadcastUpdateProvince, 
-  broadcastPlayerJoined, 
-  broadcastMoveArmy, 
-  broadcastAttackArmy,
-  broadcastHasWon } = require('../../broadcast');
+  broadcastPlayerJoined} = require('../../broadcast');
 const {
-  mergeArmies
+  mergeArmies,
+  attackOrMoveArmy
 } = require('../../queryfunctions');
 
 const Province = require('../../models/Province');
@@ -59,7 +57,7 @@ router.put('/:id', (req, res) => {
 // @description Update all provinces
 // @access Public
 router.put('/', async (req, res) => {
-  // When a player joins a gamez
+  // When a player joins a game, broadcast this to all users
   if (req.body.purpose == 'replace_empty_slot') {
     try {
       const documents = await Province.find({owner: req.body.oldName});
@@ -72,6 +70,7 @@ router.put('/', async (req, res) => {
       res.status(500).json({ error: 'Unable to update empty slot in province' })
     }
   }
+  // If a player moves his army on the screen, broadcast it to other users
   if (req.body.purpose == 'move_army' || req.body.purpose == 'attack_army' ) {
     try {
       await attackOrMoveArmy(req.body.package, req.body.purpose);
@@ -80,6 +79,7 @@ router.put('/', async (req, res) => {
       res.status(500).json({ error: 'Unable to move army between provinces' })
     }
   }
+  // If a player merge his armies, apply this to db and broadcast to other users
   if (req.body.purpose == "merge_armies") {
     try {
       mergeArmies(req.body);
@@ -98,69 +98,6 @@ router.delete('/:id', (req, res) => {
     .then(province => res.json({ mgs: 'Province entry deleted successfully' }))
     .catch(err => res.status(404).json({ error: 'No such a Province' }));
 });
-
-/**
- * @brief: Move armies between provinces and store data to db and broadcast
- * 
- * @param {JSON} package: {from: number, to: number, armies: [[Army._id]], winner: string}
- *                        Contains the number of two provinces (from, to),
- *                        all armies in all province slots and who won in battle 
- * @param {String} purpose: Whether to attack or move
- */
-async function attackOrMoveArmy(package, purpose) {
-  const fromProvince = package.from;
-  const toProvince = package.to;
-  const armies     = package.armies;
-  // Fetch provinces
-  const fromDocument = await Province.findOne({id: fromProvince});
-  const toDocument   = await Province.findOne({id: toProvince});
-
-  // Update provinces
-  fromDocument.army1 = armies[0][fromProvince];
-  fromDocument.army2 = armies[1][fromProvince];
-  fromDocument.army3 = armies[2][fromProvince];
-  fromDocument.army4 = armies[3][fromProvince];
-  toDocument.army1 = armies[0][toProvince];
-  toDocument.army2 = armies[1][toProvince];
-  toDocument.army3 = armies[2][toProvince];
-  toDocument.army4 = armies[3][toProvince];
-  // Broadcast this information to the clients
-  if (purpose == 'move_army') {
-    broadcastMoveArmy(fromDocument, toDocument);
-  } else {
-    toDocument.owner = package.winner;
-    broadcastAttackArmy(fromDocument, toDocument);
-  }
-  // Store the data to database
-  await fromDocument.save();
-  await toDocument.save();
-  // If attacking, check if a player has won!
-  if (purpose == 'attack_army') {
-    hasWon();
-  }
-}
-
-/**
- * @brief: Check whether a player has won. The rule is that if one player
- * has defeated all all player he/she has won.
- */
-async function hasWon() {
-  const allProvinces = await Province.find({});
-  // There will always be a player who owns province 0
-  const firstOwner = allProvinces[0].owner;
-  for (let i = 1; i < allProvinces.length; i++) {
-    const province = allProvinces[i];
-    // Ignore neutral provinces, you only need to defeat all players to win!
-    if (province.owner == 'Neutral') {
-      continue;
-    }
-    // If there is another player that owns territory, no one has won!
-    if (firstOwner != province.owner) {
-      return;
-    }
-  }
-  broadcastHasWon(firstOwner);  
-}
 
 
 

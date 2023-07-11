@@ -1,7 +1,11 @@
-
-
 const Province = require('./models/Province');
 const Army = require('./models/Army');
+const { 
+    broadcastMoveArmy, 
+    broadcastAttackArmy,
+    broadcastHasWon, 
+    broadcastMergeArmies} = require('./broadcast');
+
 
 async function mergeArmies(updatePackage) {
     // Get data of both armies
@@ -13,18 +17,23 @@ async function mergeArmies(updatePackage) {
     await army1Document.save(); 
     // Remove the merged army
     await Army.deleteOne({_id: updatePackage.army2});
-    console.log("333");
     // Store armies in province slots
     const armySlotPos = updatePackage.armySlotPos;
     const provinceId = updatePackage.provinceId;
     const provinceDocument = await Province.findOne({id: provinceId});
     provinceDocument.army1 = (armySlotPos.length > 0) ? armySlotPos[0] : null;
-    provinceDocument.army1 = (armySlotPos.length > 1) ? armySlotPos[1] : null;
-    provinceDocument.army1 = (armySlotPos.length > 2) ? armySlotPos[2] : null; 
-    provinceDocument.army1 = (armySlotPos.length > 3) ? armySlotPos[3] : null;
+    provinceDocument.army2 = (armySlotPos.length > 1) ? armySlotPos[1] : null;
+    provinceDocument.army3 = (armySlotPos.length > 2) ? armySlotPos[2] : null; 
+    provinceDocument.army4 = (armySlotPos.length > 3) ? armySlotPos[3] : null;
     provinceDocument.save();
+    broadcastMergeArmies(provinceDocument);
 }
 
+/**
+ * @brief: Merge every single soldier type in the army
+ * @param {JSON} army1: Army1 document object
+ * @param {JSON} army2: Army2 document object
+ */
 function mergeSoldierTypes(army1, army2) {
     if (army2.militia != null) {
         army1.militia = (army1.militia == null) 
@@ -48,7 +57,73 @@ function mergeSoldierTypes(army1, army2) {
     }
 }
 
+/**
+ * @brief: Move armies between provinces and store data to db and broadcast
+ * 
+ * @param {JSON} package: {from: number, to: number, armies: [[Army._id]], winner: string}
+ *                        Contains the number of two provinces (from, to),
+ *                        all armies in all province slots and who won in battle 
+ * @param {String} purpose: Whether to attack or move
+ */
+async function attackOrMoveArmy(package, purpose) {
+    const fromProvince = package.from;
+    const toProvince = package.to;
+    const armies     = package.armies;
+    // Fetch provinces
+    const fromDocument = await Province.findOne({id: fromProvince});
+    const toDocument   = await Province.findOne({id: toProvince});
+  
+    // Update provinces
+    fromDocument.army1 = armies[0][fromProvince];
+    fromDocument.army2 = armies[1][fromProvince];
+    fromDocument.army3 = armies[2][fromProvince];
+    fromDocument.army4 = armies[3][fromProvince];
+    toDocument.army1 = armies[0][toProvince];
+    toDocument.army2 = armies[1][toProvince];
+    toDocument.army3 = armies[2][toProvince];
+    toDocument.army4 = armies[3][toProvince];
+    // Broadcast this information to the clients
+    if (purpose == 'move_army') {
+      broadcastMoveArmy(fromDocument, toDocument);
+    } else {
+      toDocument.owner = package.winner;
+      broadcastAttackArmy(fromDocument, toDocument);
+    }
+    // Store the data to database
+    await fromDocument.save();
+    await toDocument.save();
+    // If attacking, check if a player has won!
+    if (purpose == 'attack_army') {
+      hasWon();
+    }
+  }
+  
+  /**
+   * @brief: Check whether a player has won. The rule is that if one player
+   * has defeated all all player he/she has won.
+   */
+  async function hasWon() {
+    const allProvinces = await Province.find({});
+    // There will always be a player who owns province 0
+    const firstOwner = allProvinces[0].owner;
+    for (let i = 1; i < allProvinces.length; i++) {
+      const province = allProvinces[i];
+      // Ignore neutral provinces, you only need to defeat all players to win!
+      if (province.owner == 'Neutral') {
+        continue;
+      }
+      // If there is another player that owns territory, no one has won!
+      if (firstOwner != province.owner) {
+        return;
+      }
+    }
+    broadcastHasWon(firstOwner);  
+  }
+  
+  
+
 module.exports = { 
-    mergeArmies
+    mergeArmies,
+    attackOrMoveArmy
 };
 

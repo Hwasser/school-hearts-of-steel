@@ -102,7 +102,6 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         // Make a copy of old state
         const armiesCopy = [... armies];
         const ownersCopy = [... provinceOwners];
-        console.log("provinceOwners:", provinceOwners);
         // Put new values into copy
         armiesCopy[0][province.id] = province['army1']
         armiesCopy[1][province.id] = province['army2']
@@ -228,10 +227,8 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
      * @param {*} inProvince: Which province number the merge happens in 
      */
     function handleMergeArmies(army1, army2, inProvince) {
-
-
         const armyCopy = [... armies];
-        const armySlotPos = []; // The new position of armies in slots in province
+        const armySlotPos = new Array(); // The new position of armies in slots in province
         const maxSlots = 4;
 
         // Push all armies but the one that we are going to merge
@@ -240,13 +237,6 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
                 armySlotPos.push(armyCopy[i][inProvince]);
             }
         }  
-        // replace armies in current province with the one in the list
-        for (let i = 0; i < armySlotPos.length; i++) {
-            const curArmy = armySlotPos[i];
-            armyCopy[i][inProvince] = curArmy;
-        }
-        // Update the armies on the map
-        setArmies(armyCopy);
         // Push the changes to server
         const updatePackage = {
             purpose: "merge_armies",
@@ -256,12 +246,22 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
             army2: army2
         };
 
-        console.log("updatePackage:", updatePackage);
         axios
         .put(`http://localhost:8082/api/provinces`, updatePackage)
         .catch((err) => {
             console.log('Couldnt merge armies: ' + err);
-  });  
+    });  
+    }
+
+    // Update the armies in province if a player merge two armies
+    async function handleBroadcastMergeArmies(updatePackage) {
+        const provinceId = updatePackage.province.id;
+        const armyCopy = [... armies];
+        armyCopy[0][provinceId] = updatePackage.province.army1;
+        armyCopy[1][provinceId] = updatePackage.province.army2;
+        armyCopy[2][provinceId] = updatePackage.province.army3;
+        armyCopy[3][provinceId] = updatePackage.province.army4;
+        setArmies(armyCopy);
     }
 
     // Specify exactly which states that re-renders this component
@@ -302,6 +302,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
                         onAttackArmy={handleAttackArmy}
                         onPlayerJoined={handlePlayerJoined}
                         onPlayerWon={handlePlayerWon} 
+                        onMergeArmies={handleBroadcastMergeArmies}
                 />
                 <Header player={player} session={session} slotIndex={slotIndex} />
                 {gameui}
