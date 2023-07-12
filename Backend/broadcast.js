@@ -1,3 +1,8 @@
+/**
+ * Module contains functions that are going to be broadcasted from the server to all clients
+ */
+
+
 const Session = require('./models/Session');
 const Province = require('./models/Province');
 

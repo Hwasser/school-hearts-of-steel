@@ -1,3 +1,7 @@
+/**
+ * Module contains query-functions that are used in routes.
+ */
+
 const Province = require('./models/Province');
 const Army = require('./models/Army');
 const { 
