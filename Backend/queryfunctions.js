@@ -69,7 +69,7 @@ async function attackOrMoveArmy(package, purpose) {
     const fromProvince = package.from;
     const toProvince = package.to;
     const armies     = package.armies;
-    // Fetch provinces
+    // Fetch provinces - Only update the two affected provinces
     const fromDocument = await Province.findOne({id: fromProvince});
     const toDocument   = await Province.findOne({id: toProvince});
   

@@ -7,6 +7,7 @@ const { units } = require('../unitStats');
 
 
 /** @brief: Moves army between two provinces
+ * 
  *  @param (number) fromProvince: Which province number to move from
  *  @param (number) toProvince: Which province number to move to
  *  @param (string) army: The Document Id of the army to move
@@ -31,6 +32,7 @@ export async function armyMove(fromProvince, toProvince, army, fromSlot, armiesC
 
 
 /** @brief: Makes an army attack a province
+ * 
  *  @param (number) fromProvince: Which province number to attack from
  *  @param (number) toProvince: Which province number to attack to
  *  @param (string) army: The Document Id of the army to attack
@@ -98,6 +100,18 @@ function rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy) {
     }
 }
 
+/**
+ * @brief: The sole function perfoming a battle between two armies!
+ *         Each army get all their units in an array.
+ *         The battle gets performed in round, each round both armies
+ *         get to shoot at the same time. Each units takes a shot at 
+ *         a random unit. After each round all dead units are removed
+ *         from the array.
+ * 
+ * @param {JSON} attackingArmy: An Army object from the MongoDB data base 
+ * @param {JSON} defendingArmy An Army object from the MongoDB data base
+ * @returns {String} What the outcome is, "win", "lose" or "draw"
+ */
 function performBattle(attackingArmy, defendingArmy) {
     let round = 1;
 
@@ -163,6 +177,13 @@ function countSurvivors(army, troops) {
     army.soldiers = soldiers;
 }
 
+/**
+ * @brief: A single unit shooting at an enemy 
+ * 
+ * @param {Array} attacker: An array of the attackers units
+ * @param {Array} attacked: An array of the units of the attacked player 
+ * @param {Integer} n: The number of the unit in the array 
+ */
 function performAttack(attacker, attacked, n) {
     const soldier = attacker[n];
     const enemyNumber = Math.floor(Math.random()*attacked.length)
@@ -170,6 +191,12 @@ function performAttack(attacker, attacked, n) {
         soldier.soft_attack * (1-(attacked[enemyNumber].hardness/ 100)) + soldier.hard_attack;
 }
 
+/**
+ * @brief: Sets up array of units, representing an army during battle
+ * 
+ * @param {JSON} army: The MongoDB document object for the army
+ * @returns {Array}: An array of units, each one represented by an object from imported "units"
+ */
 function setUpSoldiers(army) {
     const armySoldiers = new Array(army.soldiers);
     let n = 0;
@@ -236,6 +263,7 @@ async function fetchArmy(armyId) {
     return attackingArmy;
 }
 
+// Update an army in the database
 function updateArmy(army){
     const armyId = army['_id'];
     axios
@@ -245,6 +273,14 @@ function updateArmy(army){
         });
 }
 
+/**
+ * @brief: Post the result of an attack to the server 
+ * 
+ * @param {Integer} fromProvince: The province number of the province of the attacker
+ * @param {Integer} toProvince: The province number of the attacked province
+ * @param {JSON} armies: All armies on the screen after the war is ower
+ * @param {String} player: The owner of the province the attack comes from 
+ */
 function postAttack(fromProvince, toProvince, armies, player) {
     // If the attacker lost then just re-use the postMovement function
     if (player == null) {
@@ -260,6 +296,13 @@ function postAttack(fromProvince, toProvince, armies, player) {
     });
 }
 
+/**
+ * @brief: Post the result of a movement to the server
+ * 
+ * @param {Integer} fromProvince: The province number to move from
+ * @param {Integer} toProvince: The province number to move to
+ * @param {JSON} armies: All armies on the screen after the movement
+ */
 function postMovement(fromProvince, toProvince, armies) {
     const postPackage = { from: fromProvince, to: toProvince, armies: armies};
     // Post changes in both provinces
