@@ -31,12 +31,16 @@ export default function armyView({provProp}) {
         </>
     );
 
-    const militiaAmount = (provProp.militia           == null) ? 0 : provProp.militia; 
-    const dmAmount      = (provProp.demolition_maniac == null) ? 0 : provProp.demolition_maniac; 
-    const gnAmount      = (provProp.gun_nut           == null) ? 0 : provProp.gun_nut; 
-    const ftAmount      = (provProp.fortified_truck   == null) ? 0 : provProp.fortified_truck; 
-    const psAmount      = (provProp.power_suit        == null) ? 0 : provProp.power_suit; 
-    const raiderAmount  = (provProp.raider            == null) ? 0 : provProp.raider; 
+    const listOfUnits = [];
+    for (let u in units) {
+      if (provProp[u] != null) {
+        listOfUnits.push(<ArmyListItem 
+          unitType={units[u].type}
+          unitName={units[u].name}
+          amount={provProp[u]}
+        />);
+      }
+    }
 
     return (
         <>
@@ -53,48 +57,7 @@ export default function armyView({provProp}) {
               </div>
             </div>
 
-            {militiaAmount > 0 && (
-              <ArmyListItem 
-                  unitType={'militia'}
-                  unitName={'Militia'}
-                  amount={militiaAmount}
-              />
-            )}
-            {dmAmount > 0 && (
-              <ArmyListItem 
-                  unitType={'demolition_maniac'}
-                  unitName={'Demolition Maniac'}
-                  amount={dmAmount}
-              />
-            )}
-            {gnAmount > 0 && (
-              <ArmyListItem 
-                  unitType={'gun_nut'}
-                  unitName={'Gun Nut'}
-                  amount={gnAmount}
-              />
-            )}
-            {ftAmount > 0 && (
-              <ArmyListItem 
-                  unitType={'fortified_truck'}
-                  unitName={'Fortified Truck'}
-                  amount={ftAmount}
-              />
-            )}
-            {psAmount > 0 && (
-              <ArmyListItem 
-                  unitType={'power_suit'}
-                  unitName={'Power Suit'}
-                  amount={psAmount}
-              />
-            )}
-            {raiderAmount > 0 && (
-              <ArmyListItem 
-                  unitType={'raider'}
-                  unitName={'Raider'}
-                  amount={raiderAmount}
-              />
-            )}
+            {listOfUnits}
 
           </div>
           </>
