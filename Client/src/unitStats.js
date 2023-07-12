@@ -4,6 +4,8 @@
 
 const units = {
     militia: {
+        type: 'militia',
+        name: 'Militia',
         soft_attack: 10,
         hard_attack: 1,
         hardness: 0,
@@ -16,6 +18,8 @@ const units = {
         }
     },
     demolition_maniac: {
+        type: 'demolition_maniac',
+        name: 'Demolition Maniac',
         soft_attack: 8,
         hard_attack: 8,
         hardness: 10,
@@ -28,6 +32,8 @@ const units = {
         }
     },
     gun_nut: {
+        type: 'gun_nut',
+        name: 'Gun Nut',
         soft_attack: 15,
         hard_attack: 2,
         hardness: 10,
@@ -40,6 +46,8 @@ const units = {
         }
     },
     fortified_truck: {
+        type: 'fortified_truck',
+        name: 'Fortified Truck',
         soft_attack: 12,
         hard_attack: 4,
         hardness: 60,
@@ -52,6 +60,8 @@ const units = {
         }
     },
     power_suit: {
+        type: 'power_suit',
+        name: 'Power Suit',
         soft_attack: 16,
         hard_attack: 6,
         hardness: 90,
@@ -64,6 +74,8 @@ const units = {
         }
     },
     raider: {
+        type: 'raider',
+        name: 'Raider',
         soft_attack: 12,
         hard_attack: 2,
         hardness: 25,

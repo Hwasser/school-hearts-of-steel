@@ -105,8 +105,8 @@ function performBattle(attackingArmy, defendingArmy) {
     // VARIANT: 6 soldiers, 4 militia och 2 raiders:
     //          [militia][militia][militia][militia][raider][raider]
     //          each cell containing an entry from units in the unitStats-file
-    const attackingArmyTroops    = setUpSoldiers(attackingArmy);
-    const defendingArmyTroops = setUpSoldiers(defendingArmy);
+    let attackingArmyTroops = setUpSoldiers(attackingArmy);
+    let defendingArmyTroops = setUpSoldiers(defendingArmy);
 
     // While at least one side has troops left, continue the battle
     while (attackingArmyTroops.length > 0 && defendingArmyTroops.length > 0) {
@@ -117,39 +117,57 @@ function performBattle(attackingArmy, defendingArmy) {
         for (let i = 0; i < defendingArmyTroops.length; i++) {
             performAttack(defendingArmyTroops, attackingArmyTroops, i);
         }
-        // TODO: After the attacks, kill all units with HP < 0
-        // ...
-    }
-    
-    // TODO: After the battle, update both armies with the new number of troops
-    /// ...
+        // After the attacks, kill all units with HP < 0
+        attackingArmyTroops = attackingArmyTroops.filter(e => e.hp > 0);
+        defendingArmyTroops = defendingArmyTroops.filter(e => e.hp > 0); 
 
-    // TODO: then return the state of the battle similar to below 
-    /**
-     if (attackingSoldiers == defendingSoldiers) {
-         attackingArmy['soldiers'] = 0;
-         defendingArmy['soldiers'] = 0;
+        round++;
+    }
+
+    countSurvivors(attackingArmy, attackingArmyTroops);
+    countSurvivors(defendingArmy, defendingArmyTroops);
+
+    console.log(attackingArmy, defendingArmy);
+
+     if (attackingArmy.soldiers == defendingArmy.soldiers) {
          return 'draw';
      }
-     if (attackingSoldiers < defendingSoldiers) {
-         attackingArmy['soldiers'] = 0;
-         defendingArmy['soldiers'] -= attackingSoldiers;
+     if (attackingArmy.soldiers < defendingArmy.soldiers) {
          return 'lose';
      }
-     if (attackingSoldiers > defendingSoldiers) {
-         defendingArmy['soldiers'] = 0;
-         attackingArmy['soldiers'] -= defendingSoldiers;
+     if (attackingArmy.soldiers > attackingArmy.soldiers) {
          return 'win';
      }
-     
-     */
+}
+
+/**
+ * @brief: Count survivors, remove non existing army types and re-calculate n of soldiers
+ * 
+ * @param {JSON} army: The MongoDB document object for the army
+ * @param {Array} troops: An array representing all units in the army 
+ */
+function countSurvivors(army, troops) {
+    let soldiers = 0;
+    // Iterate all types of troops and check how many is left
+    for (let u in units) {
+        const troopsLeft = troops.filter(e => e.type == u) 
+        console.log(u, troopsLeft);
+        if (troopsLeft.length == 0) {
+            delete army[u];
+        } else {
+            army[u] = troopsLeft.length;
+            soldiers += troopsLeft.length;
+        }
+    }
+    // Recalculate the total number of troops
+    army.soldiers = soldiers;
 }
 
 function performAttack(attacker, attacked, n) {
     const soldier = attacker[n];
     const enemyNumber = Math.floor(Math.random()*attacked.length)
-    const enemy = attacked[enemyNumber];
-    enemy.hp -=  soldier.soft_attack * (1-enemy.hardness) + soldier.hard_attack;
+    attacked[enemyNumber].hp -=  
+        soldier.soft_attack * (1-(attacked[enemyNumber].hardness/ 100)) + soldier.hard_attack;
 }
 
 function setUpSoldiers(army) {
@@ -157,37 +175,37 @@ function setUpSoldiers(army) {
     let n = 0;
     // Add all army types to the list of troops
     if (army.militia != null) {
-        for (let i = n; n + army.militia; i++) {
+        for (let i = n; i < n + army.militia; i++) {
             armySoldiers[i] = {... units.militia};
         }
         n += army.militia;
     }
     if (army.demolition_maniac != null) {
-        for (let i = n; n + army.demolition_maniac; i++) {
+        for (let i = n; i < n + army.demolition_maniac; i++) {
             armySoldiers[i] = {... units.demolition_maniac};
         }
         n += army.demolition_maniac;
     }
     if (army.gun_nut != null) {
-        for (let i = n; n + army.gun_nut; i++) {
+        for (let i = n; i < n + army.gun_nut; i++) {
             armySoldiers[i] = {... units.gun_nut};
         }
         n += army.gun_nut;
     }
     if (army.fortified_truck != null) {
-        for (let i = n; n + army.fortified_truck; i++) {
+        for (let i = n; i < n + army.fortified_truck; i++) {
             armySoldiers[i] = {... units.fortified_truck};
         }
         n += army.fortified_truck;
     }
     if (army.power_suit != null) {
-        for (let i = n; n + army.power_suit; i++) {
+        for (let i = n; i < n + army.power_suit; i++) {
             armySoldiers[i] = {... units.power_suit};
         }
         n += army.power_suit;
     }
     if (army.raider != null) {
-        for (let i = n; n + army.raider; i++) {
+        for (let i = n; i < n + army.raider; i++) {
             armySoldiers[i] = {... units.raider};
         }
         n += army.raider;
