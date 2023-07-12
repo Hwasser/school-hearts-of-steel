@@ -24,35 +24,3 @@
   background: rgba(0, 0, 0, 0.20);
 }
 
-.province_army{
-  position: absolute;
-  bottom: 8px;
-  height: 24px;
-  left: 20px;
-  color: lightcyan;
-  background: rgba(0, 0, 0, 0.50);
-  cursor: grab;
-}
-
-.province_army:hover {
-  background: rgba(0, 0, 0, 0.70);
-}
-
-.province_army:active {
-  cursor: grabbing;
-}
-
-.province_army#army1 {
-  top: 10px;
-}
-.province_army#army2 {
-  top: 40px;
-}
-
-.province_army#army3 {
-  top: 70px;
-}
-
-.province_army#army4 {
-  top: 100px;
-}

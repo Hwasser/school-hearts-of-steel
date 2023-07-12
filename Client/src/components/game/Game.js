@@ -16,7 +16,7 @@ import {
 
 import { armyMove, armyAttack } from '../../functionality/manageArmies';
 
-import { useState } from 'react';  
+import { useState, useMemo } from 'react';  
 
 export default function Game({player, sessionData, slotIndex, onWonGame}) {    
 
@@ -102,7 +102,6 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         // Make a copy of old state
         const armiesCopy = [... armies];
         const ownersCopy = [... provinceOwners];
-        console.log("provinceOwners:", provinceOwners);
         // Put new values into copy
         armiesCopy[0][province.id] = province['army1']
         armiesCopy[1][province.id] = province['army2']
@@ -219,8 +218,78 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
             provinceOwnersLocal[toProvince] = newOwner;
             setProvinceOwners(provinceOwnersLocal);
         }
-
     }
+
+    /**
+     * @brief: Merge two armies. Updates the database and state.
+     * @param {*} army1: The document id of a army
+     * @param {*} army2: The document id of a army
+     * @param {*} inProvince: Which province number the merge happens in 
+     */
+    function handleMergeArmies(army1, army2, inProvince) {
+        const armyCopy = [... armies];
+        const armySlotPos = new Array(); // The new position of armies in slots in province
+        const maxSlots = 4;
+
+        // Push all armies but the one that we are going to merge
+        for (let i = 0; i < maxSlots; i++) {
+            if (armyCopy[i][inProvince] != army2) {
+                armySlotPos.push(armyCopy[i][inProvince]);
+            }
+        }  
+        // Push the changes to server
+        const updatePackage = {
+            purpose: "merge_armies",
+            armySlotPos: armySlotPos,
+            provinceId: inProvince,
+            army1: army1,
+            army2: army2
+        };
+
+        axios
+        .put(`http://localhost:8082/api/provinces`, updatePackage)
+        .catch((err) => {
+            console.log('Couldnt merge armies: ' + err);
+    });  
+    }
+
+    // Update the armies in province if a player merge two armies
+    async function handleBroadcastMergeArmies(updatePackage) {
+        const provinceId = updatePackage.province.id;
+        const armyCopy = [... armies];
+        armyCopy[0][provinceId] = updatePackage.province.army1;
+        armyCopy[1][provinceId] = updatePackage.province.army2;
+        armyCopy[2][provinceId] = updatePackage.province.army3;
+        armyCopy[3][provinceId] = updatePackage.province.army4;
+        setArmies(armyCopy);
+    }
+
+    // Specify exactly which states that re-renders this component
+    // and remember the states of the rest.
+    const footer = React.useMemo( () => 
+        <Footer 
+            properties={properties} 
+            onRaiseArmy={handleRaiseArmy} 
+            onBuildBuilding={handleBuildBuilding} 
+            session={session}
+            slotIndex={slotIndex}
+            player={player}
+        />, [properties] );
+
+    // Specify exactly which states that re-renders this component
+    // and remember the states of the rest.
+    const gameui = React.useMemo( () => 
+    <GameUI 
+        onSelectAction={handleSelectProvince} 
+        onUpdateArmies={handleUpdateArmies}
+        onMergeArmies={handleMergeArmies}
+        names={provinceNames} 
+        owners={provinceOwners} // Pass the updated provinceOwners state here
+        armies={armies}    
+        session={session}
+        player={player}
+    />, [properties, armies, provinceOwners]);
+    
         
     const renderGame = () => {
         return (
@@ -233,25 +302,11 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
                         onAttackArmy={handleAttackArmy}
                         onPlayerJoined={handlePlayerJoined}
                         onPlayerWon={handlePlayerWon} 
+                        onMergeArmies={handleBroadcastMergeArmies}
                 />
                 <Header player={player} session={session} slotIndex={slotIndex} />
-                <GameUI 
-                    onSelectAction={handleSelectProvince} 
-                    updateArmies={handleUpdateArmies}
-                    names={provinceNames} 
-                    owners={provinceOwners} // Pass the updated provinceOwners state here
-                    armies={armies}    
-                    session={session}
-                    player={player}
-                />
-                <Footer 
-                    properties={properties} 
-                    onRaiseArmy={handleRaiseArmy} 
-                    onBuildBuilding={handleBuildBuilding} 
-                    session={session}
-                    slotIndex={slotIndex}
-                    player={player}
-                />
+                {gameui}
+                {footer}
             </div>
             </>
         )

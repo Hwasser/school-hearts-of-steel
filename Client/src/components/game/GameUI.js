@@ -3,7 +3,8 @@ import './GameUI.css';
 import Province from './Province';
 import React, { useEffect } from 'react';  
 
-export default function GameUI( {onSelectAction, updateArmies, names, owners, armies, session, player} ) {
+export default function GameUI( 
+  {onSelectAction, onUpdateArmies, onMergeArmies, names, owners, armies, session, player} ) {
   const worldSize = 3;
 
   function onSelectProvince(index) {
@@ -34,7 +35,7 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ar
     });
   }
 
-  function onMoveArmy(fromProvince, toProvince, army, fromSlot) {
+  function handleMoveArmy(fromProvince, toProvince, army, fromSlot) {
     if (fromProvince == toProvince) {
       return;
     }
@@ -52,14 +53,14 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ar
             || armies[2][toProvince] == null 
             || armies[3][toProvince] == null) {      
             console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
-            updateArmies(fromProvince, toProvince, army, fromSlot, false);
+            onUpdateArmies(fromProvince, toProvince, army, fromSlot, false);
           } else {
             console.log("No available army slots in that province!");
           }
         // If the province is not ours, attack!
         } else {
           console.log("attack with army " + army + " from province " + fromProvince + " to " + toProvince);
-          updateArmies(fromProvince, toProvince, army, fromSlot, true);
+          onUpdateArmies(fromProvince, toProvince, army, fromSlot, true);
         }
       } else {
         console.log("Province is too far away!");
@@ -82,10 +83,11 @@ export default function GameUI( {onSelectAction, updateArmies, names, owners, ar
                 id={index} 
                 onProvinceClick={ () => onSelectProvince(index) }
                 onArmyClick={onSelectArmy}
+                onMoveArmy={handleMoveArmy}
+                onMergeArmies={onMergeArmies}
                 owner={owner}
                 name={name} 
                 armies={provArmies}
-                moveArmy={onMoveArmy}
                 session={session}
                 player={player}
               />);

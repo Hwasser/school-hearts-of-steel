@@ -1,0 +1,37 @@
+.province_army{
+    position: absolute;
+    bottom: 8px;
+    height: 24px;
+    left: 12px;
+    color: lightcyan;
+    background: rgba(0, 0, 0, 0.50);
+    cursor: grab;
+    transition: background-color 0.2s, scale 0.2s;
+  }
+  
+  .province_army:hover {
+    background: rgba(0, 0, 0, 0.70);
+  }
+  
+  .drag_army_start{
+    cursor: grabbing;
+    background-color: rgba(0, 0, 0, 0.1);
+    scale: 1.1;
+  }
+  
+  
+  
+  .province_army#army1 {
+    top: 10px;
+  }
+  .province_army#army2 {
+    top: 40px;
+  }
+  
+  .province_army#army3 {
+    top: 70px;
+  }
+  
+  .province_army#army4 {
+    top: 100px;
+  }

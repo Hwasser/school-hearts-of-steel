@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useState } from 'react';  
 
 import './RaiseArmy.css';  
+const { units } = require('../../unitStats');
 
 // Slider code inspired by "https://codepen.io/rmichels/pen/WNegjyK"
 
@@ -17,8 +18,17 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
   // State of workforce in province
   const [curWorkforce, setCurWorkforce] = useState(workforce);
   // State of slide value
-  const [state, setSlide] = useState(Math.floor(workforce / 2));
   const [errorMessage, setErrorMessage] = useState('');
+  // Which type of unit to create
+  const [selectedUnit, setSelectedUnit] = useState('militia');
+  const onSelectUnit = (unit) => {
+    setSelectedUnit(unit);
+  }
+
+  if (workforce != curWorkforce) {
+    setCurWorkforce(workforce);
+  }
+
 
   // When the "raise army" button has been pushed, 
   // update the workforce and push back to interface
@@ -36,15 +46,8 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
     }
 
     const newValue = curWorkforce - toRaise; 
-    updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy);
+    postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selectedUnit);
     updateSession(curCost, slotIndex, session._id);
-  }
-
-  
-  // Whether to reset the slider
-  if (workforce != curWorkforce) {
-    setCurWorkforce(workforce);
-    setSlide(Math.floor(workforce/ 2));
   }
 
   const closeErrorMsg = () => { 
@@ -59,16 +62,23 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
   const toDraw = (active && errorMessage == '') ? "inline" : "none";
 
   const useSlider = (min, max, defaultState, label, id) => {
+
+      const [state, setSlide] = useState(Math.floor(curWorkforce / 2));
       
       const handleChange = e => {
         setSlide(e.target.value);
       };
 
       // The price to build an army at slider position
-      const curPrice = {food: state * costs['food'], tools: state * costs['tools']}
+      const curPrice = {food: state * units[selectedUnit]['cost']['food'], 
+        tools: state * units[selectedUnit]['cost']['tools'],
+        fuel: state * units[selectedUnit]['cost']['fuel'],
+        material: state * units[selectedUnit]['cost']['material']};
       const canAffordFood  = curPrice['food']  <= session.food[slotIndex];
       const canAffordTools = curPrice['tools'] <= session.tools[slotIndex];
-      const canAfford = canAffordFood && canAffordTools;
+      const canAffordFuel  = curPrice['fuel']  <= session.fuel[slotIndex];
+      const canAffordMaterial  = curPrice['material']  <= session.material[slotIndex];
+      const canAfford = canAffordFood && canAffordTools && canAffordFuel && canAffordMaterial;
       
       const Slider = () => (
         <>
@@ -80,24 +90,49 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
           </div>
         )}
         <div className='raise_army' style={{display: toDraw}}>
-          <h2>Raise Army</h2>
+          <h2 className='raise_army_title'>Raise Army</h2>
+          <h3 className='raise_army_title'>Requirements:</h3>
           <p className='raise_army_costs' style={{color: (canAffordFood)  ? 'black' : 'red'}}>
-            Food: {state * costs['food']}</p>
+            Food: {state * units[selectedUnit]['cost']['food']}</p>
           <p className='raise_army_costs' style={{color: (canAffordTools) ? 'black' : 'red' }}>
-            Tools: {state * costs['tools']}</p>
-          <input
-            className='slider'
-            type="range"
-            id={id}
-            min={min}
-            max={max}
-            step={1.0}
-            value={state}
-            onChange={handleChange}
-          />
+            Tools: {state * units[selectedUnit]['cost']['tools']}</p>
+          <p className='raise_army_costs' style={{color: (canAffordFuel) ? 'black' : 'red' }}>
+            Fuel: {state * units[selectedUnit]['cost']['fuel']}</p>
+          <p className='raise_army_costs' style={{color: (canAffordMaterial) ? 'black' : 'red' }}>
+            Material: {state * units[selectedUnit]['cost']['material']}</p>
+
+          <h3 className='raise_army_title'>Specifications:</h3>
+          
+          <div>
+            <button className={(selectedUnit == 'militia' ? 'army_type_selected' : 'army_type')} 
+              onClick={() => onSelectUnit('militia')} >Militia</button>
+            <button className={(selectedUnit == 'demolition_maniac' ? 'army_type_selected' : 'army_type')} 
+              onClick={() => onSelectUnit('demolition_maniac')} >Demolition Maniac</button>
+            <button className={(selectedUnit == 'gun_nut' ? 'army_type_selected' : 'army_type')}
+              onClick={() => onSelectUnit('gun_nut')} >Gun Nut</button>
+            <button className={(selectedUnit == 'fortified_truck' ? 'army_type_selected' : 'army_type')}
+              onClick={() => onSelectUnit('fortified_truck')} >Fortified Truck</button>
+            <button className={(selectedUnit == 'power_suit' ? 'army_type_selected' : 'army_type')}
+              onClick={() => onSelectUnit('power_suit')} >Power Suit</button>
+          </div>
+
+          {curWorkforce >= 20 && (
+            <>
+            <input
+              className='slider'
+              type="range"
+              id={id}
+              min={min}
+              max={max}
+              step={1.0}
+              value={state}
+              onChange={handleChange}
+            />
+            </>
+          )}
           <div> 
-              <span>Amount:</span>
-              <span>{state}</span> 
+              <span>Amount: </span>
+              <span style={{color: curWorkforce < 20 ? 'red' : 'black'}}>{state}</span> 
           </div>
           <button 
             className='confirm_button'
@@ -119,9 +154,9 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
   
     // The values for the slider, min, max, default etc
     const [slideValue, Slider] = useSlider(
-      10,
+      minLimit,
       curWorkforce-minLimit,
-      curWorkforce-minLimit,
+      curWorkforce/2,
       "Threshold",
       "threshold"
     );
@@ -130,7 +165,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
 }
 
 // Update the amount of workers in province in database
-function updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy) {
+function postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selectedUnit) {
   // Replace the province value with one with the new workforce
   const province = {... fromProvince};
   // Get the document id of the province
@@ -146,6 +181,9 @@ function updateProvinceDatabase(newValue, toRaise, fromProvince, onRaiseArmy) {
     soldiers: toRaise,
     owner: province['owner']
   };
+  army[selectedUnit] = toRaise;
+  console.log("Raising army:", army);
+
   axios
   .post('http://localhost:8082/api/armies', army)
   .then( (res2) => {
@@ -198,11 +236,4 @@ function findArmySlot(province) {
     armySlot = 'army4';
   }  
   return armySlot;
-}
-
-const costs = {
-  food: 2,
-  fuel: 0,
-  tools: 1,
-  material: 0
 }

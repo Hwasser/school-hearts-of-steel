@@ -9,23 +9,23 @@ const ArmySchema = new mongoose.Schema({
         type: Number,
         required: false
     },
-    demolition_maniacs: {
+    demolition_maniac: {
         type: Number,
         required: false
     },
-    gun_nuts: {
+    gun_nut: {
         type: Number,
         required: false
     },
-    fortified_trucks: {
+    fortified_truck: {
         type: Number,
         required: false
     },
-    power_suits: {
+    power_suit: {
         type: Number,
         required: false
     },
-    raiders: {
+    raider: {
         type: Number,
         required: false
     },

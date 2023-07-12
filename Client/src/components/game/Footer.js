@@ -1,9 +1,26 @@
 import './Footer.css';  
 import RaiseArmy from './RaiseArmy';
 import ProvinceBuild from './ProvinceBuild';
+import ArmyView from './ArmyView';
 import { useState } from 'react';
 
-export default function Footer( {properties, onRaiseArmy, onBuildBuilding, session, slotIndex, player} ) {
+/**
+ * 
+ * @param {dict} properties: All properties of the currently selected province/army
+ * @param {function} onRaiseArmy: Function to call in Game when raising an army
+ * @param {function} onBuildBuilding: Function to call in Game when building a building
+ * @param {dict} session: All information of the current game session (see Session in backend)
+ * @param {number} slotIndex: Which index the player has in game session
+ * @param {dict} player: Player information (see Player in backend)
+ * @returns 
+ */
+export default function Footer( {
+  properties, 
+  onRaiseArmy, 
+  onBuildBuilding, 
+  session, 
+  slotIndex, 
+  player} ) {
 
   const [provProp, setProvProp] = useState(properties);
   const [useRaiseMenu, setuseRaiseMenu] = useState(false);
@@ -198,39 +215,12 @@ export default function Footer( {properties, onRaiseArmy, onBuildBuilding, sessi
     </>
   );
 
-  const FooterArmy = () => (
-    <>
-    {!isProvince && (
-      <div className="footer">
-
-        <div className='footer_row'>
-          <div className='property_name'>
-            <span id="name21"> Army owner: </span>
-            <span id="value21"> {provProp['owner']} </span>
-          </div>
-        </div>
-        <div className='footer_row'>
-          <div className='property_name'>
-            <span id="name23"> Soldiers: </span>
-            <span id="value23"> {provProp['soldiers']} </span>
-          </div>
-        </div>
-        <div className='footer_row'>
-          <div className='property_name'>
-            <span id="name25"> Placeholder: </span>
-            <span id="value25"> .. more stuff </span>
-          </div>
-        </div>
-      </div>
-      )}
-      </>
-    );
-
-
   return (
     <>
     <FooterProvince /> 
-    <FooterArmy /> 
+    {!isProvince && (
+      <ArmyView provProp={{... provProp}} /> 
+    )}
     </>
   );
 }

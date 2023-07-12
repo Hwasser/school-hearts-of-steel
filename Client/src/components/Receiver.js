@@ -41,7 +41,8 @@ export default function Receiver({
   onMoveArmy,
   onAttackArmy,
   onPlayerJoined,
-  onPlayerWon
+  onPlayerWon,
+  onMergeArmies
 }) {
   const [eventSession, setEventSession] = useState(null);
 
@@ -58,7 +59,6 @@ export default function Receiver({
           const document = JSON.parse(message);
           switch (document.purpose) {
             case 'update_resources':
-              console.log("Received: update_resources");
               onUpdateResources(document.package);
               break;
             case 'update_province':
@@ -80,6 +80,11 @@ export default function Receiver({
             case 'player_won':
               console.log("Received: player_won");
               onPlayerWon(document.package);
+              break;
+              break;
+            case 'merge_armies':
+              console.log("Received: merge_armies");
+              onMergeArmies(document.package);
               break;
             default:
               console.log("Receiver: Received message without purpose!");
