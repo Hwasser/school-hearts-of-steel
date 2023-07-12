@@ -8,8 +8,11 @@ export default function GameUI(
   
   const worldSize = 3; // Number of provinces per row
   const [mergeConfirmation, setMergeConfirmation] = useState(false);
+  const [mergeState, setMergeState] = useState(null);
 
-
+ /**
+  * @param {Integer} index: The province number 
+  */
   function onSelectProvince(index) {
     axios.get('http://localhost:8082/api/provinces/', {
       params: { id: index}
@@ -24,6 +27,10 @@ export default function GameUI(
     });
   }
   
+  /**
+   * 
+   * @param {String} id: The object id (_id) of an army 
+   */
   function onSelectArmy(id) {
     if (id == null) {
       return;
@@ -38,12 +45,24 @@ export default function GameUI(
     });
   }
   
+  /**
+   * @param {String} army1: The object id (_id) of an army
+   * @param {String} army2: The object id (_id) of an army
+   * @param {Integer} i: Province number 
+   */
   function handleMergeArmies(army1, army2, id) {
     setMergeConfirmation(true);
-    console.log("MERGING BROOAS!");
-    //onMergeArmies(army1, army2, id);
+    setMergeState({army1: army1, army2: army2, id: id});
   }
 
+/**
+ * 
+ * @param {Integer} fromProvince: Province number 
+ * @param {Integer} toProvince: Province number 
+ * @param {JSON} army: The object id (_id) of an army
+ * @param {Integer} fromSlot: The slot number from where the army came
+ * @returns 
+ */
   function handleMoveArmy(fromProvince, toProvince, army, fromSlot) {
   if (fromProvince == toProvince) {
     return;
@@ -75,16 +94,33 @@ export default function GameUI(
     }
   }
 
+  /**
+   * @brief: A Component for a "merge-armies" confirmation screen
+   * @returns A merge-popup-window
+   */
   const MergeConfirmation = () => {
+    const onAbortMerge = () => {
+      setMergeConfirmation(false);
+    } 
+
+    function onConfirmMerge() {
+      onMergeArmies(mergeState.army1, mergeState.army2, mergeState.id);
+      setMergeConfirmation(false);
+    }
+    
     return (
       <div className="mergeConfirmationPopup">
       <h3>Are you sure you want to merge these armies?</h3>
-      <button>Confirm</button>
-      <button>Cancel</button>
+      <button onClick={onConfirmMerge}>Confirm</button>
+      <button onClick={onAbortMerge}>Cancel</button>
       </div>
     );
   };
 
+  /**
+   * @brief: Builds the playfield between the header and footer, including all provinces.
+   * @returns A GameUI body
+   */
   function BuildBody() {
       const body = [];
       // Build all provinces of the map
