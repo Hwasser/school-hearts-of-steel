@@ -1,3 +1,10 @@
+/**
+ * This component represent playfield between the header and footer, 
+ * including all provinces. 
+ * 
+ * Children: Proinvce.js, ArmySlot.js
+ */
+
 import axios from 'axios';
 import Province from './Province';
 import React, { useState } from 'react';  
@@ -61,7 +68,6 @@ export default function GameUI(
  * @param {Integer} toProvince: Province number 
  * @param {JSON} army: The object id (_id) of an army
  * @param {Integer} fromSlot: The slot number from where the army came
- * @returns 
  */
   function handleMoveArmy(fromProvince, toProvince, army, fromSlot) {
   if (fromProvince == toProvince) {
