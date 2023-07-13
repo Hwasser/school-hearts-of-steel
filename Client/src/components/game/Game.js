@@ -295,7 +295,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         names={provinceNames} 
         owners={provinceOwners}
         flavors={provinceFlavors}
-        terrains={provinceFlavors}
+        terrains={provinceTerrains}
         armies={armies}    
         session={session}
         player={player}

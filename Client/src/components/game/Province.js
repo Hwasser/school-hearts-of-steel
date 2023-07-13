@@ -1,5 +1,16 @@
 import './Province.css';  
 import Army from './ArmySlot.js'
+import { armyAttack } from '../../functionality/manageArmies';
+
+import image_mountains from "../../graphics/prov_mountains.png";
+import image_mountains_rad from "../../graphics/prov_mountains_rad.png";
+import image_forest from "../../graphics/prov_forest.png";
+import image_forest_rad from "../../graphics/prov_forest_rad.png";
+import image_swamp from "../../graphics/prov_swamp.png";
+import image_swamp_rad from "../../graphics/prov_swamp_rad.png";
+import image_urban from "../../graphics/prov_urban.png";
+import image_urban_rad from "../../graphics/prov_urban_rad.png";
+import image_plains_rad from "../../graphics/prov_plain_rad.png";
 
 /**
  * Component for provinces in the main view. 
@@ -49,10 +60,19 @@ export default function Province(
 
   const width = {9: 285, 16: 235, 25: 185};
   const height = {9: 270, 16: 220, 25: 170};
+
+  const provImage = {
+    'plain': (flavor != 'radiation') ? null : image_plains_rad, 
+    'forest': (flavor != 'radiation') ? image_forest : image_forest_rad, 
+    'mountain': (flavor != 'radiation') ? image_mountains : image_mountains_rad, 
+    'swamp': (flavor != 'radiation') ? image_swamp : image_swamp_rad, 
+    'urban': (flavor != 'radiation') ? image_urban : image_urban_rad
+  };
   
   return (
       <div className='province' id={id} owner={owner} 
-        style={{background: color, width: width[session.world_size], height: height[session.world_size]}} 
+        style={{'background-color': color, backgroundImage: `url(${provImage[terrain]})`, 
+          width: width[session.world_size], height: height[session.world_size]}} 
         onDragOver={handleDragOver} onDrop={(e) => {handleOnDrop(e, id)}}>
       
       <button className='province_name' onClick={onProvinceClick}>{name}</button>

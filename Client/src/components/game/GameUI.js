@@ -11,7 +11,8 @@ import React, { useState } from 'react';
 import './GameUI.css';
 
 export default function GameUI( 
-  {onSelectAction, onUpdateArmies, onMergeArmies, names, owners, flavors, terrains, armies, session, player} ) {
+  {onSelectAction, onUpdateArmies, onMergeArmies, 
+    names, owners, flavors, terrains, armies, session, player} ) {
   
   const worldRowSize = Math.sqrt(session.world_size);
   console.log(worldRowSize);
