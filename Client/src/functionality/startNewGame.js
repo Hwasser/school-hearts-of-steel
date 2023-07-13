@@ -6,12 +6,13 @@ import axios from 'axios';
 
 export default function startNewGame(session) {
     // TODO: Remember this is specified here!
-    const nProvinces = 9;
+    const nProvinces = session.world_size;
 
     const slots = session.max_slots;
     const playerNames = session.slot_names;
     const startPlayerId = session.slot_ids[0];
-    const playerPositions = setPlayerPositions(playerNames, startPlayerId, slots);
+    const playerPositions = setPlayerPositions(playerNames, startPlayerId, slots, nProvinces);
+    console.log(playerPositions);
 
     const allProvinces = setUpProvinces(playerPositions)
 
@@ -40,7 +41,7 @@ export default function startNewGame(session) {
 
 // Setup randomly generated provinces, set up player start positions etc
 function setUpProvinces(playerPositions) {
-  const allProvinces = Array(9);
+  const allProvinces = Array(nProvinces);
   const nProvinces = playerPositions.length;
   for (let i = 0; i < nProvinces; i++) {
     const player = playerPositions[i];
@@ -170,22 +171,24 @@ const lastName = ['ville', 'town', 'bridge', 'river', 'ridge', 'by', 'wood', 'sh
 
 // Set up the position of all players
 // VARIANT: 1 <= n of players <= 4 
-function setPlayerPositions(playerNames, startPlayerId, slots) {
-  const playerPositions = Array(9).fill({name: 'Neutral', id: null});
+function setPlayerPositions(playerNames, startPlayerId, slots, nProvinces) {
+  const playerPositions = Array(nProvinces).fill({name: 'Neutral', id: null});
+
+  const rowSize = Math.sqrt(nProvinces);
 
   playerPositions[0] = {name: playerNames[0], id: startPlayerId};
 
   if (slots == 2) {
-    playerPositions[8] = {name: playerNames[1], id: null};
+    playerPositions[nProvinces-1] = {name: playerNames[1], id: null};
   }
   if (slots == 3) {
-    playerPositions[2] = {name: playerNames[1], id: null};
-    playerPositions[7] = {name: playerNames[2], id: null};
+    playerPositions[rowSize-1] = {name: playerNames[1], id: null};
+    playerPositions[nProvinces-Math.ceil(rowSize/2)] = {name: playerNames[2], id: null};
   }
   if (slots == 4) {
-    playerPositions[2] = {name: playerNames[1], id: null};
-    playerPositions[6] = {name: playerNames[2], id: null};
-    playerPositions[8] = {name: playerNames[3], id: null};
+    playerPositions[rowSize-1] = {name: playerNames[1], id: null};
+    playerPositions[nProvinces-rowSize] = {name: playerNames[2], id: null};
+    playerPositions[nProvinces-1] = {name: playerNames[3], id: null};
   }
 
   return playerPositions;

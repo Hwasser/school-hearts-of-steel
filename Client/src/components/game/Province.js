@@ -45,10 +45,14 @@ export default function Province(
   function handleMergeArmies(army1, army2) {
     onMergeArmies(army1, army2, id);
   }
+
+  const width = {9: 285, 16: 235, 25: 185};
+  const height = {9: 270, 16: 220, 25: 170};
   
   return (
-      <div className='province' id={id} owner={owner} style={{background: color}} 
-        onDragOver={handleDragOver} onDrop={(e) => {handleOnDrop(e, id)} }>
+      <div className='province' id={id} owner={owner} 
+        style={{background: color, width: width[session.world_size], height: height[session.world_size]}} 
+        onDragOver={handleDragOver} onDrop={(e) => {handleOnDrop(e, id)}}>
       
       <button className='province_name' onClick={onProvinceClick}>{name}</button>
       <Army key={name + '_army1'} name='army1' provinceNumber={id} slotNumber={0} exists={armies[0] != null} 
@@ -68,21 +72,3 @@ export default function Province(
 // Pre-defined colors to use for provinces
 const allColors = ["rgb(135, 245, 66)", "rgb(219, 78, 46)", "rgb(194, 85, 224)", 
 "rgb(82, 212, 217)", "rgb(216, 217, 167)"];
-
-/*
-  TODO: Remove
-  NOTE: Old code for province armies if anything goes wrong
-
-      <button className='province_army' id='army1' style={{opacity: army1Exists}} draggable={army1Draggable} 
-        onClick={() => onArmyClick(armies[0])} onDragStart={(e) => handleOnDrag(e, armies[0], id, 0)} 
-        onDragEnd={(e) => handleDragEnd(e)} >Army 1</button>
-      <button className='province_army' id='army2' style={{opacity: army2Exists}} draggable={army2Draggable}
-        onClick={() => onArmyClick(armies[1])} onDragStart={(e) => handleOnDrag(e, armies[1], id, 1)} 
-        onDragEnd={(e) => handleDragEnd(e)} >Army 2</button>
-      <button className='province_army' id='army3' style={{opacity: army3Exists}} draggable={army3Draggable}
-        onClick={() => onArmyClick(armies[2])} onDragStart={(e) => handleOnDrag(e, armies[2], id, 2)} 
-        onDragEnd={(e) => handleDragEnd(e)} >Army 3</button>
-      <button className='province_army' id='army4' style={{opacity: army4Exists}} draggable={army4Draggable}
-        onClick={() => onArmyClick(armies[3])} onDragStart={(e) => handleOnDrag(e, armies[3], id, 3)} 
-        onDragEnd={(e) => handleDragEnd(e)} >Army 4</button>
-*/

@@ -12,6 +12,11 @@
     padding: 8px 16px;
 }
 
+.start_body_container {
+    display: flex;
+    height: 100%;
+}
+
 .welcome_text {
     text-align: center;
     margin: 8px;
@@ -24,15 +29,30 @@
     white-space: nowrap;
 }
 
+.startmenu_button_selected {
+    background-color: rgba(90, 255, 90, 0.5);
+    border: 2px solid grey;
+    border-radius: 5px;
+    padding: 4px 4px;
+    margin: 4px;
+    width: 90%;
+    white-space: nowrap;
+}
+
+#create_new_game_button {
+    margin: 20px 4px 4px 4px;
+}
+
 .start_game_container {
     background-color: rgba(255, 255, 255, 0.5);
     padding: 8px 16px;
+    margin: 4px;
 }
 
 .game_list_container {
     background-color: rgba(255, 255, 255, 0.5);
     padding: 8px 4px;
-    margin: 10px 0;
+    margin: 4px;
 }
 
 .select_slot_container {
@@ -43,4 +63,8 @@
     position: relative;
     list-style-type: none;
     left: -20px;
+}
+
+.start_text_options {
+    margin: 10px 0 4px 0;
 }

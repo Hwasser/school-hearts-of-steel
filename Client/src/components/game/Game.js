@@ -23,7 +23,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
     //--------------------------------------
     // ------------- Init data -------------
 
-    const nProvinces = 9;
+    const nProvinces = sessionData.world_size;
     
     // All properties for a province or an army
     const [properties, setProperties] = useState(defaultProvinceState);

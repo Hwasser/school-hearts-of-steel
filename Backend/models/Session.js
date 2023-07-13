@@ -30,6 +30,10 @@ const SessionSchema = new mongoose.Schema({
     tools: {
         type: [Number],
         required: true
+    },
+    world_size: {
+        type: [Number],
+        required: true
     }
 });
 
