@@ -165,6 +165,10 @@ export default function Footer( {
           <span id="value1"> {provProp['name']} </span>
         </div>
         <div className='property_name'>
+          <span id="name44"> Terrain: </span>
+          <span id="value44"> {provProp['terrain']} </span>
+        </div>
+        <div className='property_name'>
           <span id="name1b"> Owner: </span>
           <span id="value1b"> {provProp['owner']} </span>
         </div>
