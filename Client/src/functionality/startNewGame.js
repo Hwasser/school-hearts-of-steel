@@ -16,25 +16,8 @@ export default function startNewGame(session) {
     
     const allProvinces = setUpProvinces(playerPositions, session)
 
-    // Get list of all provinces
-    axios
-    .get('http://localhost:8082/api/provinces')
-    .then((res) => {
-      const response = res.data;
-      
-      // If the list of provinces is empty, creaty new ones
-      if (response.length == 0) {
-        createNewProvinces(allProvinces);
-      } else {
-        // Otherwise replace all provinces
-        replaceProvinces(allProvinces, response)
-      }
-    })
-    .catch((err) => {
-      // If provinces doesn't exist then return false to create new ones
-      console.log('Error from getting provinces:' + err);
-      
-    });
+    postNewProvinces(allProvinces);
+
 }
 
 // Setup randomly generated provinces, set up player start positions etc
@@ -49,34 +32,8 @@ function setUpProvinces(playerPositions, session) {
   return allProvinces;
 }
 
-// Replace the provinces in the db with the newly generated
-function replaceProvinces(allProvinces, response) {
-  const nProvinces = allProvinces.length;
-  for (let i = 0; i < nProvinces; i++) {
-    const id = response[i]['_id']
-    allProvinces[i]['objectId'] = id;
-    const province = allProvinces[i];
-    axios
-    .put(`http://localhost:8082/api/provinces/${id}`, province)
-    .catch((err) => {
-      console.log('Error in replacing province: ' + err);
-    });
-  }
-  console.log("Restarted game!");
-  // Remove all armies from old game
-  axios
-    .delete(`http://localhost:8082/api/armies/`)
-    .then( (res) => {
-      console.log("All old armies removed!");
-    })
-    .catch((err) => {
-      console.log('Error in removing armies: ' + err);
-    });
-
-}
-
 // Post newly generated provinces to db
-function createNewProvinces(allProvinces) {
+function postNewProvinces(allProvinces) {
   const nProvinces = allProvinces.length;
     for (let i = 0; i < nProvinces; i++) {
       const province = allProvinces[i];

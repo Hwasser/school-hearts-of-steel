@@ -140,6 +140,8 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         .catch((err) => {
             console.log('cant remove all sessions:', err);
         });
+        // TODO: Temporary!!
+        await removeAllProvinces();
         // Post new sessions
         await axios
         .post('http://localhost:8082/api/sessions', newSession)
@@ -205,4 +207,15 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         </div>
         </>
     );
+}
+
+// TODO: Temporary!
+async function removeAllProvinces() {
+    await axios
+        .delete('http://localhost:8082/api/provinces')
+        .then( () => {
+        })
+        .catch((err) => {
+            console.log('cant remove all provinces:', err);
+        });
 }
