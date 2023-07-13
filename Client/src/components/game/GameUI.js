@@ -11,7 +11,7 @@ import React, { useState } from 'react';
 import './GameUI.css';
 
 export default function GameUI( 
-  {onSelectAction, onUpdateArmies, onMergeArmies, names, owners, armies, session, player} ) {
+  {onSelectAction, onUpdateArmies, onMergeArmies, names, owners, flavors, terrains, armies, session, player} ) {
   
   const worldRowSize = Math.sqrt(session.world_size);
   console.log(worldRowSize);
@@ -138,6 +138,8 @@ export default function GameUI(
             const index = i * worldRowSize + j;
             const name = names[index];
             const owner = owners[index];
+            const flavor = flavors[index];
+            const terrain = terrains[index];
             // Armies in province -> provArmies[slot][province index]
             const provArmies = [armies[0][index], armies[1][index], armies[2][index], armies[3][index]]
               listItems.push(<Province 
@@ -147,6 +149,8 @@ export default function GameUI(
                 onMoveArmy={handleMoveArmy}
                 onMergeArmies={handleMergeArmies}
                 owner={owner}
+                flavor={flavor}
+                terrain={terrain}
                 name={name} 
                 armies={provArmies}
                 session={session}

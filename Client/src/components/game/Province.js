@@ -9,7 +9,8 @@ import Army from './ArmySlot.js'
  */
 
 export default function Province(
-  { id, onProvinceClick, onArmyClick, onMoveArmy, onMergeArmies, name, owner, armies, session, player }) {
+  { id, onProvinceClick, onArmyClick, onMoveArmy, onMergeArmies, 
+    name, owner, flavor, terrain, armies, session, player }) {
   // If start dragging an army  
 
   // Setup province colors and set color for each player
