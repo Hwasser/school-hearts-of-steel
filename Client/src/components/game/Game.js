@@ -66,13 +66,14 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
             if (res.data.length !== 0) {
                 for (let i = 0; i < nProvinces; i++) {
                     const province = res.data[i];
-                    localProvinceNames[i] = province['name'];
-                    localProvinceOwners[i] = province['owner'];
-                    localProvinceId[i] = province['_id']
-                    localArmy1[i] = province['army1'];
-                    localArmy2[i] = province['army2'];
-                    localArmy3[i] = province['army3'];
-                    localArmy4[i] = province['army4'];
+                    const index = province.id;
+                    localProvinceNames[index] = province['name'];
+                    localProvinceOwners[index] = province['owner'];
+                    localProvinceId[index] = province['_id']
+                    localArmy1[index] = province['army1'];
+                    localArmy2[index] = province['army2'];
+                    localArmy3[index] = province['army3'];
+                    localArmy4[index] = province['army4'];
                 }
 
                 setProvinceNames(localProvinceNames);

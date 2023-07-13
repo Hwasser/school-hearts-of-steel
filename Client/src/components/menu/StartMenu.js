@@ -140,7 +140,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         .catch((err) => {
             console.log('cant remove all sessions:', err);
         });
-        // TODO: Temporary!!
+        // TODO: Temporary!! Remove all old provinces when creating new ones
         await removeAllProvinces();
         // Post new sessions
         await axios

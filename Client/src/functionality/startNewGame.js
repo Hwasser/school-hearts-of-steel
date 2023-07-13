@@ -6,17 +6,20 @@ const { flavors, terrains, firstNames, lastNames } = require('../provinceStats')
  */
 
 export default function startNewGame(session) {
-    // TODO: Remember this is specified here!
-    const nProvinces = session.world_size;
-
-    const slots = session.max_slots;
-    const playerNames = session.slot_names;
-    const startPlayerId = session.slot_ids[0];
-    const playerPositions = setPlayerPositions(playerNames, startPlayerId, slots, nProvinces);
-    
-    const allProvinces = setUpProvinces(playerPositions, session)
-
-    postNewProvinces(allProvinces);
+  // Number of provinces on the map  
+  const nProvinces = session.world_size;
+  // How many players can join this game
+  const slots = session.max_slots;
+  // All the players in the game (free slots are called Player2, Player3 ..)
+  const playerNames = session.slot_names;
+  // The document id of the Player model for each player, null if slot is free
+  const startPlayerId = session.slot_ids[0];
+  // A list of the owner of all provinces, including the players and free slots
+  const playerPositions = setPlayerPositions(playerNames, startPlayerId, slots, nProvinces);
+  // A list of all province objects (same as the Province-model)
+  const allProvinces = setUpProvinces(playerPositions, session)
+  // Post all provinces to the server
+  postNewProvinces(allProvinces);
 
 }
 
