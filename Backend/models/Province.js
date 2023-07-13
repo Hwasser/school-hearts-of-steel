@@ -9,7 +9,18 @@ const ProvinceSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-
+    session: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    flavor: {
+        type: String,
+        required: true
+    },
+    terrain: {
+        type: String,
+        required: true
+    },
     houses: {
         type: Number,
         required: true

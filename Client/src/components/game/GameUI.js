@@ -11,9 +11,11 @@ import React, { useState } from 'react';
 import './GameUI.css';
 
 export default function GameUI( 
-  {onSelectAction, onUpdateArmies, onMergeArmies, names, owners, armies, session, player} ) {
+  {onSelectAction, onUpdateArmies, onMergeArmies, 
+    names, owners, flavors, terrains, armies, session, player} ) {
   
-  const worldSize = 3; // Number of provinces per row
+  const worldRowSize = Math.sqrt(session.world_size);
+  console.log(worldRowSize);
   const [mergeConfirmation, setMergeConfirmation] = useState(false);
   const [mergeState, setMergeState] = useState(null);
 
@@ -75,9 +77,9 @@ export default function GameUI(
   }
   // Check if destination province is neightbour from this province
   const move = fromProvince - toProvince; 
-  if (Math.abs(move) == worldSize 
-    || (move == -1 &&  (fromProvince % worldSize != worldSize-1))
-    || (move == 1 && (fromProvince % worldSize != 0)) ) {
+  if (Math.abs(move) == worldRowSize 
+    || (move == -1 &&  (fromProvince % worldRowSize != worldRowSize-1))
+    || (move == 1 && (fromProvince % worldRowSize != 0)) ) {
       // Check if the destination province is ours or belongs to another player
       if (owners[toProvince] == owners[fromProvince]) {
         // Only start moving an army if there are any available army slots in dst!
@@ -130,13 +132,15 @@ export default function GameUI(
   function BuildBody() {
       const body = [];
       // Build all provinces of the map
-      for (let i = 0; i < worldSize; i++) {
+      for (let i = 0; i < worldRowSize; i++) {
           let listItems = []
           // Build a row of provinces
-          for (let j = 0; j < worldSize; j++) {
-            const index = i * worldSize + j;
+          for (let j = 0; j < worldRowSize; j++) {
+            const index = i * worldRowSize + j;
             const name = names[index];
             const owner = owners[index];
+            const flavor = flavors[index];
+            const terrain = terrains[index];
             // Armies in province -> provArmies[slot][province index]
             const provArmies = [armies[0][index], armies[1][index], armies[2][index], armies[3][index]]
               listItems.push(<Province 
@@ -146,6 +150,8 @@ export default function GameUI(
                 onMoveArmy={handleMoveArmy}
                 onMergeArmies={handleMergeArmies}
                 owner={owner}
+                flavor={flavor}
+                terrain={terrain}
                 name={name} 
                 armies={provArmies}
                 session={session}

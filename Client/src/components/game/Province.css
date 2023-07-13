@@ -1,10 +1,11 @@
 .province {
+  background-repeat: no-repeat;
+  background-size: 90%;
+  background-position: center;
   position: relative;
   border-radius: 4px;
   border: 2px solid rgba(0, 0, 0, 0.15);
   background-color:transparent;
-  height: 275px;
-  width: 275px;
   margin: 4px 4px;
 }
 

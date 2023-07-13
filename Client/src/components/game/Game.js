@@ -23,14 +23,14 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
     //--------------------------------------
     // ------------- Init data -------------
 
-    const nProvinces = 9;
+    const nProvinces = sessionData.world_size;
     
     // All properties for a province or an army
     const [properties, setProperties] = useState(defaultProvinceState);
     // An array containing the names of all provinces
     const [provinceNames, setProvinceNames] = useState(Array(nProvinces).fill('-'));
     // An array containing the documentId of all provinces
-    const [provinceId, setProvinceId] = useState(Array(nProvinces).fill(''));
+    const [provinceId, setProvinceId] = useState(Array(nProvinces).fill('')); // TODO: Remove?
     // An array containing the owners of all provinces
     const [provinceOwners, setProvinceOwners] = useState(Array(nProvinces).fill('Neutral'));
     // Contains the documentId of each army in each slot and province
@@ -42,6 +42,8 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
     const [session, setSession] = useState(sessionData);
     // We keep this state so we can fetch province data and stuff when the game starts
     const [hasStarted, setHasStarted] = useState(false);
+    const [provinceFlavors, setProvinceFlavors] = useState(Array(nProvinces).fill('-'));
+    const [provinceTerrains, setProvinceTerrains] = useState(Array(nProvinces).fill('-'));
 
     // Fetch province information from the server once when opening the game
     // and set slot index of the player.
@@ -56,6 +58,8 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         const localProvinceNames = Array(nProvinces);
         const localProvinceOwners = Array(nProvinces);
         const localProvinceId = Array(nProvinces);
+        const localProvinceFlavors = Array(nProvinces);
+        const localProvinceTerrains = Array(nProvinces);
         const localArmy1 = Array(nProvinces);
         const localArmy2 = Array(nProvinces);
         const localArmy3 = Array(nProvinces);
@@ -66,15 +70,20 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
             if (res.data.length !== 0) {
                 for (let i = 0; i < nProvinces; i++) {
                     const province = res.data[i];
-                    localProvinceNames[i] = province['name'];
-                    localProvinceOwners[i] = province['owner'];
-                    localProvinceId[i] = province['_id']
-                    localArmy1[i] = province['army1'];
-                    localArmy2[i] = province['army2'];
-                    localArmy3[i] = province['army3'];
-                    localArmy4[i] = province['army4'];
+                    const index = province.id;
+                    localProvinceNames[index] = province.name;
+                    localProvinceOwners[index] = province.owner;
+                    localProvinceId[index] = province._id;
+                    localProvinceFlavors[index] = province.flavor;
+                    localProvinceTerrains[index] = province.terrain;
+                    localArmy1[index] = province.army1;
+                    localArmy2[index] = province.army2;
+                    localArmy3[index] = province.army3;
+                    localArmy4[index] = province.army4;
                 }
 
+                setProvinceFlavors(localProvinceFlavors);
+                setProvinceTerrains(localProvinceTerrains);
                 setProvinceNames(localProvinceNames);
                 setProvinceOwners(localProvinceOwners);
                 setProvinceId(localProvinceId);
@@ -103,10 +112,10 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         const armiesCopy = [... armies];
         const ownersCopy = [... provinceOwners];
         // Put new values into copy
-        armiesCopy[0][province.id] = province['army1']
-        armiesCopy[1][province.id] = province['army2']
-        armiesCopy[2][province.id] = province['army3']
-        armiesCopy[3][province.id] = province['army4']
+        armiesCopy[0][province.id] = province.army1;
+        armiesCopy[1][province.id] = province.army2;
+        armiesCopy[2][province.id] = province.army3;
+        armiesCopy[3][province.id] = province.army4;
         ownersCopy[province.id] = province.owner;
         // Replace with copy
         setArmies(armiesCopy);
@@ -284,7 +293,9 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         onUpdateArmies={handleUpdateArmies}
         onMergeArmies={handleMergeArmies}
         names={provinceNames} 
-        owners={provinceOwners} // Pass the updated provinceOwners state here
+        owners={provinceOwners}
+        flavors={provinceFlavors}
+        terrains={provinceTerrains}
         armies={armies}    
         session={session}
         player={player}
