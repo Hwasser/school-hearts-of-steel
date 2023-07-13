@@ -97,11 +97,13 @@ function createNewProvinces(allProvinces) {
 
 // Generates a province with an id with random properties
 function generateProvince(id, player, session) {
-    const flavor = generateRandomFlavor();
+    const flavor = (player == 'Neutral') ? generateRandomFlavor() : 'normal';
     const terrain = generateRandomTerrain();
     const name = generateRandomName(flavor, terrain);
 
-    const province = {
+    // To make the game even for all players we differ on player provinces and neutral provinces
+    const province = (player == 'Neutral') 
+      ? {
       id: id,
       session: session._id,
       name: name['first'] + name['last'],
@@ -118,39 +120,47 @@ function generateProvince(id, player, session) {
       tools: getRandomInt(100, 1000),
       workforce: getRandomInt(10, 100),
       owner: player.name,
-      army1: null,
-      army2: null,
-      army3: null,
-      army4: null
+      army1: null, army2: null, army3: null, army4: null
+    }
+    : {
+      id: id,
+      session: session._id,
+      name: name['first'] + name['last'],
+      flavor: flavor, terrain: terrain,
+      houses: 1, workshops: 0, farms: 0, mines: 0, forts: 0,
+      food: 800, fuel: 0, material: 800, tools: 800, workforce: 60,
+      owner: player.name,
+      army1: null, army2: null, army3: null, army4: null
     };
 
-    // Set some special stats to provinces associated with certain names
-   
+    // -- Set some special stats to provinces associated with certain properties --
+
     // If the province is radiated
-    if (name['first'] == 'Dead' || name['first'] == 'Radiation' || name['first'] == 'Nukes') {
+    if (flavor == 'radiation') {
       province['farms'] = 0;
       province['houses'] = 0;
       province['fuel'] += 1000;
     }
 
-    // If the province is clean and peaceful
-    if (name['first'] == 'Farmers' || name['first'] == 'Clean' || name['first'] == 'Peace') {
+    // If the province is clean, healthy and peaceful
+    if (flavor == 'healthy') {
       province['farms'] += 1;
       province['houses'] += 1;
       province['food'] += 100;
     }
 
     // If the province is hostile
-    if (name['first'] == 'Raiders' || name['first'] == 'Mutants') {
+    if (flavor == 'raider') {
       province['workshops'] += 1;
-      province['forts'] += 2;
+      province['forts'] += 1;
       province['farms'] = 0;
       province['workforce'] += 10;
     }
 
+    // Well, if the town is called "scrap" there's probably scrap there
     if (name['first'] == 'Scrap') {
-      province['material'] += 1000;
-      province['tools'] += 250;
+      province['material'] += 500;
+      province['tools'] += 500;
     }
 
     return province;

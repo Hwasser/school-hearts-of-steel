@@ -9,7 +9,7 @@ const terrains = ['plain', 'plain', 'forest', 'mountain', 'swamp', 'urban']
 
 // VARIANT: firstNames depends on flavor
 const firstNames = {
-  normal: ['Cats', 'Dogs', 'Up', 'East', 'West', 'North', 'South', 'Far', 'Olds', 'Small'],
+  normal: ['Cats', 'Dogs', 'Scrap', 'Up', 'East', 'West', 'North', 'South', 'Far', 'Olds', 'Small'],
   healthy: ['Farmers', 'Shepherds', 'Good', 'Well', 'Nice', 'Happy', 'Grass'],
   raider: ['Raiders', 'Murder', 'Blood', 'Pirate'],
   radiation: ['Radiation', 'Mutant', 'Monster', 'Death', 'Poison', 'Strange']
