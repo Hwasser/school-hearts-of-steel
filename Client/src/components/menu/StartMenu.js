@@ -144,10 +144,10 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         await axios
         .post('http://localhost:8082/api/sessions', newSession)
           .then((res) => {
-            console.log("Created new game!")
+            console.log("Created new game!", res)
             // Refresh game list
             getAllSessions();
-            startNewGame(newSession);
+            startNewGame(res.data.session);
           })
           .catch((err) => {
             console.log('cant find: ', err.response);

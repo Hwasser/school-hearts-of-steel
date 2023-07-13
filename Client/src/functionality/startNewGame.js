@@ -1,4 +1,5 @@
 import axios from 'axios';
+const { flavors, terrains, firstNames, lastNames } = require('../provinceStats');
 
 /**
  * All logic for starting a new game
@@ -12,9 +13,8 @@ export default function startNewGame(session) {
     const playerNames = session.slot_names;
     const startPlayerId = session.slot_ids[0];
     const playerPositions = setPlayerPositions(playerNames, startPlayerId, slots, nProvinces);
-    console.log(playerPositions);
-
-    const allProvinces = setUpProvinces(playerPositions)
+    
+    const allProvinces = setUpProvinces(playerPositions, session)
 
     // Get list of all provinces
     axios
@@ -40,12 +40,12 @@ export default function startNewGame(session) {
 }
 
 // Setup randomly generated provinces, set up player start positions etc
-function setUpProvinces(playerPositions) {
+function setUpProvinces(playerPositions, session) {
   const allProvinces = Array(nProvinces);
   const nProvinces = playerPositions.length;
   for (let i = 0; i < nProvinces; i++) {
     const player = playerPositions[i];
-    const province = generateProvince(i, player); 
+    const province = generateProvince(i, player, session); 
     allProvinces[i] = province;
   }
   return allProvinces;
@@ -96,12 +96,17 @@ function createNewProvinces(allProvinces) {
 }
 
 // Generates a province with an id with random properties
-function generateProvince(id, player) {
-    const name = generateRandomName();
+function generateProvince(id, player, session) {
+    const flavor = generateRandomFlavor();
+    const terrain = generateRandomTerrain();
+    const name = generateRandomName(flavor, terrain);
 
     const province = {
       id: id,
+      session: session._id,
       name: name['first'] + name['last'],
+      flavor: flavor,
+      terrain: terrain,
       houses: getRandomInt(1, 3),
       workshops: getRandomInt(0, 2),
       farms: getRandomInt(0, 2),
@@ -156,18 +161,30 @@ function getRandomInt(min, range) {
     return min + Math.floor(Math.random() * range);
   }
 
-// Generates a random name for a province, using a combination of the first and last name below
-function generateRandomName() {
-    const firstNumber = Math.floor(Math.random() * firstName.length);
-    const lastNumber = Math.floor(Math.random() * lastName.length);
 
-    return {first: firstName[firstNumber], last: lastName[lastNumber]};
+/**
+ * @brief: Generates a random name for a province, using a combination of the first and last name below
+ *  
+ * @param {String} flavor: Flavor of the province, first name depends on flavor 
+ * @param {String} terrain: Terrain of province, last name depends on flavor
+ * @returns: A JSON-object containing the first- and last name of the province.
+ */
+function generateRandomName(flavor, terrain) {
+    const firstNumber = Math.floor(Math.random() * firstNames[flavor].length);
+    const lastNumber = Math.floor(Math.random() * lastNames[terrain].length);
+
+    return {first: firstNames[flavor][firstNumber], last: lastNames[terrain][lastNumber]};
 }
 
-const firstName = ['Beavers', 'Cats', 'Dogs', 'Scrap', 'Farmers', 'Nukes', 'Mutants', 'Radiation', 'Raiders', 'Peace', 'Clean', 'Dead'];
+function generateRandomFlavor() {
+  const randomChoice = Math.floor(Math.random() * flavors.length);
+  return flavors[randomChoice];
+}
 
-const lastName = ['ville', 'town', 'bridge', 'river', 'ridge', 'by', 'wood', 'shire', 'lake'];
-
+function generateRandomTerrain() {
+  const randomChoice = Math.floor(Math.random() * terrains.length);
+  return terrains[randomChoice];
+}
 
 // Set up the position of all players
 // VARIANT: 1 <= n of players <= 4 
