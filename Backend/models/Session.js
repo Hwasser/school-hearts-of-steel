@@ -32,7 +32,7 @@ const SessionSchema = new mongoose.Schema({
         required: true
     },
     world_size: {
-        type: [Number],
+        type: Number,
         required: true
     }
 });

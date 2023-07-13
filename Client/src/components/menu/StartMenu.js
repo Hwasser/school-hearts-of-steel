@@ -147,7 +147,11 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
             console.log("Created new game!", res)
             // Refresh game list
             getAllSessions();
-            startNewGame(res.data.session);
+            try {
+                startNewGame(res.data.session);
+            } catch(err) {
+                console.log("Error with startNewGame:", err);
+            }
           })
           .catch((err) => {
             console.log('cant find: ', err.response);

@@ -21,8 +21,6 @@ export default function startNewGame(session) {
     .get('http://localhost:8082/api/provinces')
     .then((res) => {
       const response = res.data;
-
-      console.log(res.data);
       
       // If the list of provinces is empty, creaty new ones
       if (response.length == 0) {
@@ -41,8 +39,8 @@ export default function startNewGame(session) {
 
 // Setup randomly generated provinces, set up player start positions etc
 function setUpProvinces(playerPositions, session) {
-  const allProvinces = Array(nProvinces);
   const nProvinces = playerPositions.length;
+  const allProvinces = Array(nProvinces);
   for (let i = 0; i < nProvinces; i++) {
     const player = playerPositions[i];
     const province = generateProvince(i, player, session); 
@@ -97,12 +95,12 @@ function createNewProvinces(allProvinces) {
 
 // Generates a province with an id with random properties
 function generateProvince(id, player, session) {
-    const flavor = (player == 'Neutral') ? generateRandomFlavor() : 'normal';
+    const flavor = (player.name == 'Neutral') ? generateRandomFlavor() : 'normal';
     const terrain = generateRandomTerrain();
     const name = generateRandomName(flavor, terrain);
 
     // To make the game even for all players we differ on player provinces and neutral provinces
-    const province = (player == 'Neutral') 
+    const province = (player.name == 'Neutral') 
       ? {
       id: id,
       session: session._id,
@@ -161,6 +159,11 @@ function generateProvince(id, player, session) {
     if (name['first'] == 'Scrap') {
       province['material'] += 500;
       province['tools'] += 500;
+    }
+
+    if (terrain == 'urban') {
+      province['houses'] += 1;
+      province['workforce'] += 10;
     }
 
     return province;
