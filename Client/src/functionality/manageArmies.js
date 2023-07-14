@@ -122,9 +122,6 @@ function performBattle(attackingArmy, defendingArmy, terrain) {
     //          each cell containing an entry from units in the unitStats-file
     let attackingArmyTroops = setUpSoldiers(attackingArmy);
     let defendingArmyTroops = setUpSoldiers(defendingArmy);
-
-    console.log("New battle, attackers:", attackingArmy.soldiers, ", defenders:", defendingArmy.soldiers);
-
     
     // While at least one side has troops left, continue the battle
     while (attackingArmyTroops.length > 0 && defendingArmyTroops.length > 0) {
@@ -143,21 +140,24 @@ function performBattle(attackingArmy, defendingArmy, terrain) {
 
         round++;
     }
+    // Count survivors in both armies
+    const attackLeft  = countSurvivors(attackingArmy, attackingArmyTroops);
+    const defenceLeft = countSurvivors(defendingArmy, defendingArmyTroops);
+    // Update both armies
+    attackingArmy.soldiers = attackLeft;
+    defendingArmy.soldiers = defenceLeft;
+    
+    if (attackLeft == defenceLeft) {
+        return 'draw';
+    }
+    if (attackLeft < defenceLeft) {
+        return 'lose';
+    }
+    if (attackLeft > defenceLeft) {
+        return 'win';
+    }
 
-    countSurvivors(attackingArmy, attackingArmyTroops);
-    countSurvivors(defendingArmy, defendingArmyTroops);
-
-    console.log(attackingArmy, defendingArmy);
-
-     if (attackingArmy.soldiers == defendingArmy.soldiers) {
-         return 'draw';
-     }
-     if (attackingArmy.soldiers < defendingArmy.soldiers) {
-         return 'lose';
-     }
-     if (attackingArmy.soldiers > attackingArmy.soldiers) {
-         return 'win';
-     }
+     console.log("ERROR! This should never happen!");
 }
 
 /**
@@ -172,14 +172,13 @@ function countSurvivors(army, troops) {
     for (let u in units) {
         const troopsLeft = troops.filter(e => e.type == u) 
         if (troopsLeft.length == 0) {
-            delete army[u];
+            delete army[u]; // TODO: Put null here instead?
         } else {
             army[u] = troopsLeft.length;
             soldiers += troopsLeft.length;
         }
     }
-    // Recalculate the total number of troops
-    army.soldiers = soldiers;
+    return soldiers;
 }
 
 /**

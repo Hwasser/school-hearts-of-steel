@@ -142,6 +142,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         });
         // TODO: Temporary!! Remove all old provinces when creating new ones
         await removeAllProvinces();
+        await removeAllArmies();
         // Post new sessions
         await axios
         .post('http://localhost:8082/api/sessions', newSession)
@@ -217,5 +218,16 @@ async function removeAllProvinces() {
         })
         .catch((err) => {
             console.log('cant remove all provinces:', err);
+        });
+}
+
+// TODO: Temporary!
+async function removeAllArmies() {
+    await axios
+        .delete('http://localhost:8082/api/armies')
+        .then( () => {
+        })
+        .catch((err) => {
+            console.log('cant remove all armies:', err);
         });
 }
