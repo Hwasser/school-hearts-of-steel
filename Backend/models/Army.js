@@ -29,6 +29,10 @@ const ArmySchema = new mongoose.Schema({
         type: Number,
         required: false
     },
+    mutant: {
+        type: Number,
+        required: false
+    },
     owner: {
         type: String,
         required: true

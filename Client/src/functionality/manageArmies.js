@@ -169,7 +169,6 @@ function countSurvivors(army, troops) {
     // Iterate all types of troops and check how many is left
     for (let u in units) {
         const troopsLeft = troops.filter(e => e.type == u) 
-        console.log(u, troopsLeft);
         if (troopsLeft.length == 0) {
             delete army[u];
         } else {
@@ -244,6 +243,13 @@ function setUpSoldiers(army) {
             armySoldiers[i] = {... units.raider};
         }
         n += army.raider;
+    }
+    if (army.mutant != null) {
+        for (let i = n; i < n + army.mutant; i++) {
+            armySoldiers[i] = {... units.mutant};
+        }
+        n += army.raider;
+    
     }
     return armySoldiers;
 }
