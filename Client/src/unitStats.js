@@ -42,7 +42,7 @@ const units = {
         hardness: 0.10,
         hp: 20,
         cost : {
-            food: 5,
+            food: 6,
             fuel: 2,
             tools: 2,
             material: 0
@@ -72,7 +72,7 @@ const units = {
         hardness: 0.10,
         hp: 20,
         cost : {
-            food: 5,
+            food: 6,
             fuel: 0,
             tools: 4,
             material: 0
@@ -132,10 +132,10 @@ const units = {
         hardness: 0.80,
         hp: 25,
         cost : {
-            food: 6,
-            fuel: 4,
-            tools: 5,
-            material: 5
+            food: 8,
+            fuel: 3,
+            tools: 6,
+            material: 6
         },
         attack_mod: {
             'plain': 1,
