@@ -113,7 +113,7 @@ function rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy) {
  * @param {String} terrain: The terrain of the province - affects battle!
  * @returns {String} What the outcome is, "win", "lose" or "draw"
  */
-function performBattle(attackingArmy, defendingArmy, terrain) {
+function performBattle(attackingArmy, defendingArmy, terrain, forts) {
     let round = 1;
 
     // Set up an array of troops of all different kinds and put them in an array
@@ -196,7 +196,6 @@ function performAttack(attacker, attacked, n, mod) {
     // How much damage can actually go through the armor
     const inflictedDamage = damage * (1-attacked[enemyNumber].hardness) + soldier.piercing;
     // Change enemy hp depending on terrain modifier
-    console.log("Damage:", Math.round(inflictedDamage * mod));
     attacked[enemyNumber].hp -= Math.round(inflictedDamage * mod);
 }
 

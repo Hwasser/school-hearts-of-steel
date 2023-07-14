@@ -137,7 +137,14 @@ function updatePerUser(slotIndex, document, userResources) {
     document.material[slotIndex] += userResources[slotIndex].material;
 }
 
-function mineResources(nUsers, provinces, users) {
+/**
+ * @brief: Mine resources from resources and by building in all owned provinces
+ * 
+ * @param {Array} provinces: Contains the Province model of all provinces 
+ * @param {Array} users: A list of all users
+ * @returns A list how much resources each player earns
+ */
+function mineResources(provinces, users) {
     // The resources to mine per player
     userResources = [
         {'food': 0, 'fuel': 0, 'tools': 0, 'material': 0},
@@ -146,8 +153,10 @@ function mineResources(nUsers, provinces, users) {
         {'food': 0, 'fuel': 0, 'tools': 0, 'material': 0}
     ];
     
+    // Iterate all provinces
     for (let i = 0; i < provinces.length; i++) {
         const province = provinces[i];
+        // Check the owner of a province, if no living player owns the province, skip it.
         const slot = users.findIndex( (e) => e == province.owner);
         // If no player owns the province, skip to the next one
         if (slot == -1) {
@@ -155,13 +164,13 @@ function mineResources(nUsers, provinces, users) {
         }
         // Add resources and drain resources from provinces when scavanging
         scavangeFood = scavangeResource(provinces, i, province.workforce, 'food');
-        userResources[slot]['food'] += province.farms * 5 + scavangeFood;
+        userResources[slot]['food'] += province.farms * 2 + scavangeFood;
         scavangeFuel = scavangeResource(provinces, i, province.workforce, 'fuel');
         userResources[slot].fuel += scavangeFuel;
         scavangeTools = scavangeResource(provinces, i, province.workforce, 'tools');
-        userResources[slot].tools += province.workshops * 5 + scavangeTools;
+        userResources[slot].tools += province.workshops * 2 + scavangeTools;
         scavangeMaterial = scavangeResource(provinces, i, province.workforce, 'material');
-        userResources[slot].material += province.mines * 5 + scavangeMaterial;
+        userResources[slot].material += province.mines * 2 + scavangeMaterial;
         // Also add manpower to the province
         provinces[i]['workforce'] += province.houses;
     }
@@ -179,7 +188,7 @@ function mineResources(nUsers, provinces, users) {
  * @returns An integer of how much resources are being scavanged from a province
  */
 function scavangeResource(provinces, n, workforce, resource) {
-    const scavangeRatio = 0.10; // How much resources to scavange per manpower
+    const scavangeRatio = 0.05 + Math.random() * 0.05; // How much resources to scavange per manpower
     const scavangeRes = Math.floor(workforce * scavangeRatio);
     const scavangeResActual = (scavangeRes > provinces[n][resource]) ? provinces[n][resource] : scavangeRes; 
     provinces[n][resource] -= scavangeResActual;
