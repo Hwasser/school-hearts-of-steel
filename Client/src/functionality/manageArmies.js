@@ -106,7 +106,10 @@ function rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy) {
  *         The battle gets performed in round, each round both armies
  *         get to shoot at the same time. Each units takes a shot at 
  *         a random unit. After each round all dead units are removed
- *         from the array.
+ *         from the array. Damage is modified by the enemies hardness,
+ *         piercing damage go right through the armor. Terrain modifies
+ *         the total damage of the attacker and defender. Forts reduces
+ *         attackers damage by 10% by fort level.
  * 
  * @param {JSON} attackingArmy: An Army object from the MongoDB data base 
  * @param {JSON} defendingArmy An Army object from the MongoDB data base
@@ -201,7 +204,7 @@ function performAttack(attacker, attacked, n, mod, forts) {
     // How much damage can actually go through the armor
     const inflictedDamage = damage * (1-attacked[enemyNumber].hardness) + soldier.piercing;
     // Change enemy hp depending on terrain modifier
-    attacked[enemyNumber].hp -= Math.round(inflictedDamage * mod - forts*0.10);
+    attacked[enemyNumber].hp -= Math.round(inflictedDamage * (mod - forts*0.10));
 }
 
 /**
