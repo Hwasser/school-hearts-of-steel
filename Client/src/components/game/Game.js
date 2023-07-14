@@ -205,15 +205,23 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         fetchResourceUpdates()
     }
 
+    /**
+     * @brief: Handle changes of armies coming from this client, handles movement and attack
+     * 
+     * @param {Integer} fromProvince: Province we're moving from
+     * @param {Integer} toProvince: Province we're moving against
+     * @param {JSON} army: Document id of the army
+     * @param {Integer} fromSlot: Army slot the army comes from
+     * @param {Boolean} isAttacking: Whether or not the army is attacking
+     */
     async function handleUpdateArmies(fromProvince, toProvince, army, fromSlot, isAttacking) {
         // Get a copy of all army slots
-        const armiesCopy = 
-            [armies[0].slice(0,nProvinces), armies[1].slice(0,nProvinces), armies[2].slice(0,nProvinces), armies[3].slice(0,nProvinces)];
-
+        const armiesCopy = [... armies];
+        
         // Perform movement or attack of army
         let newOwner = '';
         if (isAttacking) {
-            newOwner = await armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy);
+            newOwner = await armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy, provinceTerrains);
         } else {
             await armyMove(fromProvince, toProvince, army, fromSlot, armiesCopy);
         }

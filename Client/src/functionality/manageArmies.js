@@ -40,10 +40,11 @@ export async function armyMove(fromProvince, toProvince, army, fromSlot, armiesC
  *  @param (2d array of string) armiesCopy: A copy of the state of all army slots in all provinces
  *  @returns (string) The new owner of the province, empty string if no change 
  */
-export async function armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy) {
+export async function armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy, terrains) {
     // Fetch data of the attacking army
     const attackingArmy = await fetchArmy(army);
-    
+    const terrain = terrains[toProvince]; // Terrain in the province we're attacking
+
     // Manage army slots of source province
     rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy);
 
@@ -51,8 +52,7 @@ export async function armyAttack(fromProvince, toProvince, army, fromSlot, armie
     for (let i = 3; i >= 0; i--) {
         if (armiesCopy[i][toProvince] != null) {
             const defendingArmy = await fetchArmy(armiesCopy[i][toProvince]);
-            console.log("fetching done, starting attack:", i);
-            const result = performBattle(attackingArmy, defendingArmy);
+            const result = performBattle(attackingArmy, defendingArmy, terrain);
             if (result == 'win') {;
                 console.log("won battle!", attackingArmy['soldiers'], "soldiers left");
                 killArmy(defendingArmy['_id']);
@@ -110,9 +110,10 @@ function rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy) {
  * 
  * @param {JSON} attackingArmy: An Army object from the MongoDB data base 
  * @param {JSON} defendingArmy An Army object from the MongoDB data base
+ * @param {String} terrain: The terrain of the province - affects battle!
  * @returns {String} What the outcome is, "win", "lose" or "draw"
  */
-function performBattle(attackingArmy, defendingArmy) {
+function performBattle(attackingArmy, defendingArmy, terrain) {
     let round = 1;
 
     // Set up an array of troops of all different kinds and put them in an array
@@ -122,14 +123,17 @@ function performBattle(attackingArmy, defendingArmy) {
     let attackingArmyTroops = setUpSoldiers(attackingArmy);
     let defendingArmyTroops = setUpSoldiers(defendingArmy);
 
+    
     // While at least one side has troops left, continue the battle
     while (attackingArmyTroops.length > 0 && defendingArmyTroops.length > 0) {
         // Let both sides attack
         for (let i = 0; i < attackingArmyTroops.length; i++) {
-            performAttack(attackingArmyTroops, defendingArmyTroops, i);
+            const attackMod = attackingArmyTroops[i]['attack_mod'][terrain];
+            performAttack(attackingArmyTroops, defendingArmyTroops, i, attackMod);
         }
         for (let i = 0; i < defendingArmyTroops.length; i++) {
-            performAttack(defendingArmyTroops, attackingArmyTroops, i);
+            const defenceMod = attackingArmyTroops[i]['defence_mod'][terrain];
+            performAttack(defendingArmyTroops, attackingArmyTroops, i, defenceMod);
         }
         // After the attacks, kill all units with HP < 0
         attackingArmyTroops = attackingArmyTroops.filter(e => e.hp > 0);
@@ -184,11 +188,15 @@ function countSurvivors(army, troops) {
  * @param {Array} attacked: An array of the units of the attacked player 
  * @param {Integer} n: The number of the unit in the array 
  */
-function performAttack(attacker, attacked, n) {
+function performAttack(attacker, attacked, n, mod) {
     const soldier = attacker[n];
     const enemyNumber = Math.floor(Math.random()*attacked.length)
-    attacked[enemyNumber].hp -=  
-        soldier.soft_attack * (1-(attacked[enemyNumber].hardness/ 100)) + soldier.hard_attack;
+    // Damage (for example 6-10 means random damage between 6 and 10)
+    const damage = soldier.damage_low + Math.round(Math.random()*(soldier.damage_high - soldier.damage_low));
+    // How much damage can actually go through the armor
+    const inflictedDamage = damage * (1-(attacked[enemyNumber].hardness/ 100)) + soldier.piercing;
+    // Change enemy hp depending on terrain modifier
+    attacked[enemyNumber].hp -= Math.round(inflictedDamage * mod);
 }
 
 /**
