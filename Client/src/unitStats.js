@@ -38,7 +38,7 @@ const units = {
         name: 'Demolition Maniac',
         damage_low: 4,
         damage_high: 10,
-        piercing: 7,
+        piercing: 6,
         hardness: 0.10,
         hp: 20,
         cost : {
@@ -67,7 +67,7 @@ const units = {
         type: 'gun_nut',
         name: 'Gun Nut',
         damage_low: 8,
-        damage_high: 16,
+        damage_high: 14,
         piercing: 2,
         hardness: 0.10,
         hp: 20,
@@ -100,7 +100,7 @@ const units = {
         damage_high: 14,
         piercing: 4,
         hardness: 0.50,
-        hp: 40,
+        hp: 30,
         cost : {
             food: 6,
             fuel: 6,
@@ -109,10 +109,10 @@ const units = {
         },
         attack_mod: {
             'plain': 1.20,
-            'forest': 0.80,
-            'mountain': 0.80,
-            'swamp': 0.60,
-            'urban': 0.80
+            'forest': 0.85,
+            'mountain': 0.85,
+            'swamp': 0.75,
+            'urban': 0.9
         },
         defence_mod: {
             'plain': 1,
@@ -126,11 +126,11 @@ const units = {
     power_suit: {
         type: 'power_suit',
         name: 'Power Suit',
-        damage_low: 12,
-        damage_high: 20,
+        damage_low: 10,
+        damage_high: 16,
         piercing: 8,
         hardness: 0.80,
-        hp: 30,
+        hp: 25,
         cost : {
             food: 6,
             fuel: 4,
@@ -179,18 +179,18 @@ const units = {
             'forest': 1.10,
             'mountain': 1.10,
             'swamp': 1.10,
-            'urban': 1.25
+            'urban': 1.20
         },
         info: "Feared unit. Strong in urban areas"
     },
     mutant: {
         type: 'mutant',
         name: 'Mutant',
-        damage_low: 2,
-        damage_high: 18,
-        piercing: 2,
+        damage_low: 3,
+        damage_high: 16,
+        piercing: 3,
         hardness: 0.40,
-        hp: 40,
+        hp: 30,
         cost : {
             food: 0,
             fuel: 0,
@@ -206,9 +206,9 @@ const units = {
         },
         defence_mod: {
             'plain': 1,
-            'forest': 1.25,
+            'forest': 1.20,
             'mountain': 1.10,
-            'swamp': 1.25,
+            'swamp': 1.20,
             'urban': 1.10
         },
         info: "Mutaded monster. Strong in forest and swamp"

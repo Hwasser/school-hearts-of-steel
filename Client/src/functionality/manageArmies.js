@@ -194,8 +194,9 @@ function performAttack(attacker, attacked, n, mod) {
     // Damage (for example 6-10 means random damage between 6 and 10)
     const damage = soldier.damage_low + Math.round(Math.random()*(soldier.damage_high - soldier.damage_low));
     // How much damage can actually go through the armor
-    const inflictedDamage = damage * (1-(attacked[enemyNumber].hardness/ 100)) + soldier.piercing;
+    const inflictedDamage = damage * (1-attacked[enemyNumber].hardness) + soldier.piercing;
     // Change enemy hp depending on terrain modifier
+    console.log("Damage:", Math.round(inflictedDamage * mod));
     attacked[enemyNumber].hp -= Math.round(inflictedDamage * mod);
 }
 
