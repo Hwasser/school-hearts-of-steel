@@ -40,10 +40,10 @@ export async function armyMove(fromProvince, toProvince, army, fromSlot, armiesC
  *  @param (2d array of string) armiesCopy: A copy of the state of all army slots in all provinces
  *  @returns (string) The new owner of the province, empty string if no change 
  */
-export async function armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy, terrains) {
+export async function armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy) {
     // Fetch data of the attacking army
     const attackingArmy = await fetchArmy(army);
-    const terrain = terrains[toProvince]; // Terrain in the province we're attacking
+    const battleProvince = await getBattleProvince(toProvince);
 
     // Manage army slots of source province
     rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy);
@@ -52,7 +52,7 @@ export async function armyAttack(fromProvince, toProvince, army, fromSlot, armie
     for (let i = 3; i >= 0; i--) {
         if (armiesCopy[i][toProvince] != null) {
             const defendingArmy = await fetchArmy(armiesCopy[i][toProvince]);
-            const result = performBattle(attackingArmy, defendingArmy, terrain);
+            const result = performBattle(attackingArmy, defendingArmy, battleProvince);
             if (result == 'win') {;
                 console.log("won battle!", attackingArmy['soldiers'], "soldiers left");
                 killArmy(defendingArmy['_id']);
@@ -113,9 +113,11 @@ function rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy) {
  * @param {String} terrain: The terrain of the province - affects battle!
  * @returns {String} What the outcome is, "win", "lose" or "draw"
  */
-function performBattle(attackingArmy, defendingArmy, terrain, forts) {
-    let round = 1;
-
+function performBattle(attackingArmy, defendingArmy, battleProvince) {
+    // Get terrain and the number of forts in the province, since this affect outcome
+    const terrain = battleProvince.terrain;
+    const forts   = battleProvince.forts;
+    
     // Set up an array of troops of all different kinds and put them in an array
     // VARIANT: 6 soldiers, 4 militia och 2 raiders:
     //          [militia][militia][militia][militia][raider][raider]
@@ -124,15 +126,16 @@ function performBattle(attackingArmy, defendingArmy, terrain, forts) {
     let defendingArmyTroops = setUpSoldiers(defendingArmy);
     
     // While at least one side has troops left, continue the battle
+    let round = 1;
     while (attackingArmyTroops.length > 0 && defendingArmyTroops.length > 0) {
         // Let both sides attack
         for (let i = 0; i < attackingArmyTroops.length; i++) {
             const attackMod = attackingArmyTroops[i]['attack_mod'][terrain];
-            performAttack(attackingArmyTroops, defendingArmyTroops, i, attackMod);
+            performAttack(attackingArmyTroops, defendingArmyTroops, i, attackMod, forts);
         }
         for (let i = 0; i < defendingArmyTroops.length; i++) {
             const defenceMod = defendingArmyTroops[i]['defence_mod'][terrain];
-            performAttack(defendingArmyTroops, attackingArmyTroops, i, defenceMod);
+            performAttack(defendingArmyTroops, attackingArmyTroops, i, defenceMod, 0);
         }
         // After the attacks, kill all units with HP < 0
         attackingArmyTroops = attackingArmyTroops.filter(e => e.hp > 0);
@@ -187,8 +190,10 @@ function countSurvivors(army, troops) {
  * @param {Array} attacker: An array of the attackers units
  * @param {Array} attacked: An array of the units of the attacked player 
  * @param {Integer} n: The number of the unit in the array 
+ * @param {Float} mod: The damage modifier related to terrain 
+ * @param {Integer} forts: The forts in the battle province 
  */
-function performAttack(attacker, attacked, n, mod) {
+function performAttack(attacker, attacked, n, mod, forts) {
     const soldier = attacker[n];
     const enemyNumber = Math.floor(Math.random()*attacked.length)
     // Damage (for example 6-10 means random damage between 6 and 10)
@@ -196,7 +201,7 @@ function performAttack(attacker, attacked, n, mod) {
     // How much damage can actually go through the armor
     const inflictedDamage = damage * (1-attacked[enemyNumber].hardness) + soldier.piercing;
     // Change enemy hp depending on terrain modifier
-    attacked[enemyNumber].hp -= Math.round(inflictedDamage * mod);
+    attacked[enemyNumber].hp -= Math.round(inflictedDamage * mod - forts*0.10);
 }
 
 /**
@@ -326,4 +331,19 @@ function postMovement(fromProvince, toProvince, armies) {
     .catch((err) => {
     console.log('Error in replacing armies in province: ' + err);
     });
+}
+
+async function getBattleProvince(id) {
+    let province = null;
+    await axios.get('http://localhost:8082/api/provinces/', {
+        params: { id: id}
+    })
+    .then( (res) => {
+        province = res.data[0];
+    })
+    .catch( (e) => {
+        console.log(e)
+    });
+
+    return province;
 }

@@ -123,12 +123,23 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         // TODO: ..?   
     }
 
+    /**
+     * @brief: Handle broadcast from server telling an army has moved
+     * 
+     * @param {JSON} message 
+     */
     const handleMoveArmy = (message) => {
         const armiesCopy = receiveMoveArmy(message, [... armies]);
         setArmies(armiesCopy);
         console.log("Moved army received!");
     }
 
+
+    /**
+     * @brief: Handle broadcast from server telling an army has attacked
+     * 
+     * @param {JSON} message 
+     */
     const handleAttackArmy = (message) => {
         const updateData = receiveAttackArmy(message, [... armies], [... provinceOwners]);
         setArmies(updateData.armies);
@@ -136,6 +147,11 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         console.log("Attack army received!");
     }
 
+    /**
+     * @brief: Handle broadcast from server telling a new player has joined the game
+     * 
+     * @param {JSON} message 
+     */
     const handlePlayerJoined = (message) => {
         // Update session to include new user
         const newSession     = message.session;
@@ -149,6 +165,12 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         setProvinceOwners(ownersCopy);
     }
 
+
+    /**
+     * @brief: Handle broadcast from server telling a player has won
+     * 
+     * @param {JSON} message 
+     */
     const handlePlayerWon = (message) => {
         if (player.name == message) {
             onWonGame('you', {... session});
@@ -157,7 +179,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         }
     }
 
-    // Fetch player resources from database
+    // Fetch daily harvested resources from database and att to player
     function fetchResourceUpdates() {
         axios
         .get(`http://localhost:8082/api/sessions/${session._id}`)
@@ -221,7 +243,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         // Perform movement or attack of army
         let newOwner = '';
         if (isAttacking) {
-            newOwner = await armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy, provinceTerrains);
+            newOwner = await armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy);
         } else {
             await armyMove(fromProvince, toProvince, army, fromSlot, armiesCopy);
         }
