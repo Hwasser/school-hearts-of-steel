@@ -114,7 +114,7 @@ async function updateResources(id) {
         const sessions = await Session.findById(id);
         const nUsers = sessions.max_slots;
         // Change value
-        const userResources = mineResources(nUsers, provinces, sessions.slot_names)
+        const userResources = mineResources(provinces, sessions.slot_names)
         for (let i = 0; i < nUsers; i++) {
             updatePerUser(i, sessions, userResources);
         }
