@@ -5,6 +5,10 @@ const ArmySchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    session: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true
+    },
     militia: {
         type: Number,
         required: false

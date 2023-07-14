@@ -46,7 +46,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
     }
 
     const newValue = curWorkforce - toRaise; 
-    postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selectedUnit);
+    postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selectedUnit, session._id);
     updateSession(curCost, slotIndex, session._id);
   }
 
@@ -167,7 +167,7 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
 }
 
 // Update the amount of workers in province in database
-function postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selectedUnit) {
+function postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selectedUnit, sessionId) {
   // Replace the province value with one with the new workforce
   const province = {... fromProvince};
   // Get the document id of the province
@@ -181,7 +181,8 @@ function postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selected
   // Push army to database
   const army = {
     soldiers: toRaise,
-    owner: province['owner']
+    owner: province['owner'],
+    session: sessionId
   };
   army[selectedUnit] = toRaise;
   console.log("Raising army:", army);
