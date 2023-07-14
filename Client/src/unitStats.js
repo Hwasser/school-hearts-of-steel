@@ -38,7 +38,7 @@ const units = {
         damage_low: 4,
         damage_high: 10,
         piercing: 7,
-        hardness: 10,
+        hardness: 0.10,
         hp: 20,
         cost : {
             food: 5,
@@ -67,7 +67,7 @@ const units = {
         damage_low: 8,
         damage_high: 16,
         piercing: 2,
-        hardness: 10,
+        hardness: 0.10,
         hp: 20,
         cost : {
             food: 5,
@@ -96,7 +96,7 @@ const units = {
         damage_low: 6,
         damage_high: 14,
         piercing: 4,
-        hardness: 50,
+        hardness: 0.50,
         hp: 40,
         cost : {
             food: 6,
@@ -125,7 +125,7 @@ const units = {
         damage_low: 12,
         damage_high: 20,
         piercing: 8,
-        hardness: 80,
+        hardness: 0.80,
         hp: 30,
         cost : {
             food: 6,
@@ -154,7 +154,7 @@ const units = {
         damage_low: 2,
         damage_high: 12,
         piercing: 2,
-        hardness: 25,
+        hardness: 0.25,
         hp: 25,
         cost : {
             food: 0,
@@ -183,7 +183,7 @@ const units = {
         damage_low: 2,
         damage_high: 18,
         piercing: 2,
-        hardness: 40,
+        hardness: 0.40,
         hp: 40,
         cost : {
             food: 0,

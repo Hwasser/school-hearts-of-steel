@@ -12,16 +12,16 @@ export default function armyView({provProp}) {
                 <span id="army_type1_value"> {amount} </span>
               </div>
               <div className='army_property'>
-                <span id="army_soft1_text"> Soft Attack: </span>
-                <span id="army_soft1_value"> {units[unitType]['soft_attack']} </span>
+                <span id="army_soft1_text"> Damage: </span>
+                <span id="army_soft1_value"> {units[unitType]['damage_low']}-{units[unitType]['damage_high']} </span>
               </div>
               <div className='army_property'>
-                <span id="army_hard1_text"> Hard Attack: </span>
-                <span id="army_hard1_value"> {units[unitType]['hard_attack']} </span>
+                <span id="army_hard1_text"> Piercing: </span>
+                <span id="army_hard1_value"> {units[unitType]['piercing']} </span>
               </div>
               <div className='army_property'>
                 <span id="army_hardness1_text"> Hardness: </span>
-                <span id="army_hardness1_value"> {units[unitType]['hardness']}% </span>
+                <span id="army_hardness1_value"> {units[unitType]['hardness']*100}% </span>
               </div>
               <div className='army_property'>
                 <span id="army_hp_text"> HP: </span>
