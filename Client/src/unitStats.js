@@ -184,8 +184,8 @@ const units = {
         info: "Feared unit. Strong in urban areas"
     },
     mutant: {
-        type: 'raider',
-        name: 'Raider',
+        type: 'mutant',
+        name: 'Mutant',
         damage_low: 2,
         damage_high: 18,
         piercing: 2,

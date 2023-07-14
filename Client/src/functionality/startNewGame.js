@@ -19,7 +19,7 @@ export default function startNewGame(session) {
   // A list of all province objects (same as the Province-model)
   const allProvinces = setUpProvinces(playerPositions, session)
   // Post all provinces to the server
-  postNewProvinces(allProvinces);
+  postNewProvinces(allProvinces, session._id);
 
 }
 
@@ -36,10 +36,13 @@ function setUpProvinces(playerPositions, session) {
 }
 
 // Post newly generated provinces to db
-function postNewProvinces(allProvinces) {
+async function postNewProvinces(allProvinces, sessionId) {
   const nProvinces = allProvinces.length;
     for (let i = 0; i < nProvinces; i++) {
       const province = allProvinces[i];
+      if (province.owner == 'Neutral') {
+        province['army1'] = await postArmyToServer(province, sessionId);
+      }
       axios
       .post('http://localhost:8082/api/provinces', province)
       .then( (res) => {
@@ -92,7 +95,7 @@ function generateProvince(id, player, session) {
     };
 
     // -- Set some special stats to provinces associated with certain properties --
-
+    
     // If the province is radiated
     if (flavor == 'radiation') {
       province['farms'] = 0;
@@ -105,6 +108,7 @@ function generateProvince(id, player, session) {
       province['farms'] += 1;
       province['houses'] += 1;
       province['food'] += 100;
+      province['workforce'] += 10;
     }
 
     // If the province is hostile
@@ -125,6 +129,7 @@ function generateProvince(id, player, session) {
       province['houses'] += 1;
       province['workforce'] += 10;
     }
+
 
     return province;
 }
@@ -182,4 +187,37 @@ function setPlayerPositions(playerNames, startPlayerId, slots, nProvinces) {
   }
 
   return playerPositions;
+}
+
+// Post an army to the server and place it in the province
+async function postArmyToServer(province, sessionId) {
+  const size = Math.round(province.workforce / 2);
+
+  let armyType = '';
+  if (province.flavor == 'normal' || province.flavor == 'healthy') {
+    armyType = 'militia';
+  } else if (province.flavor == 'raider') {
+    armyType = 'raider';
+  } else {
+    armyType = 'mutant';
+  }
+
+  // Push army to database
+  const army = {
+    soldiers: size,
+    owner: province.owner,
+    session: sessionId
+  };
+  army[armyType] = size;
+
+  let armyId = null;
+  await axios
+  .post('http://localhost:8082/api/armies', army)
+  .then( (res) => {
+    armyId = res.data.armydata._id;
+  })
+  .catch((err) => {
+      console.log('Error in creating army: ' + err);    
+  });  
+  return armyId;
 }
