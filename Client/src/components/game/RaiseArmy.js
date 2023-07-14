@@ -102,6 +102,8 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
             Material: {state * units[selectedUnit]['cost']['material']}</p>
 
           <h3 className='raise_army_title'>Specifications:</h3>
+
+          <p>"{units[selectedUnit]['info']}"</p>
           
           <div>
             <button className={(selectedUnit == 'militia' ? 'army_type_selected' : 'army_type')} 

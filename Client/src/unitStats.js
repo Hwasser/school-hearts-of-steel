@@ -30,7 +30,8 @@ const units = {
             'mountain': 1.10,
             'swamp': 1.10,
             'urban': 1.10
-        }
+        },
+        info: "Basic armed civilians"
     },
     demolition_maniac: {
         type: 'demolition_maniac',
@@ -59,7 +60,8 @@ const units = {
             'mountain': 1.10,
             'swamp': 1.10,
             'urban': 1.10
-        }
+        },
+        info: "Good against armored units"
     },
     gun_nut: {
         type: 'gun_nut',
@@ -88,7 +90,8 @@ const units = {
             'mountain': 1.10,
             'swamp': 1.10,
             'urban': 1.10
-        }
+        },
+        info: "Good against non-armored units"
     },
     fortified_truck: {
         type: 'fortified_truck',
@@ -117,7 +120,8 @@ const units = {
             'mountain': 0.90,
             'swamp': 0.80,
             'urban': 1
-        }
+        },
+        info: "Weak in rough and wet terrain"
     },
     power_suit: {
         type: 'power_suit',
@@ -146,7 +150,8 @@ const units = {
             'mountain': 1.10,
             'swamp': 1.10,
             'urban': 1.10
-        }
+        },
+        info: "Powerful unit in steel suit"
     },
     raider: {
         type: 'raider',
@@ -174,8 +179,9 @@ const units = {
             'forest': 1.10,
             'mountain': 1.10,
             'swamp': 1.10,
-            'urban': 1.20
-        }
+            'urban': 1.25
+        },
+        info: "Feared unit. Strong in urban areas"
     },
     mutant: {
         type: 'raider',
@@ -200,11 +206,12 @@ const units = {
         },
         defence_mod: {
             'plain': 1,
-            'forest': 1.20,
+            'forest': 1.25,
             'mountain': 1.10,
-            'swamp': 1.20,
+            'swamp': 1.25,
             'urban': 1.10
-        }
+        },
+        info: "Mutaded monster. Strong in forest and swamp"
     }
 };
 
