@@ -131,7 +131,7 @@ function performBattle(attackingArmy, defendingArmy, terrain) {
             performAttack(attackingArmyTroops, defendingArmyTroops, i, attackMod);
         }
         for (let i = 0; i < defendingArmyTroops.length; i++) {
-            const defenceMod = attackingArmyTroops[i]['defence_mod'][terrain];
+            const defenceMod = defendingArmyTroops[i]['defence_mod'][terrain];
             performAttack(defendingArmyTroops, attackingArmyTroops, i, defenceMod);
         }
         // After the attacks, kill all units with HP < 0
@@ -249,7 +249,7 @@ function setUpSoldiers(army) {
         for (let i = n; i < n + army.mutant; i++) {
             armySoldiers[i] = {... units.mutant};
         }
-        n += army.raider;
+        n += army.mutant;
     
     }
     return armySoldiers;
