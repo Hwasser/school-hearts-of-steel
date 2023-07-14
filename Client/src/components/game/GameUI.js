@@ -15,7 +15,6 @@ export default function GameUI(
     names, owners, flavors, terrains, armies, session, player} ) {
   
   const worldRowSize = Math.sqrt(session.world_size);
-  console.log(worldRowSize);
   const [mergeConfirmation, setMergeConfirmation] = useState(false);
   const [mergeState, setMergeState] = useState(null);
 

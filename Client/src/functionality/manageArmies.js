@@ -123,6 +123,8 @@ function performBattle(attackingArmy, defendingArmy, terrain) {
     let attackingArmyTroops = setUpSoldiers(attackingArmy);
     let defendingArmyTroops = setUpSoldiers(defendingArmy);
 
+    console.log("New battle, attackers:", attackingArmy.soldiers, ", defenders:", defendingArmy.soldiers);
+
     
     // While at least one side has troops left, continue the battle
     while (attackingArmyTroops.length > 0 && defendingArmyTroops.length > 0) {
