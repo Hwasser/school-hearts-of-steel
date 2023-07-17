@@ -3,8 +3,9 @@ import axios from 'axios';
 
 import './Game.css';
 import Header from './Header';
-import GameUI from './GameUI';
 import Footer from './Footer';
+import GameUI from './GameUI';
+import UpgradeUI from './UpgradeUI';
 import Receiver from '../Receiver';
 import {
     receiveMoveArmy, 
@@ -38,10 +39,10 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
     const [properties, setProperties] = useState(defaultProvinceState);
     // An array containing the names of all provinces
     const [provinceNames, setProvinceNames] = useState(Array(nProvinces).fill('-'));
-    // An array containing the documentId of all provinces
-    const [provinceId, setProvinceId] = useState(Array(nProvinces).fill('')); // TODO: Remove?
-    // An array containing the owners of all provinces
+    // Arrays containing the owners, flavors and terrains of all provinces
     const [provinceOwners, setProvinceOwners] = useState(Array(nProvinces).fill('Neutral'));
+    const [provinceFlavors, setProvinceFlavors] = useState(Array(nProvinces).fill('-'));
+    const [provinceTerrains, setProvinceTerrains] = useState(Array(nProvinces).fill('-'));
     // Contains the documentId of each army in each slot and province
     // VARIANT: armies[slot][province index]  
     const [armies, setArmies] = useState([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
@@ -51,8 +52,8 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
     const [session, setSession] = useState(sessionData);
     // We keep this state so we can fetch province data and stuff when the game starts
     const [hasStarted, setHasStarted] = useState(false);
-    const [provinceFlavors, setProvinceFlavors] = useState(Array(nProvinces).fill('-'));
-    const [provinceTerrains, setProvinceTerrains] = useState(Array(nProvinces).fill('-'));
+    // Whether to use the upgrade view or the game view
+    const [upgradeView, setUpgradeView] = useState(false);
 
     // Fetch province information from the server once when opening the game
     // and set slot index of the player.
@@ -62,11 +63,18 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
         setHasStarted(true);
     }
 
+    const handleOpenUpgradeView = () => {
+        setUpgradeView(true);
+    }
+
+    const handleCloseUpgradeView = () => {
+        setUpgradeView(false);
+    }
+
     // Init all provinces when booting up the game
     function initAllProvinces(index) {
         const localProvinceNames = Array(nProvinces);
         const localProvinceOwners = Array(nProvinces);
-        const localProvinceId = Array(nProvinces);
         const localProvinceFlavors = Array(nProvinces);
         const localProvinceTerrains = Array(nProvinces);
         const localArmy1 = Array(nProvinces);
@@ -82,7 +90,6 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
                     const index = province.id;
                     localProvinceNames[index] = province.name;
                     localProvinceOwners[index] = province.owner;
-                    localProvinceId[index] = province._id;
                     localProvinceFlavors[index] = province.flavor;
                     localProvinceTerrains[index] = province.terrain;
                     localArmy1[index] = province.army1;
@@ -95,7 +102,6 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
                 setProvinceTerrains(localProvinceTerrains);
                 setProvinceNames(localProvinceNames);
                 setProvinceOwners(localProvinceOwners);
-                setProvinceId(localProvinceId);
                 setArmies([localArmy1, localArmy2, localArmy3, localArmy4]);
             }
         })
@@ -355,12 +361,14 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
                         onMergeArmies={handleBroadcastMergeArmies}
                 />
                 <Header 
+                    onExitGame={onExitGame}
+                    onOpenUpgradeView={handleOpenUpgradeView}
                     player={player} 
                     session={session} 
                     slotIndex={slotIndex} 
-                    onExitGame={onExitGame}
                 />
-                {gameui}
+                {!upgradeView && (gameui)}
+                {upgradeView  && (<UpgradeUI onCloseUpgradeView={handleCloseUpgradeView}/>)}
                 {footer}
             </div>
             </>
