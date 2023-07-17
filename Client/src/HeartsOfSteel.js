@@ -29,6 +29,10 @@ export default function HeartsOfSteel() {
     const handleWinBack = () => {
         return setWinner('');
     }
+
+    const handleExitGame = () => {
+        setHasStarted(false);
+    }
     
     return (
         <>
@@ -44,6 +48,7 @@ export default function HeartsOfSteel() {
                     sessionData={{... sessionData}} 
                     slotIndex={slotIndex} 
                     onWonGame={handleWonGame}
+                    onExitGame={handleExitGame}
                 />
             )}
         </>

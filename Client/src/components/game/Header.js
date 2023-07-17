@@ -1,6 +1,6 @@
 import './Header.css';
 
-export default function Header( {player, session, slotIndex} ) {
+export default function Header( {player, session, slotIndex, onExitGame} ) {
 
   return (
     <div className="header">
@@ -30,7 +30,7 @@ export default function Header( {player, session, slotIndex} ) {
         <span id="header_value4"> {(session == null == null) ? 0 : session.material[slotIndex]} </span> 
       </div>
       <button className='header_button' id='header_upgrades'>Upgrades</button>
-      <button className='header_button' id='header_exit'>Exit</button>
+      <button className='header_button' id='header_exit' onClick={onExitGame}>Exit</button>
     </div>
   );
 }

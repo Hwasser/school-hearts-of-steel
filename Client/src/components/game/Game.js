@@ -15,10 +15,19 @@ import {
     from '../../functionality/receiveEvents';
 
 import { armyMove, armyAttack } from '../../functionality/manageArmies';
-
 import { useState, useMemo } from 'react';  
 
-export default function Game({player, sessionData, slotIndex, onWonGame}) {    
+/**
+ * @brief: This Component represents a running game session
+ * 
+ * @param {JSON} player: See the Player-model in the backend    
+ * @param {JSON} session: See the Session-model in the backend
+ * @param {Integer} slotIndex: Which index the current player has in the game session
+ * @param {function} onWongame: Calls a function to win the game
+ * @param {function} onExitGame: Calls a function to send the player back to the menu
+ * @returns 
+ */
+export default function Game({player, sessionData, slotIndex, onWonGame, onExitGame}) {    
 
     //--------------------------------------
     // ------------- Init data -------------
@@ -345,7 +354,12 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
                         onPlayerWon={handlePlayerWon} 
                         onMergeArmies={handleBroadcastMergeArmies}
                 />
-                <Header player={player} session={session} slotIndex={slotIndex} />
+                <Header 
+                    player={player} 
+                    session={session} 
+                    slotIndex={slotIndex} 
+                    onExitGame={onExitGame}
+                />
                 {gameui}
                 {footer}
             </div>
