@@ -6,29 +6,31 @@ export default function Header( {player, session, slotIndex} ) {
     <div className="header">
 
       <div className="header_box">
-        <span id="player_text"> Player: </span>
-        <span id="player_value"> {player.name} </span> 
+        <span id="header_player_text"> Player: </span>
+        <span id="header_player_value"> {player.name} </span> 
       </div>
 
       <div className="header_box">
-        <span id="name1"> Food: </span>
-        <span id="value1"> {(session == null) ? 0 : session.food[slotIndex]} </span> 
+        <span id="header_name1"> Food: </span>
+        <span id="header_value1"> {(session == null) ? 0 : session.food[slotIndex]} </span> 
       </div>
 
       <div className="header_box">
-        <span id="name2"> Fuel: </span>
-        <span id="value2"> {(session == null == null) ? 0 : session.fuel[slotIndex]} </span> 
+        <span id="header_name2"> Fuel: </span>
+        <span id="header_value2"> {(session == null == null) ? 0 : session.fuel[slotIndex]} </span> 
       </div>
 
       <div className="header_box">
-        <span id="name3"> Tools: </span>
-        <span id="value3"> {(session == null == null) ? 0 : session.tools[slotIndex]} </span> 
+        <span id="header_name3"> Tools: </span>
+        <span id="header_value3"> {(session == null == null) ? 0 : session.tools[slotIndex]} </span> 
       </div>
 
       <div className="header_box">
-        <span id="name4"> Material: </span>
-        <span id="value4"> {(session == null == null) ? 0 : session.material[slotIndex]} </span> 
+        <span id="header_name4"> Material: </span>
+        <span id="header_value4"> {(session == null == null) ? 0 : session.material[slotIndex]} </span> 
       </div>
+      <button className='header_button' id='header_upgrades'>Upgrades</button>
+      <button className='header_button' id='header_exit'>Exit</button>
     </div>
   );
 }

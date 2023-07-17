@@ -55,6 +55,7 @@ export default function armyView({provProp}) {
                 <span id="army_soldiers_text"> Soldiers: </span>
                 <span id="army_soldiers_value"> {provProp['soldiers']} </span>
               </div>
+              <button className='property_button'>Split Army</button>
             </div>
 
             {listOfUnits}
