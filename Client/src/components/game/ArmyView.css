@@ -6,13 +6,13 @@
 
 
 .army_property {
-    background-color: rgb(33, 191, 75);
-    border: 1px solid rgb(3, 151, 35);
-    border-radius: 3px;
-    width: 100%;
-    font-weight: bold;
-    text-align: center;
+    flex: 1;
+    border: 1px solid  rgba(0,0,0,0.12);
+    border-radius: 2px;
+    background-color: rgba(0,0,0,0.12);
     padding:  4px 4px;
     margin: 4px;
+    width:auto;
+    text-align: center;
 
 }

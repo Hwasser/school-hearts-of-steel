@@ -1,20 +1,27 @@
 .footer {
-    display:flexbox;
-    align-items: center;
-    justify-content: center;
+    flex: 1;
+    display:flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: stretch;
     border-top: 1px solid black;
     background-color: rgba(110,179,31);
-    height: fit-content;
     padding:  4px 0.5%;
     width:99%;
     -webkit-transform: translate(0, 0);
     transform: translate(0, 0);
 }
 
+.footer_row {
+    display: flex;
+    align-items: stretch;
+    text-align: center;
+}
+
 
 .property {
 
-    flex-grow: 1;
+    flex: 1;
     border: 1px solid  rgba(0,0,0,0.12);
     border-radius: 2px;
     background-color: rgba(0,0,0,0.12);
@@ -27,7 +34,7 @@
 
 .property_name {
 
-    flex-grow: 1;
+    flex: 1;
     border: 1px solid  rgba(0,0,0,0.20);
     border-radius: 2px;
     background-color: rgba(0,0,0,0.20);
@@ -39,7 +46,7 @@
 }
 
 .property_button {
-    flex-grow: 1;
+    flex: 1;
     border-top:    1px solid  rgba(0,0,0, 0.5);
     border-left:   1px solid  rgba(0,0,0, 0.5);
     border-bottom: 2px solid  rgba(0,0,0, 0.4);
@@ -75,12 +82,5 @@
     margin: 4px;
     width:auto;
     
-}
-
-.footer_row {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
 }
 
