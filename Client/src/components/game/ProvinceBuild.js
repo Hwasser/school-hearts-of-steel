@@ -5,22 +5,23 @@
 import './ProvinceBuild.css';
 import axios from 'axios';
 import { useState } from 'react';  
+const { buildings } = require('../../provinceStats');
 
 export default function ProvinceBuild(
     { buildingType, setInactive, fromProvince, onBuildMenu, session, slotIndex} ) {
     const [errorMessage, setErrorMessage] = useState('');
 
     // Whether we can afford this building
-    const canAffordFood     = costs[buildingType]['food']     <= session.food[slotIndex];
-    const canAffordFuel     = costs[buildingType]['fuel']     <= session.fuel[slotIndex];
-    const canAffordTools    = costs[buildingType]['tools']    <= session.tools[slotIndex];
-    const canAffordMaterial = costs[buildingType]['material'] <= session.material[slotIndex];
+    const canAffordFood     = buildings[buildingType]['food']     <= session.food[slotIndex];
+    const canAffordFuel     = buildings[buildingType]['fuel']     <= session.fuel[slotIndex];
+    const canAffordTools    = buildings[buildingType]['tools']    <= session.tools[slotIndex];
+    const canAffordMaterial = buildings[buildingType]['material'] <= session.material[slotIndex];
 
     const curCost = {
-        food: costs[buildingType]['food'],
-        fuel: costs[buildingType]['fuel'],
-        tools: costs[buildingType]['tools'],
-        material: costs[buildingType]['material']
+        food: buildings[buildingType]['food'],
+        fuel: buildings[buildingType]['fuel'],
+        tools: buildings[buildingType]['tools'],
+        material: buildings[buildingType]['material']
     };
 
     function onConfirmButton() {
@@ -64,22 +65,22 @@ export default function ProvinceBuild(
                 <div className='cost_field'> 
                 <span>Food:</span>
                 <span style={{color: (canAffordFood) ? 'black' : 'red'}}>
-                    {costs[buildingType]['food']}</span> 
+                    {buildings[buildingType]['food']}</span> 
                 </div>
                 <div className='cost_field'> 
                 <span>Fuel:</span>
                 <span style={{color: (canAffordFuel) ? 'black' : 'red'}}>
-                    {costs[buildingType]['fuel']}</span> 
+                    {buildings[buildingType]['fuel']}</span> 
                 </div>
                 <div className='cost_field'> 
                 <span>Tools:</span>
                 <span style={{color: (canAffordTools) ? 'black' : 'red'}}>
-                    {costs[buildingType]['tools']}</span> 
+                    {buildings[buildingType]['tools']}</span> 
                 </div>
                 <div className='cost_field'> 
                 <span>Material:</span>
                 <span style={{color: (canAffordMaterial) ? 'black' : 'red'}}>
-                    {costs[buildingType]['material']}</span> 
+                    {buildings[buildingType]['material']}</span> 
                 </div>
                 <button 
                     className='confirm_button'
@@ -101,44 +102,7 @@ export default function ProvinceBuild(
     );
 }
 
-const costs = {
-    house: {
-        food: 50,
-        fuel: 0,
-        tools: 50,
-        material: 100
-    },
-    mine: {
-        food: 0,
-        fuel: 100,
-        tools: 100,
-        material: 0
-    },
-    workshop: {
-        food: 0,
-        fuel: 50,
-        tools: 50,
-        material: 100
-    },
-    farm: {
-        food: 0,
-        fuel: 0,
-        tools: 100,
-        material: 100
-    },
-    fort: {
-        food: 0,
-        fuel: 0,
-        tools: 50,
-        material: 150
-    },
-    none: {
-        food: 0,
-        fuel: 0,
-        tools: 0,
-        material: 0
-    }
-};
+
 
 
 // Update the province and the player data

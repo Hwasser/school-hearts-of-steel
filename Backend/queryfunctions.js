@@ -90,7 +90,10 @@ async function attackOrMoveArmy(package, purpose) {
     if (purpose == 'move_army') {
       broadcastMoveArmy(fromDocument, toDocument);
     } else {
-      toDocument.owner = package.winner;
+      // If attacker won, change owner of the province
+      if (package.winner != null) {
+        toDocument.owner = package.winner;
+      }
       broadcastAttackArmy(fromDocument, toDocument);
     }
     // Store the data to database

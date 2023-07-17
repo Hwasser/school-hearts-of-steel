@@ -57,6 +57,14 @@ async function postNewProvinces(allProvinces, sessionId) {
 }
 
 // Generates a province with an id with random properties
+/**
+ * @brief: Generates a random province.
+ * 
+ * @param {Integer} id: The index number of the province 
+ * @param {String} player: The name of the player that owns this province
+ * @param {String} session: The game session this province is part of
+ * @returns {DICT}
+ */
 function generateProvince(id, player, session) {
     const flavor = (player.name == 'Neutral') ? generateRandomFlavor() : 'normal';
     const terrain = generateRandomTerrain();
@@ -64,35 +72,8 @@ function generateProvince(id, player, session) {
 
     // To make the game even for all players we differ on player provinces and neutral provinces
     const province = (player.name == 'Neutral') 
-      ? {
-      id: id,
-      session: session._id,
-      name: name['first'] + name['last'],
-      flavor: flavor,
-      terrain: terrain,
-      houses: getRandomInt(1, 3),
-      workshops: getRandomInt(0, 2),
-      farms: getRandomInt(0, 2),
-      mines: getRandomInt(0, 2),
-      forts: getRandomInt(0, 2),
-      food: getRandomInt(100, 1000),
-      fuel: getRandomInt(100, 1000),
-      material: getRandomInt(100, 1000),
-      tools: getRandomInt(100, 1000),
-      workforce: getRandomInt(10, 100),
-      owner: player.name,
-      army1: null, army2: null, army3: null, army4: null
-    }
-    : {
-      id: id,
-      session: session._id,
-      name: name['first'] + name['last'],
-      flavor: flavor, terrain: terrain,
-      houses: 1, workshops: 0, farms: 0, mines: 0, forts: 0,
-      food: 800, fuel: 0, material: 800, tools: 800, workforce: 60,
-      owner: player.name,
-      army1: null, army2: null, army3: null, army4: null
-    };
+      ? standardProvince(id, session, player, flavor, terrain, name)
+      : playerProvince(id, session, player, flavor, terrain, name);
 
     // -- Set some special stats to provinces associated with certain properties --
     
@@ -100,15 +81,15 @@ function generateProvince(id, player, session) {
     if (flavor == 'radiation') {
       province['farms'] = 0;
       province['houses'] = 0;
-      province['fuel'] += 1000;
+      province['fuel'] += 2000;
     }
 
     // If the province is clean, healthy and peaceful
     if (flavor == 'healthy') {
-      province['farms'] += 1;
-      province['houses'] += 1;
-      province['food'] += 100;
-      province['workforce'] += 10;
+      province['farms'] += 2;
+      province['houses'] += 2;
+      province['food'] += 1000;
+      province['workforce'] += 25;
     }
 
     // If the province is hostile
@@ -116,25 +97,26 @@ function generateProvince(id, player, session) {
       province['workshops'] += 1;
       province['forts'] += 1;
       province['farms'] = 0;
-      province['workforce'] += 10;
     }
 
     // Well, if the town is called "scrap" there's probably scrap there
     if (name['first'] == 'Scrap') {
-      province['material'] += 500;
-      province['tools'] += 500;
+      province['material'] += 1500;
+      province['tools'] += 1500;
+      province['food'] += 1500;
+      province['fuel'] += 1500;
     }
 
     if (terrain == 'urban') {
       province['houses'] += 1;
-      province['workforce'] += 10;
+      province['workforce'] += 25;
     }
 
 
     return province;
 }
 
-// Returns a random number between 'min' and 'min + range'
+// Returns a random integer between 'min' and 'min + range'
 function getRandomInt(min, range) {
     return min + Math.floor(Math.random() * range);
   }
@@ -164,7 +146,7 @@ function generateRandomTerrain() {
   return terrains[randomChoice];
 }
 
-// Set up the position of all players
+// Set up the position for all players
 // VARIANT: 1 <= n of players <= 4 
 function setPlayerPositions(playerNames, startPlayerId, slots, nProvinces) {
   const playerPositions = Array(nProvinces).fill({name: 'Neutral', id: null});
@@ -193,24 +175,31 @@ function setPlayerPositions(playerNames, startPlayerId, slots, nProvinces) {
 async function postArmyToServer(province, sessionId) {
   const size = Math.round(province.workforce / 2);
 
-  let armyType = '';
-  if (province.flavor == 'normal' || province.flavor == 'healthy') {
-    armyType = 'militia';
-  } else if (province.flavor == 'raider') {
-    armyType = 'raider';
-  } else {
-    armyType = 'mutant';
-  }
-
-  // Push army to database
+  // Create army
   const army = {
-    soldiers: size,
     owner: province.owner,
     session: sessionId
   };
-  army[armyType] = size;
-
+  // Add 
+  if (province.flavor == 'normal') {
+    army['soldiers'] = size;
+    army['militia'] = size;
+  }
+  else if (province.flavor == 'healthy') {
+    army['soldiers'] = size+10;
+    army['militia'] = size;
+    army['gun_nut'] = 10;
+  } else if (province.flavor == 'raider') {
+    army['soldiers'] = size + 25;
+    army['raider'] = size + 25;
+  } else {
+    army['soldiers'] = size + 10;
+    army['mutant'] = size + 10;
+  }
+ 
   let armyId = null;
+
+
   await axios
   .post('http://localhost:8082/api/armies', army)
   .then( (res) => {
@@ -220,4 +209,82 @@ async function postArmyToServer(province, sessionId) {
       console.log('Error in creating army: ' + err);    
   });  
   return armyId;
+}
+
+/**
+ * @brief: A generated standard province.
+ * 
+ * @param {Integer} id: The index number of the province 
+ * @param {String} session: The game session this province is part of
+ * @param {String} player: The name of the player (probably 'Neutral') that owns this province
+ * @param {String} flavor: The flavor of this province (see provinceStats)
+ * @param {String} terrain: The terrain of this province (see provinceStats)
+ * @param {String} name: The name of this province
+ * @returns {JSON} containing the province
+ */
+function standardProvince(id, session, player, flavor, terrain, name) {
+  const minRes = 500;
+  const maxRes = 5000;
+  const minBuild = 0;
+  const maxBuild = 2;
+  const minMen = 20;
+  const maxMen = 200;
+
+  return {
+    id: id,
+    session: session._id,
+    name: name['first'] + name['last'],
+    flavor: flavor,
+    terrain: terrain,
+    houses:    getRandomInt(minBuild, maxBuild),
+    workshops: getRandomInt(minBuild, maxBuild),
+    farms:     getRandomInt(minBuild, maxBuild),
+    mines:     getRandomInt(minBuild, maxBuild),
+    forts:     getRandomInt(minBuild, maxBuild),
+    food:      getRandomInt(minRes, maxRes),
+    fuel:      getRandomInt(minRes, maxRes),
+    material:  getRandomInt(minRes, maxRes),
+    tools:     getRandomInt(minRes, maxRes),
+    workforce: getRandomInt(minMen, maxMen),
+    owner: player.name,
+    army1: null, army2: null, army3: null, army4: null
+  }
+}
+
+/**
+ * @brief: A generated province for a player slot. 
+ *         Explaination for values: Fuel should be 0 in start province to restrict some features
+ *         from the user. Houses should be one so that population increase even if the player does
+ *         a bad choice.
+ * 
+ * @param {Integer} id: The index number of the province 
+ * @param {String} session: The game session this province is part of
+ * @param {String} player: The name of the player that owns this province
+ * @param {String} flavor: The flavor of this province (see provinceStats)
+ * @param {String} terrain: The terrain of this province (see provinceStats)
+ * @param {String} name: The name of this province
+ * @returns {JSON} containing the province
+ */
+function playerProvince(id, session, player, flavor, terrain, name) {
+  const stdRes = 2500;
+
+  return {
+    id: id,
+    session: session._id,
+    name: name['first'] + name['last'],
+    flavor: flavor, 
+    terrain: terrain,
+    houses: 1, 
+    workshops: 0, 
+    farms: 0, 
+    mines: 0, 
+    forts: 0,
+    food: stdRes, 
+    fuel: 0, 
+    material: stdRes, 
+    tools: stdRes, 
+    workforce: 60,
+    owner: player.name,
+    army1: null, army2: null, army3: null, army4: null
+  }
 }

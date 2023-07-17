@@ -42,7 +42,7 @@ const units = {
         hardness: 0.10,
         hp: 20,
         cost : {
-            food: 6,
+            food: 7,
             fuel: 2,
             tools: 2,
             material: 0
@@ -72,7 +72,7 @@ const units = {
         hardness: 0.10,
         hp: 20,
         cost : {
-            food: 6,
+            food: 7,
             fuel: 0,
             tools: 4,
             material: 0
@@ -102,7 +102,7 @@ const units = {
         hardness: 0.50,
         hp: 30,
         cost : {
-            food: 6,
+            food: 8,
             fuel: 6,
             tools: 2,
             material: 2
@@ -132,7 +132,7 @@ const units = {
         hardness: 0.80,
         hp: 25,
         cost : {
-            food: 8,
+            food: 10,
             fuel: 3,
             tools: 6,
             material: 6
