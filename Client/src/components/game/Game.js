@@ -28,13 +28,12 @@ import { initUpgrades } from '../../upgradeStats';
  * @returns 
  */
 export default function Game({player, sessionData, slotIndex, onWonGame, onExitGame}) {    
-
     //--------------------------------------
     // ------------- Init data -------------
 
     const nProvinces = sessionData.world_size;
     
-    // All properties for a province or an army
+    // All properties for a province, an army or a upgrade
     const [properties, setProperties] = useState(defaultProvinceState);
     // An array containing the names of all provinces
     const [provinceNames, setProvinceNames] = useState(Array(nProvinces).fill('-'));
@@ -311,11 +310,15 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
         setArmies(armyCopy);
     }
 
-    const handeBuyUpgrade = (upgrade) => {
+    const handleBuyUpgrade = (upgrade) => {
         const upgCopy = {... upgrades};
         upgCopy[upgrade] = true
         setUpgrades(upgCopy);
         // TODO: Send to server
+    };
+
+    const handeSelectUpgrade = (upgrade) => {
+        setProperties({...upgrade});
     };
 
     //------------------------------------------
@@ -328,6 +331,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
             properties={properties} 
             onRaiseArmy={handleRaiseArmy} 
             onBuildBuilding={handleBuildBuilding} 
+            onBuyUpgrade={handleBuyUpgrade} 
             session={session}
             slotIndex={slotIndex}
             player={player}
@@ -372,7 +376,9 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
                     upgradeView={upgradeView}
                 />
                 {!upgradeView && (gameui)}
-                {upgradeView  && (<UpgradeUI onBuyUpgrade={handeBuyUpgrade} upgrades={upgrades} />)}
+                {upgradeView  && (<UpgradeUI 
+                                    onSelectUpgrade={handeSelectUpgrade} 
+                                    upgrades={upgrades} />)}
                 {footer}
             </div>
             </>

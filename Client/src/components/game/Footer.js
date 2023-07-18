@@ -18,6 +18,7 @@ export default function Footer( {
   properties, 
   onRaiseArmy, 
   onBuildBuilding, 
+  onBuyUpgrade,
   session, 
   slotIndex, 
   player} ) {
@@ -25,7 +26,7 @@ export default function Footer( {
   const [provProp, setProvProp] = useState(properties);
   const [useRaiseMenu, setuseRaiseMenu] = useState(false);
   const [useBuildMenu, setUseBuildMenu] = useState('none');
-  const [isProvince, setIsProvince] = useState(true);
+  const [footerType, setFooterType] = useState('province');
   
   // For deactivating menus
   const makeSliderInactive = () => {setuseRaiseMenu(false)};  
@@ -61,13 +62,17 @@ export default function Footer( {
   }
 
   // Whether to show properties for a province or an army
-  if (properties['soldiers'] == null) {
-    if (isProvince === false) {
-      setIsProvince(true);
+  if (properties['soldiers'] != null) {
+    if (footerType !== 'army') {
+      setFooterType('army');
+    }
+  } else if (properties['type'] == 'upgrade') {
+    if (footerType !== 'upgrade') {
+      setFooterType('upgrade');
     }
   } else {
-    if (isProvince === true) {
-      setIsProvince(false);
+    if (footerType !== 'province') {
+      setFooterType('province');
     }
   }
 
@@ -138,7 +143,7 @@ export default function Footer( {
 
   const FooterProvince = () => (
     <>
-    {isProvince && (
+    {(footerType === 'province') && (
       <div className="footer">
 
       <RaiseArmy 
@@ -222,10 +227,47 @@ export default function Footer( {
   return (
     <>
     <FooterProvince /> 
-    {!isProvince && (
+    {(footerType === 'army') && (
       <ArmyView provProp={{... provProp}} /> 
+    )}
+    {(footerType === 'upgrade') && (
+      <UpgradeView provProp={{... provProp}} onBuyUpgrade={onBuyUpgrade} /> 
     )}
     </>
   );
 }
 
+const UpgradeView = ({provProp, onBuyUpgrade}) => (
+  <>
+    <div className="footer">
+      <div className='footer_row'>
+          <div className='property_name'>
+            <span key="upg_name1"> Upgrade: </span>
+            <span key="upg_value1"> {provProp['name']} </span>
+          </div>
+          <div className='property_name'>
+            <span key="upg_name2"> Food: </span>
+            <span key="upg_value2"> {provProp['costs']['food']} </span>
+          </div>
+          <div className='property_name'>
+            <span key="upg_name3"> Fuel: </span>
+            <span key="upg_value3"> {provProp['costs']['fuel']} </span>
+          </div>
+          <div className='property_name'>
+            <span key="upg_name4"> Tools: </span>
+            <span key="upg_value4"> {provProp['costs']['tools']} </span>
+          </div>
+          <div className='property_name'>
+            <span key="upg_name5"> Material: </span>
+            <span key="upg_value5"> {provProp['costs']['material']} </span>
+          </div>
+          <button className='property_button' onClick={() => onBuyUpgrade(provProp['data'])} > Purchase </button>
+        </div>
+        <div className='footer_row'>
+          <div className='property_name'>
+            <span key="upg_value6"> {provProp['text']} </span>
+          </div>
+        </div>
+    </div>
+  </>
+);

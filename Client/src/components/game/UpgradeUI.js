@@ -9,7 +9,7 @@ import axios from 'axios';
 import './UpgradeUI.css';
 import { upgradeNames, upgradeTexts, upgradeDependencies, upgradeCosts } from '../../upgradeStats';
 
-export default function UpgradeUI( {onBuyUpgrade, upgrades} ) {
+export default function UpgradeUI( {onSelectUpgrade, upgrades} ) {
     function dependencies(listOfDeps) {
         if (listOfDeps.length === 0) {
             return true;
@@ -43,7 +43,7 @@ export default function UpgradeUI( {onBuyUpgrade, upgrades} ) {
      */
     const ProductArrow = ({p1, p2, end}) => {
         // A list of dependencies from what this arrow points ats
-        const deps = upgradeDependencies[p2];
+        const deps = [...upgradeDependencies[p2]];
         // A representation of the arrow
         return <Xarrow start={p1} end={p2} zIndex={-1}  startAnchor='bottom' endAnchor={end}
             dashness={(dependencies(deps)) ? false : true} 
@@ -58,7 +58,7 @@ export default function UpgradeUI( {onBuyUpgrade, upgrades} ) {
      */
     const UpgButton = ({upgrade}) => {
         const text = upgradeNames[upgrade];
-        const deps = upgradeDependencies[upgrade]
+        const deps = [...upgradeDependencies[upgrade]];
         let color = 'lightgreen';
         // A list of dependencies of this upgrade button
         if (upgrades[upgrade]) {
@@ -66,9 +66,17 @@ export default function UpgradeUI( {onBuyUpgrade, upgrades} ) {
         } else if (!dependencies(deps)) {
             color = 'orangered';
         }
+        // A packet of upgrade data to send back to the footer
+        const upgradeData = {
+            type: 'upgrade',
+            data: upgrade,
+            name: upgradeNames[upgrade],
+            text: upgradeTexts[upgrade],
+            costs: upgradeCosts[upgrade]
+        }
         // The button itself
         return <button id={upgrade} className='upgrade_item' style={{background: color}}
-            onClick={() => onBuyUpgrade(upgrade)}>{text}</button>;
+            onClick={() => onSelectUpgrade(upgradeData)}>{text}</button>;
     };
 
     return (
