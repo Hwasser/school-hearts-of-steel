@@ -2,68 +2,85 @@
  * This component represent the view for upgrades
  */
 
-import axios from 'axios';
-import Xarrow from "react-xarrows";
-
 import React, { useState } from 'react';  
+import Xarrow from "react-xarrows";
+import axios from 'axios';
+
 import './UpgradeUI.css';
+import { upgradeNames, upgradeTexts, upgradeDependencies, upgradeCosts } from '../../upgradeStats';
 
-export default function UpgradeUI( {onCloseUpgradeView} ) {
+export default function UpgradeUI( {onBuyUpgrade, upgrades} ) {
     // TODO: Move this backwards
-    const [upgrades, setUpgrades] = useState(initUpgrades);
-    // Dependecies of each upgrade
-    const dependecies = {
-        upg_weap1: true,
-        upg_weap2_dam: upgrades['upg_weap1'],
-        upg_weap2_arm: upgrades['upg_weap1'],
-        upg_weap2_mot: (upgrades['upg_weap1'] && upgrades['upg_tech1']),
-        upg_weap3_dam: upgrades['upg_weap2_dam'],
-        upg_weap3_arm: upgrades['upg_weap2_arm'],
-        upg_tech1: true,
-        upg_tech2: upgrades['upg_tech1'],
-        upg_tech3: (upgrades['upg_tech2'] && upgrades['upg_weap2_mot']),
-        upg_gunnut: upgrades['upg_weap1'],
-        upg_demman: upgrades['upg_weap1'],
-        upg_formor: upgrades['upg_weap2_mot'],
-        upg_powsui: (upgrades['upg_weap3_dam'] && upgrades['upg_weap3_arm'] && upgrades['upg_tech2'])
-    };
+    
 
-    const UpgradeArrow = ({p1, p2, top}) => {
-        return <Xarrow start={p1} end={p2} zIndex={-1}  startAnchor='bottom' endAnchor={top}
+    function dependencies(listOfDeps) {
+        return true; // TODO: REMOVE
+        if (listOfDeps.length === 0) {
+            return true;
+        } else {
+            // The one dependency and check whether it is true or not
+            const currentDeps = listOfDeps.pop();
+            return upgrades[currentDeps] && dependencies(listOfDeps);
+        }
+    } 
+
+    /**
+     * @brief: Creates an arrow from p1 to p2 for upgrade buttons
+     * 
+     * @param {HTML identifier} p1: A HTML object this arrow starts from
+     * @param {HTML identifier} p2: A HTML object this arrow points at
+     * @param {String} end: The direction from where this arrow should arrive from at p2
+     * @returns An graphical representation of an arrow
+     */
+    const UpgradeArrow = ({p1, p2, end}) => {
+        return <Xarrow start={p1} end={p2} zIndex={-1}  startAnchor='bottom' endAnchor={end}
             dashness={(upgrades[p2]) ? false : true} 
             color={(upgrades[p2]) ? 'darkslateblue' : 'lightgreen'} />
     }
-    const ProductArrow = ({p1, p2, top}) => {
-        return <Xarrow start={p1} end={p2} zIndex={-1}  startAnchor='bottom' endAnchor={top}
-            dashness={(dependecies[p2]) ? false : true} 
-            color={(dependecies[p2]) ? 'darkslateblue' : 'lightgreen'} />
+    /**
+     * @brief: Creates an arrow from p1 to p2 for products that gets unlocked
+     * 
+     * @param {HTML identifier} p1: A HTML object this arrow starts from
+     * @param {HTML identifier} p2: A HTML object this arrow points at
+     * @param {String} end: The direction from where this arrow should arrive from at p2
+     * @returns An graphical representation of an arrow
+     */
+    const ProductArrow = ({p1, p2, end}) => {
+        // A list of dependencies from what this arrow points ats
+        const deps = upgradeDependencies[p2];
+        // A representation of the arrow
+        return <Xarrow start={p1} end={p2} zIndex={-1}  startAnchor='bottom' endAnchor={end}
+            dashness={(dependencies(deps)) ? false : true} 
+            color={(dependencies(deps)) ? 'darkslateblue' : 'lightgreen'} />
     }
 
-    const UpgButton = ({data, text}) => {
-        // When buying an upgrade TODO: Add costs and stuff
-        const buyUpgrade = () => {
-            const upgCopy = {... upgrades};
-            upgCopy[data] = true
-            setUpgrades(upgCopy);
-        };
+    /**
+     * @brief: Creates an arrow from p1 to p2
+     * 
+     * @param {String} upgrade: What upgrade this arrow represents
+     * @returns An graphical representation of a upgrade button
+     */
+    const UpgButton = ({upgrade}) => {
+        const text = upgradeNames[upgrade];
+        const deps = upgradeDependencies[upgrade]
         let color = 'lightgreen';
-        if (upgrades[data]) {
+        // A list of dependencies of this upgrade button
+        if (upgrades[upgrade]) {
             color = 'lightgrey';
-        } else if (!dependecies[data]) {
+        } else if (!dependencies(deps)) {
             color = 'orangered';
         }
         // The button itself
-        return <button id={data} className='upgrade_item' style={{background: color}}
-            onClick={buyUpgrade}>{text}</button>;
+        return <button id={upgrade} className='upgrade_item' style={{background: color}}
+            onClick={onBuyUpgrade(upgrade)}>{text}</button>;
     };
 
     return (
         <>
             <div className='upgrade_view'>
-                <button id="back_from_upgrade_view" onClick={onCloseUpgradeView}>Return</button>
                 <div className='upgrade_row'>
-                    <UpgButton data={'upg_weap1'} text={'Basic Weapons'} />
-                    <UpgButton data={'upg_tech1'} text={'Basic Tools'} />
+                    <UpgButton data={'upg_weap1'} />
+                    <UpgButton data={'upg_tech1'} />
                 </div>
                 <div className='upgrade_row'>
                     <div className='upgrade_group'>
@@ -73,11 +90,11 @@ export default function UpgradeUI( {onCloseUpgradeView} ) {
                 </div>
                 <div className='upgrade_row'>
                     <div className='upgrade_group'>
-                    <UpgButton data={'upg_weap2_dam'} text={'Improved Ammunition'} />
-                    <UpgButton data={'upg_weap2_arm'} text={'Helmets'} />
+                    <UpgButton data={'upg_weap2_dam'} />
+                    <UpgButton data={'upg_weap2_arm'} />
                     </div>
-                    <UpgButton data={'upg_weap2_mot'} text={'Mechanics'} />
-                    <UpgButton data={'upg_tech2'} text={'Advanced Tools'} />
+                    <UpgButton data={'upg_weap2_mot'} />
+                    <UpgButton data={'upg_tech2'} />
                 </div>
                 <div className='upgrade_row'>
                     <div className='upgrade_group'>
@@ -87,44 +104,32 @@ export default function UpgradeUI( {onCloseUpgradeView} ) {
                 </div>
                 <div className='upgrade_row'>
                     <div className='upgrade_group'>
-                        <UpgButton data={'upg_weap3_dam'} text={'Piercing Ammunition'} />
-                        <UpgButton data={'upg_weap3_arm'} text={'Kevlar'} />
+                        <UpgButton data={'upg_weap3_dam'} />
+                        <UpgButton data={'upg_weap3_arm'} />
                     </div>
-                    <UpgButton data={'upg_tech3'} text={'Motorized Scavanging'} />
+                    <UpgButton data={'upg_tech3'} />
                 </div>
-                <UpgradeArrow p1={'upg_weap1'} p2={'upg_weap2_dam'} top={'top'} />
-                <UpgradeArrow p1={'upg_weap1'} p2={'upg_weap2_arm'} top={'top'} />
-                <UpgradeArrow p1={'upg_weap1'} p2={'upg_weap2_mot'} top={'auto'} />
-                <UpgradeArrow p1={'upg_tech1'} p2={'upg_weap2_mot'} top={'auto'} />
-                <UpgradeArrow p1={'upg_weap2_dam'} p2={'upg_weap3_dam'} top={'auto'} />
-                <UpgradeArrow p1={'upg_weap2_arm'} p2={'upg_weap3_arm'} top={'auto'} />
+                <UpgradeArrow p1={'upg_weap1'} p2={'upg_weap2_dam'} end={'top'} />
+                <UpgradeArrow p1={'upg_weap1'} p2={'upg_weap2_arm'} end={'top'} />
+                <UpgradeArrow p1={'upg_weap1'} p2={'upg_weap2_mot'} end={'auto'} />
+                <UpgradeArrow p1={'upg_tech1'} p2={'upg_weap2_mot'} end={'auto'} />
+                <UpgradeArrow p1={'upg_weap2_dam'} p2={'upg_weap3_dam'} end={'auto'} />
+                <UpgradeArrow p1={'upg_weap2_arm'} p2={'upg_weap3_arm'} end={'auto'} />
                 
-                <UpgradeArrow p1={'upg_tech1'} p2={'upg_tech2'} top={'top'} />
-                <UpgradeArrow p1={'upg_tech2'} p2={'upg_tech3'} top={'top'} />
-                <UpgradeArrow p1={'upg_weap2_mot'} p2={'upg_tech3'} top={'top'} />
+                <UpgradeArrow p1={'upg_tech1'} p2={'upg_tech2'} end={'top'} />
+                <UpgradeArrow p1={'upg_tech2'} p2={'upg_tech3'} end={'top'} />
+                <UpgradeArrow p1={'upg_weap2_mot'} p2={'upg_tech3'} end={'top'} />
                 
-                <ProductArrow p1={'upg_weap1'} p2={'upg_gunnut'} top={'auto'} />
-                <ProductArrow p1={'upg_weap1'} p2={'upg_demman'} top={'auto'} />
-                <ProductArrow p1={'upg_weap2_mot'} p2={'upg_formot'} top={'auto'} />
-                <ProductArrow p1={'upg_weap2_dam'} p2={'upg_powsui'} top={'auto'} />
-                <ProductArrow p1={'upg_weap2_arm'} p2={'upg_powsui'} top={'auto'} />
-                <ProductArrow p1={'upg_tech2'} p2={'upg_powsui'} top={'auto'} />
+                <ProductArrow p1={'upg_weap1'} p2={'upg_gunnut'} end={'auto'} />
+                <ProductArrow p1={'upg_weap1'} p2={'upg_demman'} end={'auto'} />
+                <ProductArrow p1={'upg_weap2_mot'} p2={'upg_formot'} end={'top'} />
+                <ProductArrow p1={'upg_weap2_dam'} p2={'upg_powsui'} end={'auto'} />
+                <ProductArrow p1={'upg_weap2_arm'} p2={'upg_powsui'} end={'auto'} />
+                <ProductArrow p1={'upg_tech2'} p2={'upg_powsui'} end={'auto'} />
 
             </div>
         </>
     );
 }
 
-// Which upgrades have been taken
-const initUpgrades = {
-    upg_weap1: false,
-    upg_weap2_dam: false,
-    upg_weap2_arm: false,
-    upg_weap2_mot: false,
-    upg_weap3_dam: false,
-    upg_weap2_arm: false,
-    upg_tech1: false,
-    upg_tech2: false,
-    upg_tech3: false
-};
 

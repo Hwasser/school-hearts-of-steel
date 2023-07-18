@@ -1,6 +1,8 @@
 import './Header.css';
 
-export default function Header( {onExitGame, onOpenUpgradeView, player, session, slotIndex} ) {
+export default function Header( {onExitGame, onUpgradeView, player, session, slotIndex, upgradeView} ) {
+
+  const upgradeViewtext = (upgradeView) ? "World Map" : "Upgrades"
 
   return (
     <div className="header">
@@ -29,7 +31,7 @@ export default function Header( {onExitGame, onOpenUpgradeView, player, session,
         <span id="header_name4"> Material: </span>
         <span id="header_value4"> {(session == null == null) ? 0 : session.material[slotIndex]} </span> 
       </div>
-      <button className='header_button' id='header_upgrades' onClick={onOpenUpgradeView}>Upgrades</button>
+      <button className='header_button' id='header_upgrades' onClick={() => {onUpgradeView()}}>{upgradeViewtext}</button>
       <button className='header_button' id='header_exit' onClick={onExitGame}>Exit</button>
     </div>
   );

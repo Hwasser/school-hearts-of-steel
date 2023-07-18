@@ -1,5 +1,6 @@
 import React from 'react'
 import axios from 'axios';
+import { useState, useMemo } from 'react';  
 
 import './Game.css';
 import Header from './Header';
@@ -14,10 +15,8 @@ import {
     receiveJoinedPlayer, 
     receiveUpdateProvince} 
     from '../../functionality/receiveEvents';
-
 import { armyMove, armyAttack } from '../../functionality/manageArmies';
-import { useState, useMemo } from 'react';  
-
+import { initUpgrades } from '../../upgradeStats';
 /**
  * @brief: This Component represents a running game session
  * 
@@ -54,6 +53,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
     const [hasStarted, setHasStarted] = useState(false);
     // Whether to use the upgrade view or the game view
     const [upgradeView, setUpgradeView] = useState(false);
+    const [upgrades, setUpgrades] = useState(initUpgrades);
 
     // Fetch province information from the server once when opening the game
     // and set slot index of the player.
@@ -63,12 +63,8 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
         setHasStarted(true);
     }
 
-    const handleOpenUpgradeView = () => {
-        setUpgradeView(true);
-    }
-
-    const handleCloseUpgradeView = () => {
-        setUpgradeView(false);
+    const handleUpgradeView = () => {
+        setUpgradeView(!upgradeView);
     }
 
     // Init all provinces when booting up the game
@@ -318,6 +314,17 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
         setArmies(armyCopy);
     }
 
+    const handeBuyUpgrade = (upgrade) => {
+        return;
+        const upgCopy = {... upgrades};
+        upgCopy[upgrade] = true
+        setUpgrades(upgCopy);
+        // TODO: Send to server
+    };
+
+    //------------------------------------------
+    // --------- Handle the game views ---------
+
     // Specify exactly which states that re-renders this component
     // and remember the states of the rest.
     const footer = React.useMemo( () => 
@@ -362,13 +369,14 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
                 />
                 <Header 
                     onExitGame={onExitGame}
-                    onOpenUpgradeView={handleOpenUpgradeView}
+                    onUpgradeView={handleUpgradeView}
                     player={player} 
                     session={session} 
                     slotIndex={slotIndex} 
+                    upgradeView={upgradeView}
                 />
                 {!upgradeView && (gameui)}
-                {upgradeView  && (<UpgradeUI onCloseUpgradeView={handleCloseUpgradeView}/>)}
+                {upgradeView  && (<UpgradeUI onBuyUpgrade={handeBuyUpgrade} upgrades={upgrades} />)}
                 {footer}
             </div>
             </>
