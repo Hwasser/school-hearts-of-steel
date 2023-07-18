@@ -9,7 +9,7 @@ const upgradeNames = {
     upg_weap2_arm: 'Riot Helmets',
     upg_weap2_mot: 'Motorization',
     upg_weap3_dam: 'Master Gunsmiths',
-    upg_weap2_arm: 'Kevlar',
+    upg_weap3_arm: 'Kevlar',
     upg_tech1: 'Improved Tools',
     upg_tech2: 'Advanced Tools',
     upg_tech3: 'Motorized Scavanging'
@@ -22,7 +22,7 @@ const upgradeTexts = {
     upg_weap2_arm: 'Riot Helmets will add 10% hardness for all units',
     upg_weap2_mot: 'Motorization will allow the production of motorized units',
     upg_weap3_dam: 'Master gunsmiths increases the damage of all units with 20%',
-    upg_weap2_arm: 'Kevlar will add 20% hardness for all units',
+    upg_weap3_arm: 'Kevlar will add 20% hardness for all units',
     upg_tech1: 'Improved Tools will increase the output of all resource gathering with 10%',
     upg_tech2: 'Advanced Tools will increase the output of all resource gathering with 20%',
     upg_tech3: 'Motorized Scavanging will increase the output of all resource gathering with 30%'
@@ -52,7 +52,7 @@ const initUpgrades = {
     upg_weap2_arm: false,
     upg_weap2_mot: false,
     upg_weap3_dam: false,
-    upg_weap2_arm: false,
+    upg_weap3_arm: false,
     upg_tech1: false,
     upg_tech2: false,
     upg_tech3: false
@@ -90,7 +90,7 @@ const upgradeCosts = {
         fuel: 0,
         material: 0
     },
-    upg_weap2_arm: {
+    upg_weap3_arm: {
         food: 0,
         tools: 0,
         fuel: 0,

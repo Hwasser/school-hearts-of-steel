@@ -10,11 +10,7 @@ import './UpgradeUI.css';
 import { upgradeNames, upgradeTexts, upgradeDependencies, upgradeCosts } from '../../upgradeStats';
 
 export default function UpgradeUI( {onBuyUpgrade, upgrades} ) {
-    // TODO: Move this backwards
-    
-
     function dependencies(listOfDeps) {
-        return true; // TODO: REMOVE
         if (listOfDeps.length === 0) {
             return true;
         } else {
@@ -72,15 +68,15 @@ export default function UpgradeUI( {onBuyUpgrade, upgrades} ) {
         }
         // The button itself
         return <button id={upgrade} className='upgrade_item' style={{background: color}}
-            onClick={onBuyUpgrade(upgrade)}>{text}</button>;
+            onClick={() => onBuyUpgrade(upgrade)}>{text}</button>;
     };
 
     return (
         <>
             <div className='upgrade_view'>
                 <div className='upgrade_row'>
-                    <UpgButton data={'upg_weap1'} />
-                    <UpgButton data={'upg_tech1'} />
+                    <UpgButton upgrade={'upg_weap1'} />
+                    <UpgButton upgrade={'upg_tech1'} />
                 </div>
                 <div className='upgrade_row'>
                     <div className='upgrade_group'>
@@ -90,11 +86,11 @@ export default function UpgradeUI( {onBuyUpgrade, upgrades} ) {
                 </div>
                 <div className='upgrade_row'>
                     <div className='upgrade_group'>
-                    <UpgButton data={'upg_weap2_dam'} />
-                    <UpgButton data={'upg_weap2_arm'} />
+                    <UpgButton upgrade={'upg_weap2_dam'} />
+                    <UpgButton upgrade={'upg_weap2_arm'} />
                     </div>
-                    <UpgButton data={'upg_weap2_mot'} />
-                    <UpgButton data={'upg_tech2'} />
+                    <UpgButton upgrade={'upg_weap2_mot'} />
+                    <UpgButton upgrade={'upg_tech2'} />
                 </div>
                 <div className='upgrade_row'>
                     <div className='upgrade_group'>
@@ -104,10 +100,10 @@ export default function UpgradeUI( {onBuyUpgrade, upgrades} ) {
                 </div>
                 <div className='upgrade_row'>
                     <div className='upgrade_group'>
-                        <UpgButton data={'upg_weap3_dam'} />
-                        <UpgButton data={'upg_weap3_arm'} />
+                        <UpgButton upgrade={'upg_weap3_dam'} />
+                        <UpgButton upgrade={'upg_weap3_arm'} />
                     </div>
-                    <UpgButton data={'upg_tech3'} />
+                    <UpgButton upgrade={'upg_tech3'} />
                 </div>
                 <UpgradeArrow p1={'upg_weap1'} p2={'upg_weap2_dam'} end={'top'} />
                 <UpgradeArrow p1={'upg_weap1'} p2={'upg_weap2_arm'} end={'top'} />

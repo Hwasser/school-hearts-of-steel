@@ -315,7 +315,6 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
     }
 
     const handeBuyUpgrade = (upgrade) => {
-        return;
         const upgCopy = {... upgrades};
         upgCopy[upgrade] = true
         setUpgrades(upgCopy);
