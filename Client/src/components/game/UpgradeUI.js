@@ -44,10 +44,11 @@ export default function UpgradeUI( {onSelectUpgrade, upgrades} ) {
     const ProductArrow = ({p1, p2, end}) => {
         // A list of dependencies from what this arrow points ats
         const deps = [...upgradeDependencies[p2]];
+        const activated = dependencies(deps); // If it has all dependencies, this product is activated
         // A representation of the arrow
         return <Xarrow start={p1} end={p2} zIndex={-1}  startAnchor='bottom' endAnchor={end}
-            dashness={(dependencies(deps)) ? false : true} 
-            color={(dependencies(deps)) ? 'darkslateblue' : 'lightgreen'} />
+            dashness={(activated) ? false : true} 
+            color={(activated) ? 'darkslateblue' : 'lightgreen'} />
     }
 
     /**
