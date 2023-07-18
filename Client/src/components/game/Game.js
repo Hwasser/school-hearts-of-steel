@@ -116,8 +116,6 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
     }
 
     const handleUpdateProvince = (message) => {
-        console.log("handleUpdateProvince happens!");
-        //TODO: Can this be removed?s
         const province = message;
         // Make a copy of old state
         const armiesCopy = [... armies];
@@ -131,7 +129,6 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
         // Replace with copy
         setArmies(armiesCopy);
         setProvinceOwners(ownersCopy);
-        // TODO: ..?   
     }
 
     /**
