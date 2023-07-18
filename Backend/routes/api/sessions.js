@@ -14,7 +14,7 @@ router.get('/', (req, res) => {
   });
 
 // @route GET api/Session/:id
-// @description Get single army by id
+// @description Get single Session by id
 // @access Public
 router.get('/:id', (req, res) => {
   Session.findById(req.params.id)

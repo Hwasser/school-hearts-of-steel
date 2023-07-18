@@ -31,6 +31,10 @@ const SessionSchema = new mongoose.Schema({
         type: [Number],
         required: true
     },
+    upgrades: {
+        type: [mongoose.Schema.Types.ObjectId],
+        required: true
+    },
     world_size: {
         type: Number,
         required: true
