@@ -20,6 +20,7 @@ export default function Footer( {
   onBuildBuilding, 
   onBuyUpgrade,
   session, 
+  upgrades,
   slotIndex, 
   player} ) {
 
@@ -228,7 +229,7 @@ export default function Footer( {
     <>
     <FooterProvince /> 
     {(footerType === 'army') && (
-      <ArmyView provProp={{... provProp}} /> 
+      <ArmyView provProp={{... provProp}} upgrades={upgrades} /> 
     )}
     {(footerType === 'upgrade') && (
       <UpgradeView provProp={{... provProp}} onBuyUpgrade={onBuyUpgrade} /> 
@@ -237,6 +238,7 @@ export default function Footer( {
   );
 }
 
+// The view when selecting an upgrade, shows info about the upgrade and a puchase button
 const UpgradeView = ({provProp, onBuyUpgrade}) => (
   <>
     <div className="footer">

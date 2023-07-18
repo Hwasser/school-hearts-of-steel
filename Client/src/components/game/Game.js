@@ -333,9 +333,10 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
             onBuildBuilding={handleBuildBuilding} 
             onBuyUpgrade={handleBuyUpgrade} 
             session={session}
+            upgrades={upgrades}
             slotIndex={slotIndex}
             player={player}
-        />, [properties] );
+        />, [properties, upgrades] );
 
     // Specify exactly which states that re-renders this component
     // and remember the states of the rest.
