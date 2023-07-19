@@ -246,6 +246,12 @@ function UpgradeView({provProp, onBuyUpgrade, session, slotIndex}) {
   const canAffordMaterial  = provProp['costs']['material']  <= session.material[slotIndex];
   const canAfford = canAffordFood && canAffordTools && canAffordFuel && canAffordMaterial;  
 
+  function handleBuyUpgrade(upgrade) {
+    if (canAfford) {
+      onBuyUpgrade(upgrade)
+    }
+  }
+
   return (
     <>
       <div className="footer">
@@ -270,7 +276,7 @@ function UpgradeView({provProp, onBuyUpgrade, session, slotIndex}) {
               <span key="upg_name5"> Material: </span>
               <span key="upg_value5"> {provProp['costs']['material']} </span>
             </div>
-            <button className='property_button' onClick={() => onBuyUpgrade(provProp['data'])} > Purchase </button>
+            <button className='property_button' onClick={() => handleBuyUpgrade(provProp['data'])} > Purchase </button>
           </div>
           <div className='footer_row'>
             <div className='property_name'>
