@@ -50,6 +50,7 @@
 }
 
 .game_list_container {
+    position: relative;
     background-color: rgba(255, 255, 255, 0.5);
     padding: 8px 4px;
     margin: 4px;
@@ -62,9 +63,28 @@
 .join_game_entry {
     position: relative;
     list-style-type: none;
-    left: -20px;
+    left: -10%;
+}
+
+.join_game_button {
+    padding: 3px;
 }
 
 .start_text_options {
     margin: 10px 0 4px 0;
+}
+
+.game_session_is_full {
+    padding: 0;
+    margin: 2px;
+    font-weight: bold;
+    color:firebrick;
+}
+
+#start_menu_refresh_button{
+    position: absolute;
+    padding: 3px 12px;
+    width: 80%;
+    left:10%;
+    bottom: 8px;
 }

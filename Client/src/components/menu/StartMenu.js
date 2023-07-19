@@ -13,11 +13,16 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         large: 25
     };
 
+    const [gameIsFull, setGameIsFull] = useState(false);
     const [allSessions, setAllSessions] = useState([]);
     const [maxSlots, setMaxSlots] = useState(2);
     const [worldSize, setWorldSize] = useState(worldSizes.small);
+    const [justEntered, setJustEntered] = useState(true); // Whether we just entered this screen
 
-    function getAllSessions() {
+    function updateSessionList() {
+        // Clear "game is full" message
+        setGameIsFull(false);
+        // Get all sessions from the database and place them is "allSessions"
         axios
         .get('http://localhost:8082/api/sessions')
           .then((res) => {
@@ -82,14 +87,18 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
                 // Start game
                 onJoinGame(selectedSession, upgradeTree, playerSlot);
             } else {
-                console.log("This game session is full!");
-                // TODO: IMPLEMENT AN ERROR MESSAGE FOR THE PLAYER!
+                setGameIsFull(true);
             }
         }
     }
 
     // Get a list of the view of all games in the session list
     function GetSessionList() {
+        const worldSizesReversed = {
+            9: 'small',
+            16: 'medium',
+            25: 'large'
+        };
         const allSessionsView = []
             for (let i = 0; i < allSessions.length; i++) {
                 // Get free slots
@@ -98,10 +107,11 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
                 );
                 const curMaxSlots = allSessions[i].max_slots;
                 const curTakenSlots = curMaxSlots - curFreeSlots;
+                const curSize = worldSizesReversed[allSessions[i].world_size];
 
                 allSessionsView.push(
-                    <li key={'game' + i} className="join_game_entry"> <button className='startmenu_button'
-                        onClick={() => handleJoinGame(allSessions[i], curFreeSlots)}> Game ({curTakenSlots + "/" + curMaxSlots}) 
+                    <li key={'game' + i} className="join_game_entry"> <button className='join_game_button'
+                        onClick={() => handleJoinGame(allSessions[i], curFreeSlots)}> Game: {i} | size: {curSize} | slots: ({curTakenSlots + "/" + curMaxSlots}) 
                     </button> </li>
                 );
             }
@@ -146,14 +156,13 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         const upgradeTrees = await addUpgrades(maxSlots);
         // Setup a new session
         const newSession = initSession(upgradeTrees);
-
         // Post new sessions
         await axios
         .post('http://localhost:8082/api/sessions', newSession)
           .then((res) => {
             console.log("Created new game!", res)
             // Refresh game list
-            getAllSessions();
+            updateSessionList();
             try {
                 startNewGame(res.data.session);
             } catch(err) {
@@ -163,6 +172,13 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
           .catch((err) => {
             console.log('cant find: ', err.response);
           });
+        // Clear "game is full" message
+        setGameIsFull(false);
+    }
+
+    if (justEntered) {
+        updateSessionList();
+        setJustEntered(false)
     }
 
     return(
@@ -199,12 +215,15 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
                 </div>
                 <div className='game_list_container'>
                     <h3>Join a game</h3>
-                    <button onClick={() => getAllSessions()}>Refresh</button>
                     <ul>
                         <GetSessionList />
                     </ul>
+                    <button id='start_menu_refresh_button' onClick={() => updateSessionList()}>Refresh list</button>
                 </div>
             </div>
+            {gameIsFull && (
+                <p className='game_session_is_full'>That game session is full!</p>
+            )}
             <button className='startmenu_button' onClick={selectLogin}>Log out</button>
         </div>
         </>
@@ -284,4 +303,3 @@ async function removeAllUpgrades() {
             console.log('cant remove all upgrades:', err);
     });
 }
-
