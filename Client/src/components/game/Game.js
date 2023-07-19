@@ -312,10 +312,15 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     const handleBuyUpgrade = (upgrade) => {
+        // Update upgrade tree
         const upgCopy = {... upgrades};
         upgCopy[upgrade] = true
         setUpgrades(upgCopy);
-        // Send to server
+        // Update the current footers view 
+        const propertiesCopy = {...properties};
+        propertiesCopy.status = true;
+        setProperties(propertiesCopy);
+        // Send new upgrade tree to server
         axios
         .put(`http://localhost:8082/api/upgrades/${upgCopy._id}`, upgCopy)
         .catch((err) => {

@@ -71,6 +71,7 @@ export default function UpgradeUI( {onSelectUpgrade, upgrades} ) {
         const upgradeData = {
             type: 'upgrade',
             data: upgrade,
+            status: upgrades[upgrade],
             name: upgradeNames[upgrade],
             text: upgradeTexts[upgrade],
             costs: upgradeCosts[upgrade]

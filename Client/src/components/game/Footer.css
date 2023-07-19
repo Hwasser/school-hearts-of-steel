@@ -33,8 +33,10 @@
 }
 
 .property_name {
-
+    display: flex;
     flex: 1;
+    align-items: center;
+    justify-content: center;
     border: 1px solid  rgba(0,0,0,0.20);
     border-radius: 2px;
     background-color: rgba(0,0,0,0.20);
@@ -42,8 +44,14 @@
     margin: 4px;
     width:auto;
     font-weight: bold;
-
 }
+
+
+.property_name > *{
+    flex:0 1 auto;
+    margin:2px;
+}
+
 
 .property_button {
     flex: 1;

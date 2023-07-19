@@ -1,5 +1,7 @@
 import axios from 'axios';
 
+import './FootUpgradeView.css';  
+
 /**
  * @brief: The view when selecting an upgrade, shows info about the upgrade and a puchase button
  * 
@@ -14,7 +16,9 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
     const canAffordTools     = provProp['costs']['tools'] <= session.tools[slotIndex];
     const canAffordFuel      = provProp['costs']['fuel']  <= session.fuel[slotIndex];
     const canAffordMaterial  = provProp['costs']['material']  <= session.material[slotIndex];
-    const canAfford = canAffordFood && canAffordTools && canAffordFuel && canAffordMaterial;  
+    const canAfford = canAffordFood && canAffordTools && canAffordFuel && canAffordMaterial; 
+    
+    const alreadyBought = provProp.status;
   
     function handleBuyUpgrade(upgrade) {
       if (canAfford) {
@@ -28,7 +32,6 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
         <div className="footer">
           <div className='footer_row'>
               <div className='property_name'>
-                <span key="upg_name1"> Upgrade: </span>
                 <span key="upg_value1"> {provProp['name']} </span>
               </div>
               <div className='property_name' style={{color: (canAffordFood) ? 'black' : 'firebrick'}}>
@@ -47,7 +50,12 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
                 <span key="upg_name5"> Material: </span>
                 <span key="upg_value5"> {provProp['costs']['material']} </span>
               </div>
-              <button className='property_button' onClick={() => handleBuyUpgrade(provProp['data'])} > Purchase </button>
+              {!alreadyBought && (
+                <button className='property_button' onClick={() => handleBuyUpgrade(provProp['data'])} > Purchase </button>
+              )}
+              {alreadyBought && (
+                <button className='upgrade_bought'> Bought </button>
+              )}
             </div>
             <div className='footer_row'>
               <div className='property_name'>
