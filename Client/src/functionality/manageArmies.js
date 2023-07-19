@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { initUpgrades } from '../upgradeStats';
 const { units } = require('../unitStats');
 
 /**
@@ -37,15 +38,17 @@ export async function armyMove(fromProvince, toProvince, army, fromSlot, armiesC
  *  @param {Integer} toProvince: Which province number to attack to
  *  @param {String} army: The Document Id of the army to attack
  *  @param {Integer} fromSlot: Which slot in the province it attacks from
+ *  @param {JSON} session: Contains the game session
  *  @param {JSON} upgrades: All the upgrades of the attacker
  *  @param {[[String]]} armiesCopy: A copy of the state of all army slots in all provinces
  *  @returns {String} The new owner of the province, empty string if no change 
  */
-export async function armyAttack(fromProvince, toProvince, army, fromSlot, upgrades, armiesCopy) {
+export async function armyAttack(fromProvince, toProvince, army, fromSlot, session, upgrades, armiesCopy) {
     // Fetch data of the attacking army
-    const attackingArmy = await fetchArmy(army);
+    const attackingArmy  = await fetchArmy(army);
     const battleProvince = await getBattleProvince(toProvince);
-
+    const enemyUpgrades  = await getEnemyUpgradeTree(battleProvince.owner, session);
+    
     // Manage army slots of source province
     rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy);
 
@@ -53,7 +56,7 @@ export async function armyAttack(fromProvince, toProvince, army, fromSlot, upgra
     for (let i = 3; i >= 0; i--) {
         if (armiesCopy[i][toProvince] != null) {
             const defendingArmy = await fetchArmy(armiesCopy[i][toProvince]);
-            const result = performBattle(attackingArmy, defendingArmy, battleProvince);
+            const result = performBattle(attackingArmy, defendingArmy, battleProvince, upgrades, enemyUpgrades);
             if (result == 'win') {;
                 console.log("won battle!", attackingArmy['soldiers'], "soldiers left");
                 killArmy(defendingArmy['_id']);
@@ -115,9 +118,11 @@ function rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy) {
  * @param {JSON} attackingArmy: An Army object from the MongoDB data base 
  * @param {JSON} defendingArmy An Army object from the MongoDB data base
  * @param {String} terrain: The terrain of the province - affects battle!
+ * @param {JSON} attackerUpgrades The upgrade tree of the attacker
+ * @param {JSON} defenderUpgrades The upgrade tree of the defender
  * @returns {String} What the outcome is, "win", "lose" or "draw"
  */
-function performBattle(attackingArmy, defendingArmy, battleProvince) {
+function performBattle(attackingArmy, defendingArmy, battleProvince, attackerUpgrades, defenderUpgrades) {
     // Get terrain and the number of forts in the province, since this affect outcome
     const terrain = battleProvince.terrain;
     const forts   = battleProvince.forts;
@@ -126,8 +131,8 @@ function performBattle(attackingArmy, defendingArmy, battleProvince) {
     // VARIANT: 6 soldiers, 4 militia och 2 raiders:
     //          [militia][militia][militia][militia][raider][raider]
     //          each cell containing an entry from units in the unitStats-file
-    let attackingArmyTroops = setUpSoldiers(attackingArmy);
-    let defendingArmyTroops = setUpSoldiers(defendingArmy);
+    let attackingArmyTroops = setUpSoldiers(attackingArmy, attackerUpgrades);
+    let defendingArmyTroops = setUpSoldiers(defendingArmy, defenderUpgrades);
     
     // While at least one side has troops left, continue the battle
     let round = 1;
@@ -201,7 +206,7 @@ function performAttack(attacker, attacked, n, mod, forts) {
     const soldier = attacker[n];
     const enemyNumber = Math.floor(Math.random()*attacked.length)
     // Damage (for example 6-10 means random damage between 6 and 10)
-    const damage = soldier.damage_low + Math.round(Math.random()*(soldier.damage_high - soldier.damage_low));
+    const damage = soldier.damage_low + Math.random()*(soldier.damage_high - soldier.damage_low);
     // How much damage can actually go through the armor
     const inflictedDamage = damage * (1-attacked[enemyNumber].hardness) + soldier.piercing;
     // Change enemy hp depending on terrain modifier
@@ -212,9 +217,10 @@ function performAttack(attacker, attacked, n, mod, forts) {
  * @brief: Sets up array of units, representing an army during battle
  * 
  * @param {JSON} army: The MongoDB document object for the army
+ * @param {JSON} upgrades: The upgrade tree beloning to the owner of the army
  * @returns {Array}: An array of units, each one represented by an object from imported "units"
  */
-function setUpSoldiers(army) {
+function setUpSoldiers(army, upgrades) {
     const armySoldiers = new Array(army.soldiers);
     let n = 0;
     // Add all army types to the list of troops
@@ -261,6 +267,16 @@ function setUpSoldiers(army) {
         n += army.mutant;
     
     }
+    // Apply upgrades to armies
+    const upgradedDamage = 1 + upgrades['upg_weap2_dam'] * 0.1 + upgrades['upg_weap3_dam'] * 0.1;
+    const upgradedArmor  = 0 + upgrades['upg_weap2_arm'] * 10 + upgrades['upg_weap3_arm'] * 10;  
+    for (let i = 0; i < army.soldiers; i++) {
+        armySoldiers[i].hardness += upgradedArmor;
+        armySoldiers[i].damage_low *= upgradedDamage;
+        armySoldiers[i].damage_high *= upgradedDamage;
+        armySoldiers[i].piercing *= upgradedDamage;
+    }
+
     return armySoldiers;
 }
 
@@ -350,4 +366,35 @@ async function getBattleProvince(id) {
     });
 
     return province;
+}
+
+/**
+ * @brief: If the enemy is a player, return its upgrade tree, 
+ *         otherwise return a default upgrade tree
+ * 
+ * @param {String} enemyName: The name of the enemy player 
+ * @param {JSON} session: The current game session
+ * @returns An upgrade tree
+ */
+async function getEnemyUpgradeTree(enemyName, session) {
+    const enemySlot =  session.slot_names.findIndex( (e) => e == enemyName);
+    if (enemySlot >= 0) {
+        return await getUpgradeTree(session.upgrades[enemySlot]);
+    } else {
+        return {...initUpgrades};
+    }
+}
+
+async function getUpgradeTree(upgradeId) {
+    let upgradeTree = {};
+    await axios
+    .get(`http://localhost:8082/api/upgrades/${upgradeId}`)
+        .then((res) => {
+        upgradeTree = res.data;
+        })
+        .catch((err) => {
+        console.log('Failed adding player to session:', err.response);
+    });
+    return upgradeTree;
+
 }

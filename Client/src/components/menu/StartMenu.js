@@ -240,7 +240,6 @@ async function getUpgradeTree(upgradeId) {
 
 }
 
-
 // TODO: Temporary!
 async function removeAllSessions() {
     // Remove all previous sessions TODO: Temporary
