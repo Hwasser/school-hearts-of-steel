@@ -230,7 +230,10 @@ export default function Footer( {
     <>
     <FooterProvince /> 
     {(footerType === 'army') && (
-      <FootArmyView provProp={{... provProp}} upgrades={upgrades} /> 
+      <FootArmyView 
+        provProp={{... provProp}} 
+        upgrades={upgrades}
+        isOwner={player.name === properties.owner} /> 
     )}
     {(footerType === 'upgrade') && (
       <FootUpgradeView 

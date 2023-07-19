@@ -2,10 +2,10 @@ import React from 'react';
 import './FootArmyView.css';  
 const { units } = require('../../unitStats');
 
-export default function armyView({provProp, upgrades}) {
+export default function armyView({provProp, upgrades, isOwner}) {
 
-  const upgradedDamage = 1 + upgrades['upg_weap2_dam'] * 0.1 + upgrades['upg_weap3_dam'] * 0.1;
-  const upgradedArmor  = 0 + upgrades['upg_weap2_arm'] * 10 + upgrades['upg_weap3_arm'] * 10;
+  const upgradedDamage = 1 + upgrades['upg_weap2_dam']*isOwner*0.1 + upgrades['upg_weap3_dam']*isOwner*0.1;
+  const upgradedArmor  = 0 + upgrades['upg_weap2_arm']*isOwner*10 + upgrades['upg_weap3_arm']*isOwner*10;
 
   const ArmyListItem = ({unitName, amount, lowDamage, highDamage, piercing, hardness, hp}) => (
       <>
@@ -67,7 +67,9 @@ export default function armyView({provProp, upgrades}) {
               <span id="army_soldiers_text"> Soldiers: </span>
               <span id="army_soldiers_value"> {provProp['soldiers']} </span>
             </div>
-            <button className='property_button'>Split Army</button>
+            {isOwner && (
+              <button className='property_button'>Split Army</button>
+            )}
           </div>
 
           {listOfUnits}
