@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useState } from 'react';
 
 import './FootUpgradeView.css';  
 
@@ -19,13 +20,33 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
     const canAfford = canAffordFood && canAffordTools && canAffordFuel && canAffordMaterial; 
     
     const alreadyBought = provProp.status;
-  
+    const [canAffordMessage, setCanAffordMessage] = useState(true);
+
     function handleBuyUpgrade(upgrade) {
       if (canAfford) {
         updateSession(provProp['costs'], slotIndex, session._id);
         onBuyUpgrade(upgrade)
+      } else {
+        setCanAffordMessage(false);
       }
     }
+
+  /**
+   * @brief: A Component for a "you cannot afford this upgrade" screen
+   * @returns A merge-popup-window
+   */
+  const PopupCannotAfford = () => {
+    const onAbortMerge = () => {
+      setCanAffordMessage(true);
+    } 
+    
+    return (
+      <div className="popup_cannot_afford">
+      <h3>You cannot afford this upgrade!</h3>
+      <button className='popup_button' onClick={onAbortMerge}>Ok</button>
+      </div>
+    );
+  };
   
     return (
       <>
@@ -63,6 +84,7 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
               </div>
             </div>
         </div>
+        {!canAffordMessage && (<PopupCannotAfford />)}
       </>
     );
   }

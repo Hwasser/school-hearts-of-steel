@@ -13,3 +13,24 @@
     font-size: 12pt;
 
 }
+
+.popup_cannot_afford {
+
+    position: absolute;
+    background-color: antiquewhite;
+    border: 2px solid rgba(0, 0, 0, 0.25);
+    border-radius: 4px;
+
+    width:33%;
+    height: 100px;
+    bottom: 95px;
+    right: 5px;
+    padding: 4px;
+    text-align: center;
+    z-index: 1000;
+}
+
+.popup_button {
+    padding: 3px 12px;
+    margin-bottom: 8px;
+}
