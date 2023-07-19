@@ -60,11 +60,12 @@ export default function UpgradeUI( {onSelectUpgrade, upgrades} ) {
     const UpgButton = ({upgrade}) => {
         const text = upgradeNames[upgrade];
         const deps = [...upgradeDependencies[upgrade]];
+        const hasDependencies = dependencies(deps);
         let color = 'lightgreen';
         // A list of dependencies of this upgrade button
         if (upgrades[upgrade]) {
             color = 'lightgrey';
-        } else if (!dependencies(deps)) {
+        } else if (!hasDependencies) {
             color = 'orangered';
         }
         // A packet of upgrade data to send back to the footer
@@ -72,6 +73,7 @@ export default function UpgradeUI( {onSelectUpgrade, upgrades} ) {
             type: 'upgrade',
             data: upgrade,
             status: upgrades[upgrade],
+            available: hasDependencies,
             name: upgradeNames[upgrade],
             text: upgradeTexts[upgrade],
             costs: upgradeCosts[upgrade]

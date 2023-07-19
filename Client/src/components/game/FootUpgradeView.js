@@ -23,7 +23,7 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
     const [canAffordMessage, setCanAffordMessage] = useState(true);
 
     function handleBuyUpgrade(upgrade) {
-      if (canAfford) {
+      if (canAfford && provProp.available) {
         updateSession(provProp['costs'], slotIndex, session._id);
         onBuyUpgrade(upgrade)
       } else {
@@ -35,14 +35,18 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
    * @brief: A Component for a "you cannot afford this upgrade" screen
    * @returns A merge-popup-window
    */
-  const PopupCannotAfford = () => {
+  const PopupCannotPurchase = () => {
     const onAbortMerge = () => {
       setCanAffordMessage(true);
     } 
+    // Whether cannot afford or doesnt have the required upgrade dependencies
+    const text = (provProp.available) 
+      ? 'You cannot afford this upgrade!'
+      : 'You cannot purchase this upgrade yet!'
     
     return (
-      <div className="popup_cannot_afford">
-      <h3>You cannot afford this upgrade!</h3>
+      <div className="popup_cannot_purchase">
+      <h3>{text}</h3>
       <button className='popup_button' onClick={onAbortMerge}>Ok</button>
       </div>
     );
@@ -84,7 +88,7 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
               </div>
             </div>
         </div>
-        {!canAffordMessage && (<PopupCannotAfford />)}
+        {!canAffordMessage && (<PopupCannotPurchase />)}
       </>
     );
   }
