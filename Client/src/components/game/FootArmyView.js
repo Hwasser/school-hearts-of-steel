@@ -1,5 +1,5 @@
 import React from 'react';
-import './ArmyView.css';  
+import './FootArmyView.css';  
 const { units } = require('../../unitStats');
 
 export default function armyView({provProp, upgrades}) {
