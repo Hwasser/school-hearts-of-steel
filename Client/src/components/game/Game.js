@@ -16,7 +16,7 @@ import {
     receiveUpdateProvince} 
     from '../../functionality/receiveEvents';
 import { armyMove, armyAttack } from '../../functionality/manageArmies';
-import { initUpgrades } from '../../upgradeStats';
+
 /**
  * @brief: This Component represents a running game session
  * 
@@ -27,7 +27,7 @@ import { initUpgrades } from '../../upgradeStats';
  * @param {function} onExitGame: Calls a function to send the player back to the menu
  * @returns 
  */
-export default function Game({player, sessionData, slotIndex, onWonGame, onExitGame}) {    
+export default function Game({player, sessionData, upgradeTree, slotIndex, onWonGame, onExitGame}) {    
     //--------------------------------------
     // ------------- Init data -------------
 
@@ -52,12 +52,13 @@ export default function Game({player, sessionData, slotIndex, onWonGame, onExitG
     const [hasStarted, setHasStarted] = useState(false);
     // Whether to use the upgrade view or the game view
     const [upgradeView, setUpgradeView] = useState(false);
-    const [upgrades, setUpgrades] = useState(initUpgrades);
+    const [upgrades, setUpgrades] = useState({});
 
     // Fetch province information from the server once when opening the game
     // and set slot index of the player.
     // (in the game session each player fits in a slot in arrays of information)
     if (!hasStarted) {
+        setUpgrades(upgradeTree);
         initAllProvinces();
         setHasStarted(true);
     }

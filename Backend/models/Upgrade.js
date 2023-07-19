@@ -3,10 +3,6 @@ const mongoose = require('mongoose');
 // A game session
 
 const UpgradeSchema = new mongoose.Schema({
-    slot_ids: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true
-    },
     upg_weap1: {
         type: Boolean,
         required: true
