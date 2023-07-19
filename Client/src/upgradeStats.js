@@ -61,58 +61,58 @@ const initUpgrades = {
 // The cost of each upgrade
 const upgradeCosts = {
     upg_weap1: {
-        food: 0,
+        food: 100,
         tools: 0,
         fuel: 0,
-        material: 0
+        material: 100
     },
     upg_weap2_dam: {
         food: 0,
-        tools: 0,
-        fuel: 0,
-        material: 0
+        tools: 150,
+        fuel: 50,
+        material: 100
     },
     upg_weap2_arm: {
         food: 0,
-        tools: 0,
-        fuel: 0,
-        material: 0
+        tools: 100,
+        fuel: 50,
+        material: 150
     },
     upg_weap2_mot: {
         food: 0,
-        tools: 0,
-        fuel: 0,
-        material: 0
+        tools: 50,
+        fuel: 100,
+        material: 50
     },
     upg_weap3_dam: {
         food: 0,
-        tools: 0,
-        fuel: 0,
-        material: 0
+        tools: 250,
+        fuel: 100,
+        material: 100
     },
     upg_weap3_arm: {
         food: 0,
-        tools: 0,
-        fuel: 0,
-        material: 0
+        tools: 100,
+        fuel: 100,
+        material: 250
     },
     upg_tech1: {
-        food: 0,
-        tools: 0,
+        food: 100,
+        tools: 100,
         fuel: 0,
-        material: 0
+        material: 100
     },
     upg_tech2: {
-        food: 0,
-        tools: 0,
-        fuel: 0,
-        material: 0
+        food: 200,
+        tools: 200,
+        fuel: 200,
+        material: 200
     },
     upg_tech3: {
-        food: 0,
-        tools: 0,
-        fuel: 0,
-        material: 0
+        food: 400,
+        tools: 400,
+        fuel: 400,
+        material: 400
     }
 }
 
