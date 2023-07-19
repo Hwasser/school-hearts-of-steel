@@ -315,7 +315,12 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const upgCopy = {... upgrades};
         upgCopy[upgrade] = true
         setUpgrades(upgCopy);
-        // TODO: Send to server
+        // Send to server
+        axios
+        .put(`http://localhost:8082/api/upgrades/${upgCopy._id}`, upgCopy)
+        .catch((err) => {
+            console.log('Couldnt update upgrade tree: ' + err);
+        });  
     };
 
     const handeSelectUpgrade = (upgrade) => {
