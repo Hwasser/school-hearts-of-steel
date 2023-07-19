@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 /**
  * @brief: The view when selecting an upgrade, shows info about the upgrade and a puchase button
  * 
@@ -16,6 +18,7 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
   
     function handleBuyUpgrade(upgrade) {
       if (canAfford) {
+        updateSession(provProp['costs'], slotIndex, session._id);
         onBuyUpgrade(upgrade)
       }
     }
@@ -56,3 +59,21 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
     );
   }
   
+    // Update the player resources in the session
+    function updateSession(curCost, slotIndex, sessionId) {
+      // A package with data to send to the backend
+      const updatePackage = {
+        food: curCost['food'],
+        fuel: curCost['fuel'],
+        tools: curCost['tools'],
+        material: curCost['material'],
+        purpose: 'buy_stuff',
+        slotIndex: slotIndex,
+      };
+      
+      axios
+      .put(`http://localhost:8082/api/sessions/${sessionId}`, updatePackage)
+      .catch((err) => {
+          console.log('Couldnt update the session: ' + err);
+      });  
+    }
