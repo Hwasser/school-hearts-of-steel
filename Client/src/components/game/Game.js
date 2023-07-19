@@ -251,7 +251,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         // Perform movement or attack of army
         let newOwner = '';
         if (isAttacking) {
-            newOwner = await armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy);
+            newOwner = await armyAttack(fromProvince, toProvince, army, fromSlot, upgrades, armiesCopy);
         } else {
             await armyMove(fromProvince, toProvince, army, fromSlot, armiesCopy);
         }

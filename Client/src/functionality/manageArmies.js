@@ -8,11 +8,11 @@ const { units } = require('../unitStats');
 
 /** @brief: Moves army between two provinces
  * 
- *  @param (number) fromProvince: Which province number to move from
- *  @param (number) toProvince: Which province number to move to
- *  @param (string) army: The Document Id of the army to move
- *  @param (number) fromSlot: Which slot in the province it moves from
- *  @param (2d array of string) armiesCopy: A copy of the state of all army slots in all provinces
+ *  @param {Integer} fromProvince: Which province number to move from
+ *  @param {Integer} toProvince: Which province number to move to
+ *  @param {String} army: The Document Id of the army to move
+ *  @param {Integer} fromSlot: Which slot in the province it moves from
+ *  @param {[[String]]} armiesCopy: A copy of the state of all army slots in all provinces
  */
 export async function armyMove(fromProvince, toProvince, army, fromSlot, armiesCopy) {
     // Manage army slots of source province
@@ -33,14 +33,15 @@ export async function armyMove(fromProvince, toProvince, army, fromSlot, armiesC
 
 /** @brief: Makes an army attack a province
  * 
- *  @param (number) fromProvince: Which province number to attack from
- *  @param (number) toProvince: Which province number to attack to
- *  @param (string) army: The Document Id of the army to attack
- *  @param (number) fromSlot: Which slot in the province it attacks from
- *  @param (2d array of string) armiesCopy: A copy of the state of all army slots in all provinces
- *  @returns (string) The new owner of the province, empty string if no change 
+ *  @param {Integer} fromProvince: Which province number to attack from
+ *  @param {Integer} toProvince: Which province number to attack to
+ *  @param {String} army: The Document Id of the army to attack
+ *  @param {Integer} fromSlot: Which slot in the province it attacks from
+ *  @param {JSON} upgrades: All the upgrades of the attacker
+ *  @param {[[String]]} armiesCopy: A copy of the state of all army slots in all provinces
+ *  @returns {String} The new owner of the province, empty string if no change 
  */
-export async function armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy) {
+export async function armyAttack(fromProvince, toProvince, army, fromSlot, upgrades, armiesCopy) {
     // Fetch data of the attacking army
     const attackingArmy = await fetchArmy(army);
     const battleProvince = await getBattleProvince(toProvince);
