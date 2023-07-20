@@ -311,6 +311,19 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         setArmies(armyCopy);
     }
 
+    const handleSplitArmy = (leftArmy, rightArmy, leftArmyId) => {
+        console.log("left:", leftArmy, "right:", rightArmy, "id:", leftArmyId);
+
+        // TODO: Check which province the army is in
+
+        // TODO: Check whether there are actually slots available in the province!
+
+        // TODO: Update left army
+
+        // TODO: Post right army
+
+    };
+
     const handleBuyUpgrade = (upgrade) => {
         // Update upgrade tree
         const upgCopy = {... upgrades};
@@ -339,10 +352,11 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     // and remember the states of the rest.
     const footer = React.useMemo( () => 
         <Footer 
-            properties={properties} 
+            onSplitArmy={handleSplitArmy}
             onRaiseArmy={handleRaiseArmy} 
             onBuildBuilding={handleBuildBuilding} 
             onBuyUpgrade={handleBuyUpgrade} 
+            properties={properties} 
             session={session}
             upgrades={upgrades}
             slotIndex={slotIndex}
@@ -371,13 +385,13 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             <>
             <div className='game_view'>
                 <Receiver 
-                        onUpdateResources={handleUpdateResources} 
-                        onUpdateProvince={handleUpdateProvince} 
-                        onMoveArmy={handleMoveArmy}
-                        onAttackArmy={handleAttackArmy}
-                        onPlayerJoined={handlePlayerJoined}
-                        onPlayerWon={handlePlayerWon} 
-                        onMergeArmies={handleBroadcastMergeArmies}
+                    onUpdateResources={handleUpdateResources} 
+                    onUpdateProvince={handleUpdateProvince} 
+                    onMoveArmy={handleMoveArmy}
+                    onAttackArmy={handleAttackArmy}
+                    onPlayerJoined={handlePlayerJoined}
+                    onPlayerWon={handlePlayerWon} 
+                    onMergeArmies={handleBroadcastMergeArmies}
                 />
                 <Header 
                     onExitGame={onExitGame}

@@ -1,9 +1,13 @@
+import axios from 'axios';
 import { useState } from 'react';
 import './FootArmyView.css';  
 const { units } = require('../../unitStats');
 
-export default function FootArmyView({provProp, upgrades, isOwner}) {
+export default function FootArmyView({onSplitArmy, provProp, upgrades, isOwner}) {
+  // Whether or not to use the split menu
   const [splitMenu, setSplitMenu] = useState(false);
+  // The subset of the army to split to a new army
+  const [splitValue, setSplitValue] = useState({});
 
   const upgradedDamage = 1 + upgrades['upg_weap2_dam']*isOwner*0.1 + upgrades['upg_weap3_dam']*isOwner*0.1;
   const upgradedArmor  = 0 + upgrades['upg_weap2_arm']*isOwner*10 + upgrades['upg_weap3_arm']*isOwner*10;
@@ -37,43 +41,7 @@ export default function FootArmyView({provProp, upgrades, isOwner}) {
       </>
   );
 
-  function ArmySplitItem({unitName, amount}) {
-    // The value of the slider
-    const [state, setSlide] = useState(0);
-    // Change slider itself
-    const Slider = ({amount}) => {
-      const handleChange = e => {
-        setSlide(e.target.value);
-      };
-  
-      return (
-        <input 
-          type="range" 
-          className="split_slider" 
-          min="0" 
-          max={amount} 
-          step={1.0}
-          value={state}
-          onChange={handleChange} />
-      );
-    }
-    // The view for each unit in the split menu
-    return (
-      <div className='army_row'>
-        <div className='army_property'>
-          <span id="army_type1_text"> {unitName}: </span>
-          <span id="army_type1_value"> {amount-state} </span>
-        </div>
-        <Slider amount={amount} />
-        <div className='army_property'>
-          <span id="army_type1_text"> {unitName}: </span>
-          <span id="army_type1_value"> {state} </span>
-        </div>
-      </div>
-    );
-  }
-  
-
+  // Add a list of units for the army view
   function addListOfUnits() {
     for (let u in units) {
       if (provProp[u] != null) {
@@ -95,17 +63,22 @@ export default function FootArmyView({provProp, upgrades, isOwner}) {
     }
   }
 
+  // Add a list of units for the split view
   function addListOfUnitsSplit() {
     for (let u in units) {
       if (provProp[u] != null) {
         listOfUnits.push(<ArmySplitItem 
           unitName={units[u].name}
+          unitType={u}
           amount={provProp[u]}
+          splitValue={splitValue}
+          setSplitValue={setSplitValue}
         />);
       }
     }
   }
 
+  // Generates a list of HTML-objects for either the army-view or the split-view
   const listOfUnits = [];
   if (!splitMenu) {
     addListOfUnits()
@@ -113,6 +86,37 @@ export default function FootArmyView({provProp, upgrades, isOwner}) {
     addListOfUnitsSplit();
   }
 
+  const handleSplit = () => {
+    // The representation of the left and right side split
+    const leftArmy = {};
+    const rightArmy = {};
+    // Whether a split actually occurs
+    let leftArmyExists = false;
+    let rightArmyExists = false;
+    // Split armies into a left and right army
+    for (let u in units) {
+      if (!provProp[u]) {
+        continue;
+      }
+      const giveOver = (splitValue[u] == null) ? 0 : splitValue[u]; 
+      const keep = provProp[u] - giveOver;
+
+      if (keep > 0) {
+        leftArmy[u]  = provProp[u] - giveOver;
+        leftArmyExists = true;
+      }
+      if (giveOver > 0) {
+        rightArmy[u] = giveOver;
+        rightArmyExists = true;
+      }
+    }
+    // Ignore split all together if all soldiers are put in either side
+    if (leftArmyExists && rightArmyExists) {
+      onSplitArmy(leftArmy, rightArmy, provProp._id);
+    } else {
+      console.log("Cannot split into an empty army!");
+    }
+  };
 
   return (
       <>
@@ -131,7 +135,7 @@ export default function FootArmyView({provProp, upgrades, isOwner}) {
             )}
             {isOwner && splitMenu && (
               <>
-                <button className='property_button'>Confirm</button>
+                <button className='property_button' onClick={() => handleSplit()}>Confirm</button>
                 <button className='property_button' onClick={() => toggleSplitMenu()}>Cancel</button>
               </>
             )}
@@ -142,3 +146,49 @@ export default function FootArmyView({provProp, upgrades, isOwner}) {
   );
 }
 
+/**
+ * @brief: Represent a unit in the split menu. Include a slider and the split amount 
+ *         on each side of the slider. 
+ * 
+ * @param {String} unitName: The name of the unit
+ * @param {Integer} amount: The amount of soldiers of this unit type 
+ * @returns A react component
+ */
+function ArmySplitItem({unitName, unitType, amount, splitValue, setSplitValue}) {
+  // The value of the slider
+  const [state, setSlide] = useState(0);
+  // Change slider itself
+  const Slider = ({amount}) => {
+    const handleChange = e => {
+      setSlide(e.target.value);
+      const splitValueCopy = {...splitValue}
+      splitValueCopy[unitType] = e.target.value;
+      setSplitValue(splitValueCopy)
+    };
+
+    return (
+      <input 
+        type="range" 
+        className="split_slider" 
+        min="0" 
+        max={amount} 
+        step={1.0}
+        value={state}
+        onChange={handleChange} />
+    );
+  }
+  // The view for each unit in the split menu
+  return (
+    <div className='army_row'>
+      <div className='army_property'>
+        <span id="army_type1_text"> {unitName}: </span>
+        <span id="army_type1_value"> {amount-state} </span>
+      </div>
+      <Slider amount={amount} />
+      <div className='army_property'>
+        <span id="army_type1_text"> {unitName}: </span>
+        <span id="army_type1_value"> {state} </span>
+      </div>
+    </div>
+  );
+}
