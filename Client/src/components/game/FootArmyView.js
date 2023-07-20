@@ -37,19 +37,42 @@ export default function FootArmyView({provProp, upgrades, isOwner}) {
       </>
   );
 
-  const ArmySplitItem = ({unitName, amount}) => (
-    <div className='army_row'>
-      <div className='army_property'>
-        <span id="army_type1_text"> {unitName}: </span>
-        <span id="army_type1_value"> {amount} </span>
+  function ArmySplitItem({unitName, amount}) {
+    // The value of the slider
+    const [state, setSlide] = useState(0);
+    // Change slider itself
+    const Slider = ({amount}) => {
+      const handleChange = e => {
+        setSlide(e.target.value);
+      };
+  
+      return (
+        <input 
+          type="range" 
+          className="split_slider" 
+          min="0" 
+          max={amount} 
+          step={1.0}
+          value={state}
+          onChange={handleChange} />
+      );
+    }
+    // The view for each unit in the split menu
+    return (
+      <div className='army_row'>
+        <div className='army_property'>
+          <span id="army_type1_text"> {unitName}: </span>
+          <span id="army_type1_value"> {amount-state} </span>
+        </div>
+        <Slider amount={amount} />
+        <div className='army_property'>
+          <span id="army_type1_text"> {unitName}: </span>
+          <span id="army_type1_value"> {state} </span>
+        </div>
       </div>
-      <input type="range" className="split_slider" min="1" max={amount} value={Math.round(amount/2)} />
-      <div className='army_property'>
-        <span id="army_type1_text"> {unitName}: </span>
-        <span id="army_type1_value"> {amount} </span>
-    </div>
-    </div>
-  );
+    );
+  }
+  
 
   function addListOfUnits() {
     for (let u in units) {
