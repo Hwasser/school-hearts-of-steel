@@ -11,6 +11,8 @@ export default function ProvinceBuild(
     { buildingType, setInactive, fromProvince, onBuildMenu, session, slotIndex} ) {
     const [errorMessage, setErrorMessage] = useState('');
 
+    const maxBuildings = 5;
+
     // Whether we can afford this building
     const canAffordFood     = buildings[buildingType]['food']     <= session.food[slotIndex];
     const canAffordFuel     = buildings[buildingType]['fuel']     <= session.fuel[slotIndex];
@@ -26,7 +28,7 @@ export default function ProvinceBuild(
 
     function onConfirmButton() {
         const buildingTypes = buildingType + "s";
-        if (fromProvince[buildingTypes] > 9) {
+        if (fromProvince[buildingTypes] >= maxBuildings) {
             setErrorMessage("You cannot construct more buildings of that type in this province!");
             return;
         } else if (!canAffordFood || !canAffordFuel || !canAffordTools || !canAffordMaterial) {
