@@ -90,8 +90,27 @@
   }
 
   .army_type_selected {
-    background-color: rgba(90, 255, 90, 0.75);
+    background-color: rgba(90, 255, 90, 0.5);
+    border: 2px solid grey;
+    border-radius: 5px;
   }
+
+  .startmenu_button {
+    padding: 4px 4px;
+    margin: 4px;
+    width: 90%;
+    white-space: nowrap;
+}
+
+.startmenu_button_selected {
+    background-color: rgba(90, 255, 90, 0.5);
+    border: 2px solid grey;
+    border-radius: 5px;
+    padding: 4px 4px;
+    margin: 4px;
+    width: 90%;
+    white-space: nowrap;
+}
 
   .army_type {
     margin-bottom:8px;

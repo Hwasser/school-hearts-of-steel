@@ -1,7 +1,8 @@
 import './Footer.css';  
 import RaiseArmy from './RaiseArmy';
 import ProvinceBuild from './ProvinceBuild';
-import ArmyView from './ArmyView';
+import FootArmyView from './FootArmyView';
+import FootUpgradeView from './FootUpgradeView';
 import { useState } from 'react';
 
 /**
@@ -18,14 +19,16 @@ export default function Footer( {
   properties, 
   onRaiseArmy, 
   onBuildBuilding, 
+  onBuyUpgrade,
   session, 
+  upgrades,
   slotIndex, 
   player} ) {
 
   const [provProp, setProvProp] = useState(properties);
   const [useRaiseMenu, setuseRaiseMenu] = useState(false);
   const [useBuildMenu, setUseBuildMenu] = useState('none');
-  const [isProvince, setIsProvince] = useState(true);
+  const [footerType, setFooterType] = useState('province');
   
   // For deactivating menus
   const makeSliderInactive = () => {setuseRaiseMenu(false)};  
@@ -61,13 +64,17 @@ export default function Footer( {
   }
 
   // Whether to show properties for a province or an army
-  if (properties['soldiers'] == null) {
-    if (isProvince === false) {
-      setIsProvince(true);
+  if (properties['soldiers'] != null) {
+    if (footerType !== 'army') {
+      setFooterType('army');
+    }
+  } else if (properties['type'] == 'upgrade') {
+    if (footerType !== 'upgrade') {
+      setFooterType('upgrade');
     }
   } else {
-    if (isProvince === true) {
-      setIsProvince(false);
+    if (footerType !== 'province') {
+      setFooterType('province');
     }
   }
 
@@ -138,7 +145,7 @@ export default function Footer( {
 
   const FooterProvince = () => (
     <>
-    {isProvince && (
+    {(footerType === 'province') && (
       <div className="footer">
 
       <RaiseArmy 
@@ -222,8 +229,18 @@ export default function Footer( {
   return (
     <>
     <FooterProvince /> 
-    {!isProvince && (
-      <ArmyView provProp={{... provProp}} /> 
+    {(footerType === 'army') && (
+      <FootArmyView 
+        provProp={{... provProp}} 
+        upgrades={upgrades}
+        isOwner={player.name === properties.owner} /> 
+    )}
+    {(footerType === 'upgrade') && (
+      <FootUpgradeView 
+        provProp={{... provProp}} 
+        onBuyUpgrade={onBuyUpgrade} 
+        session={session} 
+        slotIndex={slotIndex} /> 
     )}
     </>
   );

@@ -1,10 +1,12 @@
 import React from 'react'
 import axios from 'axios';
+import { useState, useMemo } from 'react';  
 
 import './Game.css';
 import Header from './Header';
-import GameUI from './GameUI';
 import Footer from './Footer';
+import GameUI from './GameUI';
+import UpgradeUI from './UpgradeUI';
 import Receiver from '../Receiver';
 import {
     receiveMoveArmy, 
@@ -13,26 +15,32 @@ import {
     receiveJoinedPlayer, 
     receiveUpdateProvince} 
     from '../../functionality/receiveEvents';
-
 import { armyMove, armyAttack } from '../../functionality/manageArmies';
 
-import { useState, useMemo } from 'react';  
-
-export default function Game({player, sessionData, slotIndex, onWonGame}) {    
-
+/**
+ * @brief: This Component represents a running game session
+ * 
+ * @param {JSON} player: See the Player-model in the backend    
+ * @param {JSON} session: See the Session-model in the backend
+ * @param {Integer} slotIndex: Which index the current player has in the game session
+ * @param {function} onWongame: Calls a function to win the game
+ * @param {function} onExitGame: Calls a function to send the player back to the menu
+ * @returns 
+ */
+export default function Game({player, sessionData, upgradeTree, slotIndex, onWonGame, onExitGame}) {    
     //--------------------------------------
     // ------------- Init data -------------
 
     const nProvinces = sessionData.world_size;
     
-    // All properties for a province or an army
+    // All properties for a province, an army or a upgrade
     const [properties, setProperties] = useState(defaultProvinceState);
     // An array containing the names of all provinces
     const [provinceNames, setProvinceNames] = useState(Array(nProvinces).fill('-'));
-    // An array containing the documentId of all provinces
-    const [provinceId, setProvinceId] = useState(Array(nProvinces).fill('')); // TODO: Remove?
-    // An array containing the owners of all provinces
+    // Arrays containing the owners, flavors and terrains of all provinces
     const [provinceOwners, setProvinceOwners] = useState(Array(nProvinces).fill('Neutral'));
+    const [provinceFlavors, setProvinceFlavors] = useState(Array(nProvinces).fill('-'));
+    const [provinceTerrains, setProvinceTerrains] = useState(Array(nProvinces).fill('-'));
     // Contains the documentId of each army in each slot and province
     // VARIANT: armies[slot][province index]  
     const [armies, setArmies] = useState([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
@@ -42,22 +50,27 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
     const [session, setSession] = useState(sessionData);
     // We keep this state so we can fetch province data and stuff when the game starts
     const [hasStarted, setHasStarted] = useState(false);
-    const [provinceFlavors, setProvinceFlavors] = useState(Array(nProvinces).fill('-'));
-    const [provinceTerrains, setProvinceTerrains] = useState(Array(nProvinces).fill('-'));
+    // Whether to use the upgrade view or the game view
+    const [upgradeView, setUpgradeView] = useState(false);
+    const [upgrades, setUpgrades] = useState({});
 
     // Fetch province information from the server once when opening the game
     // and set slot index of the player.
     // (in the game session each player fits in a slot in arrays of information)
     if (!hasStarted) {
+        setUpgrades(upgradeTree);
         initAllProvinces();
         setHasStarted(true);
+    }
+
+    const handleUpgradeView = () => {
+        setUpgradeView(!upgradeView);
     }
 
     // Init all provinces when booting up the game
     function initAllProvinces(index) {
         const localProvinceNames = Array(nProvinces);
         const localProvinceOwners = Array(nProvinces);
-        const localProvinceId = Array(nProvinces);
         const localProvinceFlavors = Array(nProvinces);
         const localProvinceTerrains = Array(nProvinces);
         const localArmy1 = Array(nProvinces);
@@ -73,7 +86,6 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
                     const index = province.id;
                     localProvinceNames[index] = province.name;
                     localProvinceOwners[index] = province.owner;
-                    localProvinceId[index] = province._id;
                     localProvinceFlavors[index] = province.flavor;
                     localProvinceTerrains[index] = province.terrain;
                     localArmy1[index] = province.army1;
@@ -86,7 +98,6 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
                 setProvinceTerrains(localProvinceTerrains);
                 setProvinceNames(localProvinceNames);
                 setProvinceOwners(localProvinceOwners);
-                setProvinceId(localProvinceId);
                 setArmies([localArmy1, localArmy2, localArmy3, localArmy4]);
             }
         })
@@ -105,8 +116,6 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
     }
 
     const handleUpdateProvince = (message) => {
-        console.log("handleUpdateProvince happens!");
-        //TODO: Can this be removed?s
         const province = message;
         // Make a copy of old state
         const armiesCopy = [... armies];
@@ -120,7 +129,6 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         // Replace with copy
         setArmies(armiesCopy);
         setProvinceOwners(ownersCopy);
-        // TODO: ..?   
     }
 
     /**
@@ -243,7 +251,7 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         // Perform movement or attack of army
         let newOwner = '';
         if (isAttacking) {
-            newOwner = await armyAttack(fromProvince, toProvince, army, fromSlot, armiesCopy);
+            newOwner = await armyAttack(fromProvince, toProvince, army, fromSlot, session, upgrades, armiesCopy);
         } else {
             await armyMove(fromProvince, toProvince, army, fromSlot, armiesCopy);
         }
@@ -303,6 +311,30 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
         setArmies(armyCopy);
     }
 
+    const handleBuyUpgrade = (upgrade) => {
+        // Update upgrade tree
+        const upgCopy = {... upgrades};
+        upgCopy[upgrade] = true
+        setUpgrades(upgCopy);
+        // Update the current footers view 
+        const propertiesCopy = {...properties};
+        propertiesCopy.status = true;
+        setProperties(propertiesCopy);
+        // Send new upgrade tree to server
+        axios
+        .put(`http://localhost:8082/api/upgrades/${upgCopy._id}`, upgCopy)
+        .catch((err) => {
+            console.log('Couldnt update upgrade tree: ' + err);
+        });  
+    };
+
+    const handeSelectUpgrade = (upgrade) => {
+        setProperties({...upgrade});
+    };
+
+    //------------------------------------------
+    // --------- Handle the game views ---------
+
     // Specify exactly which states that re-renders this component
     // and remember the states of the rest.
     const footer = React.useMemo( () => 
@@ -310,10 +342,12 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
             properties={properties} 
             onRaiseArmy={handleRaiseArmy} 
             onBuildBuilding={handleBuildBuilding} 
+            onBuyUpgrade={handleBuyUpgrade} 
             session={session}
+            upgrades={upgrades}
             slotIndex={slotIndex}
             player={player}
-        />, [properties] );
+        />, [properties, upgrades] );
 
     // Specify exactly which states that re-renders this component
     // and remember the states of the rest.
@@ -345,8 +379,18 @@ export default function Game({player, sessionData, slotIndex, onWonGame}) {
                         onPlayerWon={handlePlayerWon} 
                         onMergeArmies={handleBroadcastMergeArmies}
                 />
-                <Header player={player} session={session} slotIndex={slotIndex} />
-                {gameui}
+                <Header 
+                    onExitGame={onExitGame}
+                    onUpgradeView={handleUpgradeView}
+                    player={player} 
+                    session={session} 
+                    slotIndex={slotIndex} 
+                    upgradeView={upgradeView}
+                />
+                {!upgradeView && (gameui)}
+                {upgradeView  && (<UpgradeUI 
+                                    onSelectUpgrade={handeSelectUpgrade} 
+                                    upgrades={upgrades} />)}
                 {footer}
             </div>
             </>

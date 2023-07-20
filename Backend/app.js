@@ -8,6 +8,7 @@ const provinces = require('./routes/api/provinces');
 const armies = require('./routes/api/armies');
 const players = require('./routes/api/players');
 const sessions = require('./routes/api/sessions');
+const upgrades = require('./routes/api/upgrades');
 
 const app = express();
 const appSSE = express();
@@ -77,6 +78,7 @@ app.use('/api/provinces', provinces);
 app.use('/api/armies', armies);
 app.use('/api/players', players);
 app.use('/api/sessions', sessions);
+app.use('/api/upgrades', upgrades);
 
 const port = process.env.PORT || 8082;
 const port2 = 5001;

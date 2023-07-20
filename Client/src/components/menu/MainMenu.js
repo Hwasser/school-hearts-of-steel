@@ -13,9 +13,9 @@ export default function MainMenu( {onJoinGame} ) {
         setWhichMenu('start');        
     }
 
-    function handleJoinGame(sessionData) {
+    function handleJoinGame(sessionData, upgradeTree, playerSlot) {
         console.log("STARTED GAME!");
-        onJoinGame(playerData, sessionData);
+        onJoinGame(playerData, sessionData, upgradeTree, playerSlot);
     }
 
     const setRegisterMenu = () => {setWhichMenu('register')};
