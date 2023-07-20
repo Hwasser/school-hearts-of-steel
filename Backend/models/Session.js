@@ -38,6 +38,10 @@ const SessionSchema = new mongoose.Schema({
     world_size: {
         type: Number,
         required: true
+    },
+    time: {
+        type: Number,
+        required: true
     }
 });
 

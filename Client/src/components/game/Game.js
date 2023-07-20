@@ -111,8 +111,10 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     //--------------------------------------------------
     // --------- Handle updates from the server --------
 
-    const handleUpdateResources = (message) => {
+    // Fetch "hourly" update from server
+    const handleUpdateSession = (message) => {
         const updatedSession = receiveResourceUpdate(message, {... session}, slotIndex);
+        updatedSession.time = message.time;
         setSession(updatedSession);
     }
 
@@ -188,7 +190,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         }
     }
 
-    // Fetch daily harvested resources from database and att to player
+    // When buying something, get the new resource status from the server
     function fetchResourceUpdates() {
         axios
         .get(`http://localhost:8082/api/sessions/${session._id}`)
@@ -438,7 +440,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             <>
             <div className='game_view'>
                 <Receiver 
-                    onUpdateResources={handleUpdateResources} 
+                    onUpdateResources={handleUpdateSession} 
                     onUpdateProvince={handleUpdateProvince} 
                     onMoveArmy={handleMoveArmy}
                     onAttackArmy={handleAttackArmy}

@@ -127,6 +127,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
             slot_ids: [playerData._id],
             upgrades: [upgradeTrees[0]],
             world_size: worldSize,
+            time: 0,
             food: [100],
             fuel: [100],
             material: [100],

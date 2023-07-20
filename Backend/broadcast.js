@@ -16,7 +16,7 @@ function gameSessionStart(id) {
         console.log("broadcast: started game session", id);
         // A loop for updating resources for all users
         const sessionLoop = setInterval(() => {
-            updateResources(id);
+            updateSession(id);
         }, timePerUpdate);
         // Add session to list of sessions
         const gameSession = {id: id, loop: sessionLoop};
@@ -108,8 +108,14 @@ function broadcastMessage(message) {
     });
   }
 
-async function updateResources(id) {
+/**
+ * @brief: Update the session for each tick
+ * 
+ * @param {String} id: The document id of the session 
+ */
+async function updateSession(id) {
     try {
+        // Fetch data from database
         const provinces = await Province.find({});
         const sessions = await Session.findById(id);
         const nUsers = sessions.max_slots;
@@ -118,12 +124,14 @@ async function updateResources(id) {
         for (let i = 0; i < nUsers; i++) {
             await updatePerUser(i, sessions, userResources);
         }
+        // Update time
+        sessions.time += 1;
         // Store and broadcast updated value
         sessions.save();
         for (let i = 0; i < provinces.length; i++) {
             provinces[i].save();
         }
-        const message = JSON.stringify({purpose: 'update_resources', package: sessions});
+        const message = JSON.stringify({purpose: 'update_session', package: sessions});
         broadcastMessage(message);
     } catch (err) {
         console.log("Couldnt update res:", err);
@@ -194,7 +202,7 @@ function mineResources(provinces, users) {
  */
 function scavangeResource(provinces, n, workforce, resource) {
     const scavangeRatio = 0.05 + Math.random() * 0.05; // How much resources to scavange per manpower
-    const scavangeRes = workforce * scavangeRatio;
+    const scavangeRes = Math.round(workforce * scavangeRatio);
     const scavangeResActual = (scavangeRes > provinces[n][resource]) ? provinces[n][resource] : scavangeRes; 
     provinces[n][resource] -= scavangeResActual;
     return scavangeResActual;
