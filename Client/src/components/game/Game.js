@@ -32,6 +32,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     // ------------- Init data -------------
 
     const nProvinces = sessionData.world_size;
+    const maxArmySlots = 4; // Max army slots in province
     
     // All properties for a province, an army or a upgrade
     const [properties, setProperties] = useState(defaultProvinceState);
@@ -276,10 +277,9 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     function handleMergeArmies(army1, army2, inProvince) {
         const armyCopy = [... armies];
         const armySlotPos = new Array(); // The new position of armies in slots in province
-        const maxSlots = 4;
 
         // Push all armies but the one that we are going to merge
-        for (let i = 0; i < maxSlots; i++) {
+        for (let i = 0; i < maxArmySlots; i++) {
             if (armyCopy[i][inProvince] != army2) {
                 armySlotPos.push(armyCopy[i][inProvince]);
             }
@@ -311,9 +311,8 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         setArmies(armyCopy);
     }
 
-    const handleSplitArmy = (leftArmy, rightArmy, leftArmyId) => {
+    async function handleSplitArmy(leftArmy, rightArmy, leftArmyId) {
         console.log("left:", leftArmy, "right:", rightArmy, "id:", leftArmyId);
-
         // Check which province and slot the army is in
         let province = 0;
         let slot = 0;
@@ -326,8 +325,8 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             }
         }
         // Check whether there are free slots available in the province!
-        let freeSlots = 4;
-        for (let i = 0; i < 4; i++) {
+        let freeSlots = maxArmySlots;
+        for (let i = 0; i < maxArmySlots; i++) {
             if (armies[i][province] != null) {
                 freeSlots--;
             }
@@ -335,15 +334,48 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         if (freeSlots == 0) {
             console.log("No free slots in the province!") // TODO: Add view for this
         }
-        // TODO: Post changes to left army
-
-        // TODO: Post new right army
-
-        // TODO: Update province to contain both new armies
-
+        // Add information to armies
+        leftArmy['session'] = session._id;
+        leftArmy['owner']   = provinceOwners[province];
+        rightArmy['session'] = session._id;
+        rightArmy['owner']   = provinceOwners[province];
+        // Post changes to left army
+        let newLeftId  = "";
+        await axios
+        .put(`http://localhost:8082/api/armies/${leftArmyId}`, leftArmy)
+        .then((res) => {newLeftId = res.data.armydata._id})
+        .catch((err) => {
+            console.log('Error in updating army: ' + err);
+        });
+        // Post new right army
+        let newRightId = "";
+        await axios
+            .post(`http://localhost:8082/api/armies/`, rightArmy)
+            .then((res) => {newRightId = res.data.armydata._id})
+            .catch((err) => {
+                console.log('Error in posting army: ' + err);
+        });
+        // Re-order the slots with the new armies
+        const newProvinceSlots = [];
+        for (let i = 0; i < maxArmySlots; i++) {
+            if (armies[i][province] != leftArmyId && armies[i][province] != null) {
+                newProvinceSlots.push(armies[i][province]);
+            }
+        }
+        newProvinceSlots.push(newLeftId);
+        newProvinceSlots.push(newRightId);
         // TODO: Post changes of province
-
-    };
+        const postPackage = {
+            purpose: 'update_province_armies',
+            armySlots: newProvinceSlots,
+            provinceN: province
+        };
+        axios
+            .put('http://localhost:8082/api/provinces', postPackage)
+            .catch((err) => {
+            console.log('Error in replacing armies in province: ' + err);
+        });
+    }
 
     const handleBuyUpgrade = (upgrade) => {
         // Update upgrade tree

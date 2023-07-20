@@ -28,7 +28,7 @@ router.post('/', (req, res) => {
 // @access Public
 router.put('/:id', (req, res) => {
   Army.findByIdAndUpdate(req.params.id, req.body)
-    .then(army => res.json({ msg: 'Updated successfully' }))
+    .then(army => res.json({armydata: army, msg: 'Updated successfully' }))
     .catch(err =>
       res.status(400).json({ error: 'Unable to update the Database' })
     );
