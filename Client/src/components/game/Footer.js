@@ -16,10 +16,11 @@ import { useState } from 'react';
  * @returns 
  */
 export default function Footer( {
-  properties, 
   onRaiseArmy, 
   onBuildBuilding, 
   onBuyUpgrade,
+  onSplitArmy,
+  properties, 
   session, 
   upgrades,
   slotIndex, 
@@ -231,6 +232,7 @@ export default function Footer( {
     <FooterProvince /> 
     {(footerType === 'army') && (
       <FootArmyView 
+        onSplitArmy={onSplitArmy}
         provProp={{... provProp}} 
         upgrades={upgrades}
         isOwner={player.name === properties.owner} /> 
