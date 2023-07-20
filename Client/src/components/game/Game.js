@@ -314,13 +314,34 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     const handleSplitArmy = (leftArmy, rightArmy, leftArmyId) => {
         console.log("left:", leftArmy, "right:", rightArmy, "id:", leftArmyId);
 
-        // TODO: Check which province the army is in
+        // Check which province and slot the army is in
+        let province = 0;
+        let slot = 0;
+        for (let i = 0; i < armies.length; i++) {
+            for (let j = 0; j < armies[i].length; j++) {
+                if (armies[i][j] == leftArmyId) {
+                    slot = i;
+                    province = j;
+                }
+            }
+        }
+        // Check whether there are free slots available in the province!
+        let freeSlots = 4;
+        for (let i = 0; i < 4; i++) {
+            if (armies[i][province] != null) {
+                freeSlots--;
+            }
+        }
+        if (freeSlots == 0) {
+            console.log("No free slots in the province!") // TODO: Add view for this
+        }
+        // TODO: Post changes to left army
 
-        // TODO: Check whether there are actually slots available in the province!
+        // TODO: Post new right army
 
-        // TODO: Update left army
+        // TODO: Update province to contain both new armies
 
-        // TODO: Post right army
+        // TODO: Post changes of province
 
     };
 

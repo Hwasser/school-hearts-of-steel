@@ -93,24 +93,32 @@ export default function FootArmyView({onSplitArmy, provProp, upgrades, isOwner})
     // Whether a split actually occurs
     let leftArmyExists = false;
     let rightArmyExists = false;
+    // Number of soldiers in each province
+    let leftArmySoldiers  = 0;
+    let rightArmySoldiers = 0;
     // Split armies into a left and right army
     for (let u in units) {
       if (!provProp[u]) {
         continue;
       }
-      const giveOver = (splitValue[u] == null) ? 0 : splitValue[u]; 
+      const giveOver = (splitValue[u] == null) ? 0 : Number(splitValue[u]); 
       const keep = provProp[u] - giveOver;
 
       if (keep > 0) {
         leftArmy[u]  = provProp[u] - giveOver;
+        leftArmySoldiers += provProp[u] - giveOver;
         leftArmyExists = true;
       }
       if (giveOver > 0) {
         rightArmy[u] = giveOver;
+        rightArmySoldiers += giveOver;
         rightArmyExists = true;
       }
     }
-    // Ignore split all together if all soldiers are put in either side
+    // Add the total number of soldiers in each army
+    leftArmy['soldiers']  = leftArmySoldiers;
+    rightArmy['soldiers'] = rightArmySoldiers;
+    // Ignore split all together if one side is empty
     if (leftArmyExists && rightArmyExists) {
       onSplitArmy(leftArmy, rightArmy, provProp._id);
     } else {
