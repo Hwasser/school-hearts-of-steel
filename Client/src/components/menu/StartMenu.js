@@ -188,6 +188,9 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         setJustEntered(false)
     }
 
+    const playerHasGame = ( allSessions.findIndex( (e) => e.creator == playerData._id)) >= 0;
+    console.log(allSessions.findIndex( (e) => e.creator == playerData._id));
+
     return(
         <>
         <div className='start_container'>
@@ -217,8 +220,12 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
                             onClick={() => setWorldSize(worldSizes.large)} >Large</button>
 
                     </div>
-                    
-                    <button id="create_new_game_button" className='startmenu_button' onClick={handleStartGame}>Create new game</button>
+                    {!playerHasGame && (
+                        <button id="create_new_game_button" className='startmenu_button' onClick={handleStartGame}>Create new game</button>
+                    )}
+                    {playerHasGame && (
+                        <button id="create_new_game_button" className='startmenu_button' style={{opacity: 0.5}}>Create new game</button>
+                    )}
                 </div>
                 <div className='game_list_container'>
                     <h3>Join a game</h3>
