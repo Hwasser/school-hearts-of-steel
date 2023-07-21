@@ -71,8 +71,11 @@ router.put('/:id', async (req, res) => {
 // @description Delete Session by id
 // @access Public
 router.delete('/:id', (req, res) => {
-  Session.remove({id: req.params.id})
-    .then(province => res.json({ mgs: 'Session entry deleted successfully' }))
+  Upgrade.findOneAndDelete({_id: req.params.id})
+    .then(province => {
+      gameSessionStop(); // Close all current game sessions;
+      res.json({ mgs: 'Session entry deleted successfully' });
+    })
     .catch(err => res.status(404).json({ error: 'No such a Session' }));
 });
 

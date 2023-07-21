@@ -36,7 +36,7 @@ router.get('/:id', (req, res) => {
 // @description Delete Upgrade by id
 // @access Public
 router.delete('/:id', (req, res) => {
-  Upgrade.remove({id: req.params.id})
+  Upgrade.findOneAndDelete({_id: req.params.id})
     .then(province => res.json({ mgs: 'Upgrade entry deleted successfully' }))
     .catch(err => res.status(404).json({ error: 'No such a Upgrade' }));
 });
