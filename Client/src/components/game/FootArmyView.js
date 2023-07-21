@@ -113,6 +113,7 @@ export default function FootArmyView({onSplitArmy, provProp, upgrades, isOwner, 
       setErrorMessage('There are no free army slots in the province!');
     } else {
       onSplitArmy(leftArmy, rightArmy, leftArmyId, province);
+      setSplitMenu(false);
     }
   }
 

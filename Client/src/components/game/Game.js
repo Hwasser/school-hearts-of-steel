@@ -345,7 +345,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         }
         newProvinceSlots.push(newLeftId);
         newProvinceSlots.push(newRightId);
-        // TODO: Post changes of province
+        // Post changes of province
         const postPackage = {
             purpose: 'update_province_armies',
             armySlots: newProvinceSlots,
@@ -356,7 +356,14 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             .catch((err) => {
             console.log('Error in replacing armies in province: ' + err);
         });
-        return "";
+        // Update the view of the new splitted army
+        axios.get(`http://localhost:8082/api/armies/${leftArmyId}` )
+        .then( (res) => {
+            handleSelectProvince(res.data);
+        })
+        .catch( (e) => {
+            console.log(e)
+        });
     }
 
     const handleBuyUpgrade = (upgrade) => {
