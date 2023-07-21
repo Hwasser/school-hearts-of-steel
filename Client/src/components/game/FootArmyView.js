@@ -3,11 +3,13 @@ import { useState } from 'react';
 import './FootArmyView.css';  
 const { units } = require('../../unitStats');
 
-export default function FootArmyView({onSplitArmy, provProp, upgrades, isOwner}) {
+export default function FootArmyView({onSplitArmy, provProp, upgrades, isOwner, getArmies}) {
   // Whether or not to use the split menu
   const [splitMenu, setSplitMenu] = useState(false);
   // The subset of the army to split to a new army
   const [splitValue, setSplitValue] = useState({});
+
+  const [errorMessage, setErrorMessage] = useState('');
 
   const upgradedDamage = 1 + upgrades['upg_weap2_dam']*isOwner*0.1 + upgrades['upg_weap3_dam']*isOwner*0.1;
   const upgradedArmor  = 0 + upgrades['upg_weap2_arm']*isOwner*10 + upgrades['upg_weap3_arm']*isOwner*10;
@@ -86,6 +88,34 @@ export default function FootArmyView({onSplitArmy, provProp, upgrades, isOwner})
     addListOfUnitsSplit();
   }
 
+  function getArmySlot(leftArmy, rightArmy, leftArmyId) {
+    // Check which province and slot the army is in
+    const armies = getArmies();
+    const maxArmySlots = 4;
+    let province = 0;
+    let slot = 0;
+    for (let i = 0; i < armies.length; i++) {
+        for (let j = 0; j < armies[i].length; j++) {
+            if (armies[i][j] == leftArmyId) {
+                slot = i;
+                province = j;
+            }
+        }
+    }
+    // Check whether there are free slots available in the province!
+    let freeSlots = maxArmySlots;
+    for (let i = 0; i < maxArmySlots; i++) {
+        if (armies[i][province] != null) {
+            freeSlots--;
+        }
+    }
+    if (freeSlots == 0) {
+      setErrorMessage('There are no free army slots in the province!');
+    } else {
+      onSplitArmy(leftArmy, rightArmy, leftArmyId, province);
+    }
+  }
+
   const handleSplit = () => {
     // The representation of the left and right side split
     const leftArmy = {};
@@ -120,14 +150,24 @@ export default function FootArmyView({onSplitArmy, provProp, upgrades, isOwner})
     rightArmy['soldiers'] = rightArmySoldiers;
     // Ignore split all together if one side is empty
     if (leftArmyExists && rightArmyExists) {
-      onSplitArmy(leftArmy, rightArmy, provProp._id);
+      getArmySlot(leftArmy, rightArmy, provProp._id);
     } else {
-      console.log("Cannot split into an empty army!");
+      setErrorMessage('You cannot create an empty army!');
     }
   };
 
+  const closeErrorMsg = () => { 
+    setErrorMessage('');
+  }
+
   return (
       <>
+        {errorMessage != '' && (
+          <div className="army_split_error">
+            <p>{errorMessage}</p>
+            <button className='popup_button' onClick={closeErrorMsg}>ok</button>
+          </div>
+        )}
         <div className="footer">
           <div className='footer_row'>
             <div className='property_name'>
@@ -200,3 +240,4 @@ function ArmySplitItem({unitName, unitType, amount, splitValue, setSplitValue}) 
     </div>
   );
 }
+

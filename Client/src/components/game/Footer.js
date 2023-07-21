@@ -24,7 +24,8 @@ export default function Footer( {
   session, 
   upgrades,
   slotIndex, 
-  player} ) {
+  player,
+  getArmies} ) {
 
   const [provProp, setProvProp] = useState(properties);
   const [useRaiseMenu, setuseRaiseMenu] = useState(false);
@@ -236,7 +237,8 @@ export default function Footer( {
         onSplitArmy={onSplitArmy}
         provProp={{... provProp}} 
         upgrades={upgrades}
-        isOwner={player.name === properties.owner} /> 
+        isOwner={player.name === properties.owner} 
+        getArmies={getArmies} /> 
     )}
     {(footerType === 'upgrade') && (
       <FootUpgradeView 

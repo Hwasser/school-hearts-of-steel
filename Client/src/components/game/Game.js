@@ -68,6 +68,8 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         setUpgradeView(!upgradeView);
     }
 
+    const getArmies = () => (armies);
+
     // Init all provinces when booting up the game
     function initAllProvinces(index) {
         const localProvinceNames = Array(nProvinces);
@@ -106,7 +108,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             console.log(e)
         });
     }
-
 
     //--------------------------------------------------
     // --------- Handle updates from the server --------
@@ -313,29 +314,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         setArmies(armyCopy);
     }
 
-    async function handleSplitArmy(leftArmy, rightArmy, leftArmyId) {
-        console.log("left:", leftArmy, "right:", rightArmy, "id:", leftArmyId);
-        // Check which province and slot the army is in
-        let province = 0;
-        let slot = 0;
-        for (let i = 0; i < armies.length; i++) {
-            for (let j = 0; j < armies[i].length; j++) {
-                if (armies[i][j] == leftArmyId) {
-                    slot = i;
-                    province = j;
-                }
-            }
-        }
-        // Check whether there are free slots available in the province!
-        let freeSlots = maxArmySlots;
-        for (let i = 0; i < maxArmySlots; i++) {
-            if (armies[i][province] != null) {
-                freeSlots--;
-            }
-        }
-        if (freeSlots == 0) {
-            console.log("No free slots in the province!") // TODO: Add view for this
-        }
+    async function handleSplitArmy(leftArmy, rightArmy, leftArmyId, province) {
         // Add information to armies
         leftArmy['session'] = session._id;
         leftArmy['owner']   = provinceOwners[province];
@@ -377,6 +356,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             .catch((err) => {
             console.log('Error in replacing armies in province: ' + err);
         });
+        return "";
     }
 
     const handleBuyUpgrade = (upgrade) => {
@@ -416,6 +396,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             upgrades={upgrades}
             slotIndex={slotIndex}
             player={player}
+            getArmies={getArmies}
         />, [properties, upgrades] );
 
     // Specify exactly which states that re-renders this component

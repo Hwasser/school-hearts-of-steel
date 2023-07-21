@@ -55,3 +55,16 @@
     background: #04AA6D;
     cursor: pointer;
   }
+
+  .army_split_error {
+    position: absolute;
+    background-color: rgba(225, 225, 225, 0.50);
+    border: 2px solid rgba(225, 225, 225, 0.50);
+    border-radius: 4px;
+    width: 33%;
+    height: fit-content;
+    bottom: 95px;
+    left: 33%;
+    padding: 4px;
+    text-align: center;
+  }
