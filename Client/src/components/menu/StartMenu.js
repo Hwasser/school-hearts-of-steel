@@ -114,12 +114,16 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
                 const curMaxSlots = allSessions[i].max_slots;
                 const curTakenSlots = curMaxSlots - curFreeSlots;
                 const curSize = worldSizesReversed[allSessions[i].world_size];
+                const isOwner = allSessions[i].creator == playerData._id;
 
                 allSessionsView.push(
                     <li key={'game' + i} className="join_game_entry"> <button className='join_game_button'
                         onClick={() => handleJoinGame(allSessions[i], curFreeSlots)}> Game: {i} | size: {curSize} | slots: ({curTakenSlots + "/" + curMaxSlots}) 
                     </button> 
-                    <button className="join_game_entry_close" onClick={() => handleCloseGameSession(allSessions[i])}>x</button></li>
+                    {isOwner && (
+                        <button className="join_game_entry_close" onClick={() => handleCloseGameSession(allSessions[i])}>x</button>
+                    )}
+                    </li>
                 );
             }
         return allSessionsView;
@@ -129,6 +133,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
     // starting resources. Then it goes on to fill up with dummies.
     function initSession(upgradeTrees) {
         const newSession = {
+            creator: playerData._id,
             max_slots: maxSlots,
             slot_names: [playerData.name],
             slot_ids: [playerData._id],
