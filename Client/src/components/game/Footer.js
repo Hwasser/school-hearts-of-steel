@@ -150,10 +150,11 @@ export default function Footer( {
       <div className="footer">
 
       <RaiseArmy 
-        active={useRaiseMenu} 
         setInactive={makeSliderInactive}
+        onRaiseArmy={raiseArmyAction}
+        active={useRaiseMenu} 
         fromProvince = {provProp}
-        onRaiseArmy={raiseArmyAction} 
+        upgrades={upgrades} 
         session={session}
         slotIndex={slotIndex}
       /> 

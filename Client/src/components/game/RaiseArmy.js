@@ -9,11 +9,17 @@ const { units } = require('../../unitStats');
 /**
  * Contains the menu for raising armies within a province.
  */
-export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseArmy, session, slotIndex}) {
+export default function RaiseArmy({ 
+  setInactive, 
+  onRaiseArmy,
+  active, 
+  fromProvince, 
+  upgrades, 
+  session, 
+  slotIndex}) {
   // Minimum amout to draft or to be left in province
   const minLimit = 10;
   const workforce = fromProvince['workforce'];
-  const id = fromProvince['id'];
 
   // State of workforce in province
   const [curWorkforce, setCurWorkforce] = useState(workforce);
@@ -108,14 +114,38 @@ export default function RaiseArmy({ active, setInactive, fromProvince, onRaiseAr
           <div>
             <button className={(selectedUnit == 'militia' ? 'army_type_selected' : 'army_type')} 
               onClick={() => onSelectUnit('militia')} >Militia</button>
-            <button className={(selectedUnit == 'demolition_maniac' ? 'army_type_selected' : 'army_type')} 
-              onClick={() => onSelectUnit('demolition_maniac')} >Demolition Maniac</button>
-            <button className={(selectedUnit == 'gun_nut' ? 'army_type_selected' : 'army_type')}
-              onClick={() => onSelectUnit('gun_nut')} >Gun Nut</button>
-            <button className={(selectedUnit == 'fortified_truck' ? 'army_type_selected' : 'army_type')}
-              onClick={() => onSelectUnit('fortified_truck')} >Fortified Truck</button>
-            <button className={(selectedUnit == 'power_suit' ? 'army_type_selected' : 'army_type')}
-              onClick={() => onSelectUnit('power_suit')} >Power Suit</button>
+            {upgrades.upg_weap1 && (
+              <>
+              <button className={(selectedUnit == 'demolition_maniac' ? 'army_type_selected' : 'army_type')} 
+                onClick={() => onSelectUnit('demolition_maniac')} >Demolition Maniac</button>
+              <button className={(selectedUnit == 'gun_nut' ? 'army_type_selected' : 'army_type')}
+                onClick={() => onSelectUnit('gun_nut')} >Gun Nut</button>
+              </>
+            )}
+            {!upgrades.upg_weap1 && (
+              <>
+              <button className={(selectedUnit == 'demolition_maniac' ? 'army_type_selected' : 'army_type')} 
+                style={{opacity: 0.5}} >Demolition Maniac</button>
+              <button className={(selectedUnit == 'gun_nut' ? 'army_type_selected' : 'army_type')}
+                style={{opacity: 0.5}} >Gun Nut</button>
+              </>
+            )}
+            {upgrades.upg_weap2_mot && (
+              <button className={(selectedUnit == 'fortified_truck' ? 'army_type_selected' : 'army_type')}
+                onClick={() => onSelectUnit('fortified_truck')} >Fortified Truck</button>
+            )}
+            {!upgrades.upg_weap2_mot && (
+              <button className={(selectedUnit == 'fortified_truck' ? 'army_type_selected' : 'army_type')}
+                style={{opacity: 0.5}} >Fortified Truck</button>
+            )}
+            {upgrades.upg_tech2 && upgrades.upg_weap2_dam && upgrades.upg_weap2_arm && (
+              <button className={(selectedUnit == 'power_suit' ? 'army_type_selected' : 'army_type')}
+                onClick={() => onSelectUnit('power_suit')} >Power Suit</button>
+            )}
+            {!(upgrades.upg_tech2 && upgrades.upg_weap2_dam && upgrades.upg_weap2_arm) && (
+              <button className={(selectedUnit == 'power_suit' ? 'army_type_selected' : 'army_type')}
+                style={{opacity: 0.5}} >Power Suit</button>
+            )}
           </div>
 
           {curWorkforce >= 20 && (
