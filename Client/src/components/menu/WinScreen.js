@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import './WinScreen.css';
-import { gameEndedNaturally } from '../../functionality/gameSessionEnded';
+import { closeGameSession } from '../../functionality/gameSessionEnded';
 
 export default function WinScreen({winner, sessionEndData, onWinBack}) {
     // TODO: Add stats into this screen
 
     const handleWinBack = () => {
-        gameEndedNaturally(sessionEndData);
+        closeGameSession(sessionEndData);
         onWinBack();
     };
 

@@ -3,6 +3,7 @@ import axios from 'axios';
 
 import './StartMenu.css';
 import startNewGame from './../../functionality/startNewGame';
+import { closeGameSession } from '../../functionality/gameSessionEnded';
 import { initUpgrades } from '../../upgradeStats';
 
 export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
@@ -92,6 +93,11 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         }
     }
 
+    function handleCloseGameSession(id){
+        closeGameSession(id);
+        setTimeout(() => updateSessionList(), 250);
+    };
+
     // Get a list of the view of all games in the session list
     function GetSessionList() {
         const worldSizesReversed = {
@@ -112,7 +118,8 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
                 allSessionsView.push(
                     <li key={'game' + i} className="join_game_entry"> <button className='join_game_button'
                         onClick={() => handleJoinGame(allSessions[i], curFreeSlots)}> Game: {i} | size: {curSize} | slots: ({curTakenSlots + "/" + curMaxSlots}) 
-                    </button> </li>
+                    </button> 
+                    <button className="join_game_entry_close" onClick={() => handleCloseGameSession(allSessions[i])}>x</button></li>
                 );
             }
         return allSessionsView;
@@ -128,10 +135,10 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
             upgrades: [upgradeTrees[0]],
             world_size: worldSize,
             time: 0,
-            food: [100],
-            fuel: [100],
-            material: [100],
-            tools: [100]
+            food: [10000],
+            fuel: [10000],
+            material: [10000],
+            tools: [10000]
         }
         for (let i = 1; i < maxSlots; i++) {
             const nextPlayer = "Player" + (i+1);
@@ -147,12 +154,6 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
     }
 
     async function handleStartGame() {
-        // TODO: Temporary!! Remove all old stuff before creating a new game
-        await removeAllSessions();
-        await removeAllProvinces();
-        await removeAllArmies();
-        await removeAllUpgrades();
-
         // Add a upgrade tree for each player
         const upgradeTrees = await addUpgrades(maxSlots);
         // Setup a new session

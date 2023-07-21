@@ -9,7 +9,7 @@ import axios from 'axios';
  * 
  * @param {JSON} session: The current game session
  */
-export function gameEndedNaturally(session) {
+export function closeGameSession(session) {
     const allUpgradeTrees = session.upgrades;
     for (let i = 0; i < allUpgradeTrees.length; i++) {
         removeUpgradeTree(allUpgradeTrees[i]);
@@ -36,8 +36,12 @@ function removeSession(id) {
 }
 
 function removeProvinces(id) {
-    axios
-    .delete(`http://localhost:8082/api/provinces/`, {purpose: 'remove_session', id: id})
+    axios.delete(`http://localhost:8082/api/provinces`, {
+        params: {
+          id: id,
+          purpose: 'remove_session' 
+        }
+      })
     .catch((err) => {
         console.log('Failed removing a session:', err.response);
     });

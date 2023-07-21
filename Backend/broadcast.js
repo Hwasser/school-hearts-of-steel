@@ -6,7 +6,7 @@
 const Session = require('./models/Session');
 const Province = require('./models/Province');
 
-const gameSessions = [];
+const gameSessions = {};
 const timePerUpdate = 5000;
 let broadcastClients = [];
 const daily_salary = [];
@@ -18,20 +18,18 @@ function gameSessionStart(id) {
         const sessionLoop = setInterval(() => {
             updateSession(id);
         }, timePerUpdate);
-        // Add session to list of sessions
-        const gameSession = {id: id, loop: sessionLoop};
-        gameSessions.push(gameSession);
+        // Add session to all game sessions
+        gameSessions[id] = sessionLoop;
     } catch (err) {
         console.log("broadcast: Failed to start game session:", err);
     }
 }
 
-// TODO: Stops all game sessions for now and end their loops
-function gameSessionStop() {
-    while (gameSessions.length != 0) {
-        const gameSession = gameSessions.pop();
-        clearInterval(gameSession.loop);
-    }
+// Stops all game sessions for now and end their loops
+function gameSessionStop(id) {
+    clearInterval(gameSessions[id]);
+    delete gameSessions[id];
+    console.log("broadcast: Sessions left on server:", gameSessions);
 }
 
 function gameSessionSetupClients(clients) {

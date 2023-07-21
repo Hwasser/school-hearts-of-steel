@@ -135,14 +135,14 @@ router.delete('/:id', (req, res) => {
 // @access Public
 router.delete('/', (req, res) => {
   // Remove all provinces of that perticular session
-  if (req.body.purpose != null && req.body.purpose === "remove_session") {
-    console.log("Removed provinces for session", req.body.id);
-    Province.deleteMany({session: req.body.id})
+  if (req.query.purpose != null && req.query.purpose === "remove_session") {
+    console.log("Removed provinces for session", req.query.id);
+    Province.deleteMany({session: req.query.id})
       .then(province => res.json({ mgs: 'Provinces deleted successfully' }))
       .catch(err => res.status(404).json({ error: 'Failed removing provinces' }));
   // Otherwise remove all provinces
   } else {
-    console.log("Removed all sessions!");
+    console.log("Removed all provinces!");
     Province.deleteMany({})
       .then(province => res.json({ mgs: 'Provinces deleted successfully' }))
       .catch(err => res.status(404).json({ error: 'Failed removing provinces' }));

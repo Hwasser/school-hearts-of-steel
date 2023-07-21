@@ -269,7 +269,7 @@ function setUpSoldiers(army, upgrades) {
     }
     // Apply upgrades to armies
     const upgradedDamage = 1 + upgrades['upg_weap2_dam'] * 0.1 + upgrades['upg_weap3_dam'] * 0.1;
-    const upgradedArmor  = 0 + upgrades['upg_weap2_arm'] * 10 + upgrades['upg_weap3_arm'] * 10;  
+    const upgradedArmor  = 0 + upgrades['upg_weap2_arm'] * 0.1 + upgrades['upg_weap3_arm'] * 0.1;  
     for (let i = 0; i < army.soldiers; i++) {
         armySoldiers[i].hardness += upgradedArmor;
         armySoldiers[i].damage_low *= upgradedDamage;

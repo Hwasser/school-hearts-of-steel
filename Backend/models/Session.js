@@ -3,6 +3,10 @@ const mongoose = require('mongoose');
 // A game session
 
 const SessionSchema = new mongoose.Schema({
+    creator: {
+        type: [mongoose.Schema.Types.ObjectId],
+        required: true
+    },
     max_slots: {
         type: Number,
         required: true

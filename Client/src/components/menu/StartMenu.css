@@ -66,6 +66,10 @@
     left: -10%;
 }
 
+.join_game_entry_close {
+    padding: 3px 6px;
+}
+
 .join_game_button {
     padding: 3px;
 }

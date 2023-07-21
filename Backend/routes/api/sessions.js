@@ -67,16 +67,14 @@ router.put('/:id', async (req, res) => {
 
 });
 
-// @route DELETE api/Session/:id
+// @route DELETE api/sessions/:id
 // @description Delete Session by id
 // @access Public
 router.delete('/:id', (req, res) => {
-  Upgrade.findOneAndDelete({_id: req.params.id})
-    .then(province => {
-      gameSessionStop(); // Close all current game sessions;
-      res.json({ mgs: 'Session entry deleted successfully' });
-    })
-    .catch(err => res.status(404).json({ error: 'No such a Session' }));
+  gameSessionStop(req.params.id); // Close all current game sessions;
+  Session.findOneAndDelete({_id: req.params.id})
+    .then(session => res.json({ mgs: 'Session ' + req.params.id + ' successfully removed!' }))
+    .catch(err => res.status(404).json({ error: 'No such session' }));
 });
 
 // @route DELETE api/Session/
