@@ -209,11 +209,12 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     //----------------------------------------
     // --------- Handle game actions ---------
 
-    // Handle selection of provinces from the database
-    function handleSelectProvince(provinceData, selecting) { 
-        setProperties(provinceData);
+    // Handle selection of a provinces/army/upgrade from the database
+    function handleSelectAction(selectedObject, selecting) { 
+        setProperties(selectedObject);
     }
 
+    // Function for raising an army from the footer
     function handleRaiseArmy(provinceInfo) {
         const provinceId = provinceInfo['id'];
         try {
@@ -234,6 +235,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
 
     }
 
+    // Function for constructing a building from the footer
     function handleBuildBuilding(provinceInfo) {
         setProperties(provinceInfo);
         fetchResourceUpdates()
@@ -359,7 +361,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         // Update the view of the new splitted army
         axios.get(`http://localhost:8082/api/armies/${leftArmyId}` )
         .then( (res) => {
-            handleSelectProvince(res.data);
+            handleSelectAction(res.data);
         })
         .catch( (e) => {
             console.log(e)
@@ -410,7 +412,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     // and remember the states of the rest.
     const gameui = React.useMemo( () => 
     <GameUI 
-        onSelectAction={handleSelectProvince} 
+        onSelectAction={handleSelectAction} 
         onUpdateArmies={handleUpdateArmies}
         onMergeArmies={handleMergeArmies}
         names={provinceNames} 
