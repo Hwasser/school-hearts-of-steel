@@ -1,3 +1,7 @@
+.footer_army{
+  overflow: scroll;
+}
+
 .army_row {
     display: flex;
     width: 100%;
@@ -63,7 +67,7 @@
     border-radius: 4px;
     width: 33%;
     height: fit-content;
-    bottom: 95px;
+    bottom: 130px;
     left: 33%;
     padding: 4px;
     text-align: center;
