@@ -29,7 +29,8 @@ let clients = [];
 // Function to send SSE messages to all clients
 function broadcastMessage(message) {
   clients.forEach(client => {
-    client.res.write(`data: ${message}\n\n`); // Send SSE message to client
+    const current = client['client'];
+    current.res.write(`data: ${message}\n\n`); // Send SSE message to client
   });
 }
 
@@ -41,11 +42,12 @@ appSSE.get('/rec', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.flushHeaders();
 
-  
+  const token = new Date().getTime();
+  const dataPackage = JSON.stringify({purpose: 'connect', package: token});
   // Send initial SSE message to client
-  res.write('data: Connected to SSE\n\n');
+  res.write(`data: ${dataPackage}\n\n`);
   
-  const client = { res };
+  const client = { client: {res}, token: token, session: '', player: '' };
   
   // Add the client to the list of connected clients
   clients.push(client);
@@ -53,7 +55,7 @@ appSSE.get('/rec', (req, res) => {
   // Handle client disconnection
   req.on('close', () => {
     // Remove the client from the list of connected clients
-    const index = clients.indexOf(client);
+    const index = clients.indexOf(client['client']);
     if (index !== -1) {
       clients.splice(index, 1);
     }

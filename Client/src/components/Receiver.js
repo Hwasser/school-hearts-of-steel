@@ -42,7 +42,9 @@ export default function Receiver({
   onAttackArmy,
   onPlayerJoined,
   onPlayerWon,
-  onMergeArmies
+  onMergeArmies,
+  onPlayerConnect,
+  getSessionId
 }) {
   const [eventSession, setEventSession] = useState(null);
 
@@ -57,45 +59,53 @@ export default function Receiver({
         const message = event.data;
         try {
           const document = JSON.parse(message);
-          switch (document.purpose) {
-            case 'update_session':
-              onUpdateResources(document.package);
-              break;
-            case 'update_province':
-              console.log("Received: update_province");
-              onUpdateProvince(document.package);
-              break;
-            case 'move_army':
-              console.log("Received: move_army");
-              onMoveArmy(document.package);
-              break;
-            case 'attack_army':
-              console.log("Received: attack_army");
-              onAttackArmy(document.package);
-              break;
-            case 'player_joined':
-              console.log("Received: player_joined");
-              onPlayerJoined(document.package);
-              break;
-            case 'player_won':
-              console.log("Received: player_won");
-              onPlayerWon(document.package);
-              break;
-              break;
-            case 'merge_armies':
-              console.log("Received: merge_armies");
-              onMergeArmies(document.package);
-              break;
-            default:
-              console.log("Receiver: Received message without purpose!");
-              break;
+          if (document.toSession == null) {
+            if (document.purpose == 'connect') {
+              console.log("Received: connect to token", document.package);
+              onPlayerConnect(document.package);
+            }
+          } else if (document.toSession == getSessionId()) {
+            switch (document.purpose) {
+              case 'update_session':
+                onUpdateResources(document.package);
+                break;
+              case 'update_province':
+                console.log("Received: update_province");
+                onUpdateProvince(document.package);
+                break;
+              case 'move_army':
+                console.log("Received: move_army");
+                onMoveArmy(document.package);
+                break;
+              case 'attack_army':
+                console.log("Received: attack_army");
+                onAttackArmy(document.package);
+                break;
+              case 'player_won':
+                console.log("Received: player_won");
+                onPlayerWon(document.package);
+                break;
+              case 'merge_armies':
+                console.log("Received: merge_armies");
+                onMergeArmies(document.package);
+                break;
+              case 'player_joined':
+                console.log("Received: player_joined");
+                onPlayerJoined(document.package);
+                break;
+              default:
+                console.log("Receiver: Received message without purpose!");
+                break;
+            } 
+          } else {
+            console.log("got another players message");
           }
         } catch {
           console.log('Received message:', message);
         }
       };
     }
-  }, [eventSession, onUpdateResources, onUpdateProvince, onMoveArmy, onAttackArmy, onPlayerJoined, onPlayerWon]);
+  }, [eventSession, onUpdateResources, onUpdateProvince, onMoveArmy, onAttackArmy, onPlayerJoined, onPlayerWon, onPlayerConnect]);
 
   return (
     <div>

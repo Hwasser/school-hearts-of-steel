@@ -9,7 +9,16 @@ const Province = require('./models/Province');
 const gameSessions = {};
 const timePerUpdate = 5000;
 let broadcastClients = [];
-const daily_salary = [];
+
+function connectPlayer(token, session, player) {
+    broadcastClients.forEach(client => {
+        if (client['token'] == token) {
+            client['session'] = session;
+            client['player'] = player;
+        }
+    });
+    console.log(broadcastClients);
+}
 
 function gameSessionStart(id) {
     try {
@@ -38,7 +47,7 @@ function gameSessionSetupClients(clients) {
 
 async function broadcastUpdateProvince(province) {
     try {
-        const message = JSON.stringify({purpose: 'update_province', package: province});
+        const message = {purpose: 'update_province', package: province};
         broadcastMessage(message);
     } catch (err) {
         console.log("Failed to update province:", err);
@@ -47,8 +56,8 @@ async function broadcastUpdateProvince(province) {
 
 async function broadcastMoveArmy(fromProvince, toProvince) {
     try {
-        const message = JSON.stringify({purpose: 'move_army', 
-            package: {fromProvince: fromProvince, toProvince: toProvince}});
+        const message = {purpose: 'move_army', 
+            package: {fromProvince: fromProvince, toProvince: toProvince}};
         broadcastMessage(message);
     } catch (err) {
         console.log("Failed to move army:", err);
@@ -57,8 +66,8 @@ async function broadcastMoveArmy(fromProvince, toProvince) {
 
 async function broadcastAttackArmy(fromProvince, toProvince) {
     try {
-        const message = JSON.stringify({purpose: 'attack_army', 
-            package: {fromProvince: fromProvince, toProvince: toProvince}});
+        const message = {purpose: 'attack_army', 
+            package: {fromProvince: fromProvince, toProvince: toProvince}};
         broadcastMessage(message);
     } catch (err) {
         console.log("Failed to attack with army:", err);
@@ -67,8 +76,8 @@ async function broadcastAttackArmy(fromProvince, toProvince) {
 
 async function broadcastMergeArmies(province) {
     try {
-        const message = JSON.stringify({purpose: 'merge_armies', 
-            package: {province: province}});
+        const message = {purpose: 'merge_armies', 
+            package: {province: province}};
         broadcastMessage(message);
     } catch (err) {
         console.log("Failed to move army:", err);
@@ -79,9 +88,9 @@ async function broadcastPlayerJoined(province, sessionId) {
     try {
         console.log("Player joined game");
         const sessionDocument = await Session.find({_id: sessionId});
-        const message = JSON.stringify({
+        const message = {
             purpose: 'player_joined', 
-            package: {province: province, session: sessionDocument[0]}});
+            package: {province: province, session: sessionDocument[0]}};
         broadcastMessage(message);
     } catch (err) {
         console.log("Failed to update province:", err);
@@ -91,20 +100,12 @@ async function broadcastPlayerJoined(province, sessionId) {
 async function broadcastHasWon(whoWon) {
     try {
         console.log(whoWon, "won the game!");
-        const message = JSON.stringify({purpose: 'player_won', package: whoWon});
+        const message = {purpose: 'player_won', package: whoWon};
         broadcastMessage(message);
     } catch (err) {
         console.log("Failed to broadcast winner:", err);
     }
 }
-
-
-// Function to send SSE messages to all clients
-function broadcastMessage(message) {
-    broadcastClients.forEach(client => {
-      client.res.write(`data: ${message}\n\n`); // Send SSE message to client
-    });
-  }
 
 /**
  * @brief: Update the session for each tick
@@ -129,7 +130,7 @@ async function updateSession(id) {
         for (let i = 0; i < provinces.length; i++) {
             provinces[i].save();
         }
-        const message = JSON.stringify({purpose: 'update_session', package: sessions});
+        const message = {purpose: 'update_session', package: sessions};
         broadcastMessage(message);
     } catch (err) {
         console.log("Couldnt update res:", err);
@@ -206,9 +207,22 @@ function scavangeResource(provinces, n, workforce, resource) {
     return scavangeResActual;
 }
 
+
+// Function to send SSE messages to all clients
+function broadcastMessage(dataPackage) {
+    broadcastClients.forEach(client => {
+        const current = client['client'];
+        const personalPackage = {... dataPackage};
+        personalPackage['toSession'] = client['session'];
+        const message = JSON.stringify(personalPackage);
+        current.res.write(`data: ${message}\n\n`); // Send SSE message to client
+    });
+  }
+
 module.exports = { 
     gameSessionStart, 
     gameSessionStop, 
+    connectPlayer,
     gameSessionSetupClients, 
     broadcastUpdateProvince, 
     broadcastPlayerJoined, 

@@ -69,6 +69,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     const getArmies = () => (armies);
+    const getSessionId = () => (session._id);
 
     // Init all provinces when booting up the game
     function initAllProvinces(index) {
@@ -176,6 +177,16 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         ownersCopy[replaceIndex] = newOwner;
         setProvinceOwners(ownersCopy);
     }
+
+    const handlePlayerConnect = (message) => {
+        axios.put('http://localhost:8082/api/players', {
+          params: { sessionId: session._id, token: message, player: player._id}
+        })
+        .catch((err) => {
+            console.log('Error in connecting player: ' + err);
+            
+        });  
+    };
 
 
     /**
@@ -437,6 +448,8 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                     onPlayerJoined={handlePlayerJoined}
                     onPlayerWon={handlePlayerWon} 
                     onMergeArmies={handleBroadcastMergeArmies}
+                    onPlayerConnect={handlePlayerConnect}
+                    getSessionId={getSessionId}
                 />
                 <Header 
                     onExitGame={onExitGame}
