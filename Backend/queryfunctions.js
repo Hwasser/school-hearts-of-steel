@@ -74,30 +74,29 @@ async function attackOrMoveArmy(event) {
   const province1 = await Province.findOne({_id: event.province});
   const province2 = await Province.findOne({_id: event.province2});
 
-  const isAttacking = (province2.owner == player.name) ? false : true;
+  const isAttacking = (province2.owner == event.player.name) ? false : true;
   if (!isAttacking) {
     // Cannot move into a full province
     if (province2.armies.length < 4) {
       // Remove old army from province 1
-      province1Armies = [];
+      const province1Armies = [];
       for (let i = 0; i < province1.armies.length; i++) {
-        if (province1.armies[i] != event.army_id) {
+        if (province1.armies[i].toString() != event.army_id.toString()) {
           province1Armies.push(province1.armies[i]);
         }
       }
       province1.armies = province1Armies;
       // Move province into province 2
       province2.armies.push(event.army_id);
-      console.log("MOVING");
       broadcastMoveArmy(province1, province2)
     }
   } else {
     // Only attack if there are no other enemies in their province
     if (province2.enemy_army == null) { 
       // Remove old army from province 1
-      province1Armies = [];
+      const province1Armies = [];
       for (let i = 0; i < province1.armies.length; i++) {
-        if (province1.armies[i] != event.army_id) {
+        if (province1.armies[i].toString() != event.army_id.toString()) {
           province1Armies.push(province1.armies[i]);
         }
       }

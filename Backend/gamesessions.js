@@ -84,10 +84,15 @@ async function handlePendingEvents(session) {
                     broadcastUpdateProvince(document);
                     break;
                 case 'upgrade':
-                    attackOrMoveArmy(event);
+                    console.log("pending event: completed upgrade!");
                     break;
                 case 'movement':
                     console.log("pending event: completed movement!");
+                    try {
+                        attackOrMoveArmy(event);
+                    } catch (err) {
+                        console.log("Failed to move unit due to:", err);
+                    }
                     break;
                 case 'battle':
                     console.log("pending event: performing battle!");
