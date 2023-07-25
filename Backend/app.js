@@ -82,7 +82,7 @@ app.use('/api/armies', armies);
 app.use('/api/players', players);
 app.use('/api/sessions', sessions);
 app.use('/api/upgrades', upgrades);
-app.use('/api/pednings', pendings);
+app.use('/api/pendings', pendings);
 
 const port = process.env.PORT || 8082;
 const port2 = 5001;
