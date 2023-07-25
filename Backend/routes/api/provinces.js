@@ -88,33 +88,14 @@ router.put('/', async (req, res) => {
       console.log(err);
     }
   }
+  
   // Update all army slots in a province
   if (req.body.purpose == "update_province_armies") {
     const armySlots = req.body.armySlots;
     const provinceN = req.body.provinceN;
     const document = await Province.findOne({id: provinceN});
-    console.log(document, armySlots, provinceN);
-    // Update all four slots
-    if (armySlots.length >= 1) {
-      document['army1'] = armySlots[0];
-    } else {
-      document['army1'] = null;
-    }
-    if (armySlots.length >= 2) {
-      document['army2'] = armySlots[1];
-    } else {
-      document['army2'] = null;
-    }
-    if (armySlots.length >= 3) {
-      document['army3'] = armySlots[2];
-    } else {
-      document['army3'] = null;
-    }
-    if (armySlots.length === 4) {
-      document['army4'] = armySlots[3];
-    } else {
-      document['army4'] = null;
-    }
+    // Replace army slots
+    document.armies = armySlots;
     // Store and broadcast
     document.save();
     broadcastUpdateProvince(document);

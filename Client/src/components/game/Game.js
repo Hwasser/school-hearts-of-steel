@@ -322,7 +322,10 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         let newLeftId  = "";
         await axios
         .put(`http://localhost:8082/api/armies/${leftArmyId}`, leftArmy)
-        .then((res) => {newLeftId = res.data.armydata._id})
+        .then((res) => {
+            newLeftId = res.data.armydata._id;
+            handleSelectAction(res.data);
+        })
         .catch((err) => {
             console.log('Error in updating army: ' + err);
         });
@@ -353,14 +356,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             .put('http://localhost:8082/api/provinces', postPackage)
             .catch((err) => {
             console.log('Error in replacing armies in province: ' + err);
-        });
-        // Update the view of the new splitted army
-        axios.get(`http://localhost:8082/api/armies/${leftArmyId}` )
-        .then( (res) => {
-            handleSelectAction(res.data);
-        })
-        .catch( (e) => {
-            console.log(e)
         });
     }
 

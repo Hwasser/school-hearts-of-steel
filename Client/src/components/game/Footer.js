@@ -9,8 +9,7 @@ import {
     from '../../functionality/pendingActions';
 
 /**
- * 
- * @param {Function} onBuildBuilding: Function to call in Game when building a building
+ * @param {Function} onBuyUpgrade
  * @param {Function} onSplitArmy
  * @param {Function} fetchResourceUpgrades
  * @param {Function} getArmies
@@ -23,7 +22,6 @@ import {
  * @returns 
  */
 export default function Footer( {
-  onRaiseArmy, 
   onBuyUpgrade,
   onSplitArmy,
   fetchResourceUpdates,
