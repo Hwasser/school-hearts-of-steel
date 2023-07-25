@@ -261,12 +261,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
 
     }
 
-    // Function for constructing a building from the footer
-    function handleBuildBuilding(provinceInfo) {
-        setProperties(provinceInfo);
-        fetchResourceUpdates()
-    }
-
     /**
      * @brief: Handle changes of armies coming from this client, handles movement and attack
      * 
@@ -424,8 +418,8 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         <Footer 
             onSplitArmy={handleSplitArmy}
             onRaiseArmy={handleRaiseArmy} 
-            onBuildBuilding={handleBuildBuilding} 
             onBuyUpgrade={handleBuyUpgrade} 
+            fetchResourceUpdates={fetchResourceUpdates} 
             properties={properties} 
             session={session}
             upgrades={upgrades}

@@ -1,4 +1,3 @@
-
 /**
  * Module for the build-menu within a province - that is when you want to build a farm etc
 */
@@ -36,7 +35,8 @@ export default function ProvinceBuild(
             return;           
         }
         updateSession(curCost, slotIndex, session._id);
-        updateProvinceDatabase(fromProvince, buildingType, onBuildMenu, session);
+        //updateProvinceDatabase(fromProvince, buildingType, onBuildMenu, session);
+        onBuildMenu(fromProvince, buildingType);
         setInactive();
         setErrorMessage('');
     }    
@@ -106,7 +106,7 @@ export default function ProvinceBuild(
 
 
 
-
+/*
 // Update the province and the player data
 function updateProvinceDatabase(fromProvince, buildingType, onBuildBuilding, session) {
     // TODO: Update player resourses
@@ -149,6 +149,7 @@ function updateProvinceDatabase(fromProvince, buildingType, onBuildBuilding, ses
     console.log('Error with posting pending actions!: ' + err);
     });
   }
+*/
 
   // Update the player resources in the session
 function updateSession(curCost, slotIndex, sessionId) {

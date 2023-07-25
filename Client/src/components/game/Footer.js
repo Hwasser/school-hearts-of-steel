@@ -1,9 +1,12 @@
 import './Footer.css';  
+import { useState } from 'react';
 import RaiseArmy from './RaiseArmy';
 import ProvinceBuild from './ProvinceBuild';
 import FootArmyView from './FootArmyView';
 import FootUpgradeView from './FootUpgradeView';
-import { useState } from 'react';
+import {
+  postBuilding} 
+    from '../../functionality/pendingActions';
 
 /**
  * 
@@ -17,9 +20,9 @@ import { useState } from 'react';
  */
 export default function Footer( {
   onRaiseArmy, 
-  onBuildBuilding, 
   onBuyUpgrade,
   onSplitArmy,
+  fetchResourceUpdates,
   properties, 
   session, 
   upgrades,
@@ -60,9 +63,9 @@ export default function Footer( {
     onRaiseArmy(newProvinceInfo);
   }
 
-  function buildMenuAction(newProvinceInfo) {
-    setProvProp(newProvinceInfo);
-    onBuildBuilding(newProvinceInfo);
+  function buildMenuAction(province, buildingType) {
+    postBuilding(province, session, player, buildingType);
+    fetchResourceUpdates();
   }
 
   // Whether to show properties for a province or an army

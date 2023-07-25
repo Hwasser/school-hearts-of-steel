@@ -116,7 +116,7 @@ async function broadcastHasWon(whoWon) {
 async function updateSession(id) {
     try {
         // Fetch data from database
-        const provinces = await Province.find({});
+        const provinces = await Province.find({session: id});
         const sessions = await Session.findById(id);
         const nUsers = sessions.max_slots;
         // Change value
@@ -143,10 +143,14 @@ async function updateSession(id) {
 async function handlePendingEvents(session) {
     const finishedEvents = await Pending.find({session: session._id, end: session.time});
     for (let i = 0; i < finishedEvents.length; i++) {
-        const type = finishedEvents[i].type;
-        switch (type) {
+        const event = finishedEvents[i]; 
+        switch (event.type) {
             case 'building':
                 console.log("pending event: constructed building!");
+                const document = await Province.findOne({_id: event.province});
+                document[event.text] += 1;
+                document.save();
+                broadcastUpdateProvince(document);
                 break;
             case 'upgrade':
                 console.log("pending event: constructed building!");
