@@ -1,5 +1,13 @@
 import axios from 'axios';
 
+/**
+ * @brief: Post a pending action for constructing a building
+ * 
+ * @param {JSON} province 
+ * @param {JSON} session 
+ * @param {JSON} player 
+ * @param {String} building 
+ */
 export function postBuilding(province, session, player, building) {
     const pendingAction = {
         type: 'building',
@@ -18,6 +26,15 @@ export function postBuilding(province, session, player, building) {
     });
 }
 
+/**
+ * @brief: Post a pending action for moving an army
+ * 
+ * @param {JSON} fromProvince
+ * @param {JSON} toProvince 
+ * @param {JSON} session 
+ * @param {JSON} player 
+ * @param {String} army: Document id of an army
+ */
 export function postMovement(fromProvince, toProvince, session, player, army) {
     const pendingAction = {
         type: 'movement',
@@ -25,8 +42,8 @@ export function postMovement(fromProvince, toProvince, session, player, army) {
         player: player._id, 
         start: session.time,
         end: session.time + 3,
-        province: fromProvince._id,
-        province2: toProvince._id,
+        province: fromProvince,
+        province2: toProvince,
         army_id: army
     }
     // Post to server

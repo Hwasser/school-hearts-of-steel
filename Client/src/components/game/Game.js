@@ -9,8 +9,6 @@ import GameUI from './GameUI';
 import UpgradeUI from './UpgradeUI';
 import Receiver from '../Receiver';
 import {
-    receiveMoveArmy, 
-    receiveAttackArmy, 
     receiveResourceUpdate, 
     receiveJoinedPlayer, 
     receiveUpdateProvince} 
@@ -42,9 +40,11 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     const [provinceOwners, setProvinceOwners] = useState(Array(nProvinces).fill('Neutral'));
     const [provinceFlavors, setProvinceFlavors] = useState(Array(nProvinces).fill('-'));
     const [provinceTerrains, setProvinceTerrains] = useState(Array(nProvinces).fill('-'));
+    const [provinceId, setProvinceId] = useState(Array(nProvinces).fill(null));
     // Contains the documentId of each army in each slot and province
     // VARIANT: armies[slot][province index]  
     const [armies, setArmies] = useState([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
+    const [battle, setBattle] = useState(Array(nProvinces).fill(null));
     // We keep another session state in the HeartsOfSteel-module to store the session when
     // starting the game. This one is regularly updated.
     // It stores the name of all players and their resources
@@ -92,6 +92,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const localProvinceOwners = Array(nProvinces);
         const localProvinceFlavors = Array(nProvinces);
         const localProvinceTerrains = Array(nProvinces);
+        const localProvinceId = Array(nProvinces);
         const localArmies = [... armies]
         
         axios.get('http://localhost:8082/api/provinces/')
@@ -104,15 +105,17 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                     localProvinceOwners[index] = province.owner;
                     localProvinceFlavors[index] = province.flavor;
                     localProvinceTerrains[index] = province.terrain;
+                    localProvinceId[index] = province._id;
                     for (let j = 0; j < province.armies.length; j++) {
                         localArmies[j][index] = province.armies[j];
                     }
                 }
 
-                setProvinceFlavors(localProvinceFlavors);
-                setProvinceTerrains(localProvinceTerrains);
                 setProvinceNames(localProvinceNames);
                 setProvinceOwners(localProvinceOwners);
+                setProvinceFlavors(localProvinceFlavors);
+                setProvinceTerrains(localProvinceTerrains);
+                setProvinceId(localProvinceId);
                 setArmies(localArmies);
             }
         })
@@ -137,13 +140,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const armiesCopy = [... armies];
         const ownersCopy = [... provinceOwners];
         // Put new values into copy
-        for (let i = 0; i < maxArmySlots; i++) {
-            if (i < province.armies.length) {
-                armiesCopy[i][province.id] = province.armies[i];    
-            } else {
-                armiesCopy[i][province.id] = null;
-            }
-        }
+        replaceArmiesInProvince(province, armiesCopy)
         ownersCopy[province.id] = province.owner;
         // Replace with copy
         setArmies(armiesCopy);
@@ -156,7 +153,9 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
      * @param {JSON} message 
      */
     const handleMoveArmy = (message) => {
-        const armiesCopy = receiveMoveArmy(message, [... armies]);
+        const armiesCopy = [... armies];
+        replaceArmiesInProvince(message.fromProvince, armiesCopy);
+        replaceArmiesInProvince(message.toProvince, armiesCopy);
         setArmies(armiesCopy);
         console.log("Moved army received!");
     }
@@ -168,9 +167,11 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
      * @param {JSON} message 
      */
     const handleAttackArmy = (message) => {
-        const updateData = receiveAttackArmy(message, [... armies], [... provinceOwners]);
-        setArmies(updateData.armies);
-        setProvinceOwners(updateData.owners);
+        const armiesCopy = [... armies];
+        replaceArmiesInProvince(message.fromProvince, armiesCopy);
+        replaceArmiesInProvince(message.toProvince, armiesCopy);
+        setArmies(armiesCopy);
+        setBattle(message.toProvince.id);
         console.log("Attack army received!");
     }
 
@@ -249,6 +250,8 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
      * @param {Boolean} isAttacking: Whether or not the army is attacking
      */
     async function handleUpdateArmies(fromProvince, toProvince, army, fromSlot, isAttacking) {
+        
+        
         /*
         // Get a copy of all army slots
         const armiesCopy = [... armies];
@@ -299,13 +302,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     async function handleBroadcastMergeArmies(updatePackage) {
         const province = updatePackage.province;
         const armyCopy = [... armies];
-        for (let i = 0; i < maxArmySlots; i++) {
-            if (i < updatePackage.province.armies.length) {
-                armyCopy[i][province.id] = updatePackage.province.armies[i];    
-            } else {
-                armyCopy[i][province.id] = null;
-            }
-        }
+        replaceArmiesInProvince(updatePackage.province, armyCopy)
         setArmies(armyCopy);
     }
 
@@ -354,6 +351,16 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             .catch((err) => {
             console.log('Error in replacing armies in province: ' + err);
         });
+    }
+
+    function replaceArmiesInProvince(province, armiesCopy) {
+        for (let i = 0; i < maxArmySlots; i++) {
+            if (i < province.armies.length) {
+                armiesCopy[i][province.id] = province.armies[i];    
+            } else {
+                armiesCopy[i][province.id] = null;
+            }
+        }
     }
 
     const handleBuyUpgrade = (upgrade) => {
@@ -406,6 +413,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         owners={provinceOwners}
         flavors={provinceFlavors}
         terrains={provinceTerrains}
+        provinceId={provinceId}
         armies={armies}    
         session={session}
         player={player}
@@ -463,7 +471,6 @@ fuel: 0,
 material: 0,
 tools: 0,
 workforce: 0,
-armies: [],
-pending_armies: []
+armies: []
 };
 

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Session = require('../../models/Session');
 const Province = require('../../models/Province');
-const { gameSessionStart, gameSessionStop } = require('../../broadcast');
+const { gameSessionStart, gameSessionStop } = require('../../gamesessions');
 
 // @route GET api/Session/
 // @description Get all sessions

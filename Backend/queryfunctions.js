@@ -15,6 +15,10 @@ async function mergeArmies(updatePackage) {
     // Get data of both armies
     const army1Document = await Army.findOne({_id: updatePackage.army1});
     const army2Document = await Army.findOne({_id: updatePackage.army2});
+    if (!army1Document || !army2Document) {
+      console.log('mergeArmies failed! One army is missing!');
+      return;
+    }
     // Merge armies into army1
     army1Document.soldiers += army2Document.soldiers;
     mergeSoldierTypes(army1Document, army2Document);
@@ -66,49 +70,47 @@ function mergeSoldierTypes(army1, army2) {
     }
 }
 
-/**
- * @brief: Move armies between provinces and store data to db and broadcast
- * 
- * @param {JSON} package: {from: number, to: number, armies: [[Army._id]], winner: string}
- *                        Contains the number of two provinces (from, to),
- *                        all armies in all province slots and who won in battle 
- * @param {String} purpose: Whether to attack or move
- */
-async function attackOrMoveArmy(package, purpose) {
-    const fromProvince = package.from;
-    const toProvince = package.to;
-    const armies     = package.armies;
-    // Fetch provinces - Only update the two affected provinces
-    const fromDocument = await Province.findOne({id: fromProvince});
-    const toDocument   = await Province.findOne({id: toProvince});
-  
-    // Update provinces
-    fromDocument.army1 = armies[0][fromProvince];
-    fromDocument.army2 = armies[1][fromProvince];
-    fromDocument.army3 = armies[2][fromProvince];
-    fromDocument.army4 = armies[3][fromProvince];
-    toDocument.army1 = armies[0][toProvince];
-    toDocument.army2 = armies[1][toProvince];
-    toDocument.army3 = armies[2][toProvince];
-    toDocument.army4 = armies[3][toProvince];
-    // Broadcast this information to the clients
-    if (purpose == 'move_army') {
-      broadcastMoveArmy(fromDocument, toDocument);
-    } else {
-      // If attacker won, change owner of the province
-      if (package.winner != null) {
-        toDocument.owner = package.winner;
+async function attackOrMoveArmy(event) {
+  const province1 = await Province.findOne({_id: event.province});
+  const province2 = await Province.findOne({_id: event.province2});
+
+  const isAttacking = (province2.owner == player.name) ? false : true;
+  if (!isAttacking) {
+    // Cannot move into a full province
+    if (province2.armies.length < 4) {
+      // Remove old army from province 1
+      province1Armies = [];
+      for (let i = 0; i < province1.armies.length; i++) {
+        if (province1.armies[i] != event.army_id) {
+          province1Armies.push(province1.armies[i]);
+        }
       }
-      broadcastAttackArmy(fromDocument, toDocument);
+      province1.armies = province1Armies;
+      // Move province into province 2
+      province2.armies.push(event.army_id);
+      console.log("MOVING");
+      broadcastMoveArmy(province1, province2)
     }
-    // Store the data to database
-    await fromDocument.save();
-    await toDocument.save();
-    // If attacking, check if a player has won!
-    if (purpose == 'attack_army') {
-      hasWon();
+  } else {
+    // Only attack if there are no other enemies in their province
+    if (province2.enemy_army == null) { 
+      // Remove old army from province 1
+      province1Armies = [];
+      for (let i = 0; i < province1.armies.length; i++) {
+        if (province1.armies[i] != event.army_id) {
+          province1Armies.push(province1.armies[i]);
+        }
+      }
+      province1.armies = province1Armies;
+      // Move enemy army into their province
+      province2.enemy_army = event.army_id;
+      console.log("ATTACKING");
+      broadcastAttackArmy(province1, province2)
     }
   }
+  province1.save();
+  province2.save();
+}
   
   /**
    * @brief: Check whether a player has won. The rule is that if one player

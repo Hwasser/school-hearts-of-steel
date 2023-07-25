@@ -73,9 +73,9 @@ const ProvinceSchema = new mongoose.Schema({
         type: [mongoose.Schema.Types.ObjectId],
         required: true
     },
-    pending_armies: {
-        type: [mongoose.Schema.Types.ObjectId],
-        required: true
+    enemy_army: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: false
     }
 });
 

@@ -4,8 +4,7 @@ const {
   broadcastUpdateProvince, 
   broadcastPlayerJoined} = require('../../broadcast');
 const {
-  mergeArmies,
-  attackOrMoveArmy
+  mergeArmies
 } = require('../../queryfunctions');
 
 const Province = require('../../models/Province');
@@ -70,15 +69,7 @@ router.put('/', async (req, res) => {
       res.status(500).json({ error: 'Unable to update empty slot in province' })
     }
   }
-  // If a player moves his army on the screen, broadcast it to other users
-  if (req.body.purpose == 'move_army' || req.body.purpose == 'attack_army' ) {
-    try {
-      await attackOrMoveArmy(req.body.package, req.body.purpose);
-      res.status(200).send('Session updated');
-    } catch (err) {
-      res.status(500).json({ error: 'Unable to move army between provinces' })
-    }
-  }
+
   // If a player merge his armies, apply this to db and broadcast to other users
   if (req.body.purpose == "merge_armies") {
     try {

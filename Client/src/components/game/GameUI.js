@@ -15,7 +15,7 @@ import {
 
 export default function GameUI( 
   {onSelectAction, onUpdateArmies, onMergeArmies, 
-    names, owners, flavors, terrains, armies, session, player} ) {
+    names, owners, flavors, terrains, provinceId, armies, session, player} ) {
   
   const worldRowSize = Math.sqrt(session.world_size);
   const [mergeConfirmation, setMergeConfirmation] = useState(false);
@@ -76,11 +76,14 @@ export default function GameUI(
   if (fromProvince == toProvince) {
     return;
   }
+
   // Check if destination province is neightbour from this province
   const move = fromProvince - toProvince; 
   if (Math.abs(move) == worldRowSize 
     || (move == -1 &&  (fromProvince % worldRowSize != worldRowSize-1))
     || (move == 1 && (fromProvince % worldRowSize != 0)) ) {
+      const province1 = provinceId[fromProvince];
+      const province2 = provinceId[toProvince];
       // Check if the destination province is ours or belongs to another player
       if (owners[toProvince] == owners[fromProvince]) {
         // Only start moving an army if there are any available army slots in dst!
@@ -90,7 +93,7 @@ export default function GameUI(
           || armies[3][toProvince] == null) {      
           console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
           //onUpdateArmies(fromProvince, toProvince, army, fromSlot, false);
-          postMovement(fromProvince, toProvince, session, player, army)
+          postMovement(province1, province2, session, player, army)
 
         } else {
           console.log("No available army slots in that province!");
@@ -98,6 +101,7 @@ export default function GameUI(
       // If the province is not ours, attack!
       } else {
         console.log("attack with army " + army + " from province " + fromProvince + " to " + toProvince);
+        postMovement(province1, province2, session, player, army)
         //onUpdateArmies(fromProvince, toProvince, army, fromSlot, true);
       }
     } else {

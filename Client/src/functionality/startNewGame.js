@@ -248,8 +248,7 @@ function standardProvince(id, session, player, flavor, terrain, name) {
     tools:     getRandomInt(minRes, maxRes),
     workforce: getRandomInt(minMen, maxMen),
     owner: player.name,
-    armies: [],
-    pending_armies: []
+    armies: []
   }
 }
 
@@ -287,7 +286,6 @@ function playerProvince(id, session, player, flavor, terrain, name) {
     tools: stdRes, 
     workforce: 60,
     owner: player.name,
-    armies: [],
-    pending_armies: []
+    armies: []
   }
 }
