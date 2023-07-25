@@ -54,6 +54,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     // Whether to use the upgrade view or the game view
     const [upgradeView, setUpgradeView] = useState(false);
     const [upgrades, setUpgrades] = useState({});
+    const [pending, setPending] = useState({});
 
     // Fetch province information from the server once when opening the game
     // and set slot index of the player.
@@ -70,6 +71,20 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
 
     const getArmies = () => (armies);
     const getSessionId = () => (session._id);
+    
+    /**
+     * @brief: Responsible for the view of pending 
+     * 
+     * @param {String} id: The HTML id of the object to be pending
+     * @param {String} type: The type of the pending action
+     * @param {Integer} start: The time when the pending action was added 
+     * @param {Integer} end: The time when the pending action is expected to be done
+     */
+    const addPending = (id, type, start, end) => {
+        const pendingCopy = {... pending};
+        pendingCopy[id] = {type: type, start: start, end: end};
+        setPending(pendingCopy);
+    };
 
     // Init all provinces when booting up the game
     function initAllProvinces(index) {

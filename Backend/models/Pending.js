@@ -8,10 +8,10 @@ const mongoose = require('mongoose');
  * player: The player that spawned this 
  * start: The start time
  * end: The time in which the action should occur
- * province_number: The province where this action takes place
+ * province: The province._id where this action takes place
  * 
  * (not required):
- * province_number2: When moving between provinces
+ * province2: When moving between provinces
  * army_id: The attacking army
  * text: for example the building or upgrade name
  */
@@ -36,12 +36,12 @@ const PendingSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    province_number: {
-        type: Number,
+    province: {
+        type:  mongoose.Schema.Types.ObjectId,
         required: true
     },
-    province_number2: {
-        type: Number,
+    province2: {
+        type:  mongoose.Schema.Types.ObjectId,
         required: false
     },
     army_id: {

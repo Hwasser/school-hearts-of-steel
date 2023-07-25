@@ -36,7 +36,7 @@ export default function ProvinceBuild(
             return;           
         }
         updateSession(curCost, slotIndex, session._id);
-        updateProvinceDatabase(fromProvince, buildingType, onBuildMenu);
+        updateProvinceDatabase(fromProvince, buildingType, onBuildMenu, session);
         setInactive();
         setErrorMessage('');
     }    
@@ -108,7 +108,7 @@ export default function ProvinceBuild(
 
 
 // Update the province and the player data
-function updateProvinceDatabase(fromProvince, buildingType, onBuildBuilding) {
+function updateProvinceDatabase(fromProvince, buildingType, onBuildBuilding, session) {
     // TODO: Update player resourses
     
     // Replace the province value with one with the new workforce
@@ -131,7 +131,23 @@ function updateProvinceDatabase(fromProvince, buildingType, onBuildBuilding) {
     console.log('Error in replacing province: ' + err);
     });
 
-    
+    // TODO: Remove
+    const pendingAction = {
+        type: 'building',
+        session: session._id,
+        player: session._id, // temp
+        start: session.time,
+        end: session.time + buildings[buildingType].time,
+        province: fromProvince._id,
+        text: buildingType
+    }
+    console.log(pendingAction);
+
+    axios
+    .post(`http://localhost:8082/api/pendings/`, pendingAction)
+    .catch((err) => {
+    console.log('Error with posting pending actions!: ' + err);
+    });
   }
 
   // Update the player resources in the session

@@ -16,6 +16,7 @@ router.get('/:id', (req, res) => {
 // @description add Pending action
 // @access Public
 router.post('/', (req, res) => {
+  console.log(req.body);
   Pending.create(req.body)
     .then(pending => res.json({msg: 'Player added successfully' }))
     .catch(err => res.status(400).json({ error: 'Unable to add this Player' }));

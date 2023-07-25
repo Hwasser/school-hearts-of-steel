@@ -5,6 +5,7 @@
 
 const Session = require('./models/Session');
 const Province = require('./models/Province');
+const Pending = require('./models/Pending');
 
 const gameSessions = {};
 const timePerUpdate = 5000;
@@ -132,8 +133,34 @@ async function updateSession(id) {
         }
         const message = {purpose: 'update_session', package: sessions};
         broadcastMessage(message);
+ 
+        handlePendingEvents(sessions);
     } catch (err) {
         console.log("Couldnt update res:", err);
+    }
+}
+
+async function handlePendingEvents(session) {
+    const finishedEvents = await Pending.find({session: session._id, end: session.time});
+    for (let i = 0; i < finishedEvents.length; i++) {
+        const type = finishedEvents[i].type;
+        switch (type) {
+            case 'building':
+                console.log("pending event: constructed building!");
+                break;
+            case 'upgrade':
+                console.log("pending event: constructed building!");
+                break;
+            case 'move':
+                console.log("pending event: constructed building!");
+                break;
+            case 'attack':
+                console.log("pending event: constructed building!");
+                break;
+            default:
+                console.log("pending event: wrong type!");
+                break;
+        }
     }
 }
 
