@@ -9,6 +9,9 @@ import axios from 'axios';
 import Province from './Province';
 import React, { useState } from 'react';  
 import './GameUI.css';
+import {
+  postMovement} 
+    from '../../functionality/pendingActions';
 
 export default function GameUI( 
   {onSelectAction, onUpdateArmies, onMergeArmies, 
@@ -68,9 +71,8 @@ export default function GameUI(
  * @param {Integer} fromProvince: Province number 
  * @param {Integer} toProvince: Province number 
  * @param {JSON} army: The object id (_id) of an army
- * @param {Integer} fromSlot: The slot number from where the army came
  */
-  function handleMoveArmy(fromProvince, toProvince, army, fromSlot) {
+  function handleMoveArmy(fromProvince, toProvince, army) {
   if (fromProvince == toProvince) {
     return;
   }
@@ -87,14 +89,16 @@ export default function GameUI(
           || armies[2][toProvince] == null 
           || armies[3][toProvince] == null) {      
           console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
-          onUpdateArmies(fromProvince, toProvince, army, fromSlot, false);
+          //onUpdateArmies(fromProvince, toProvince, army, fromSlot, false);
+          postMovement(fromProvince, toProvince, session, player, army)
+
         } else {
           console.log("No available army slots in that province!");
         }
       // If the province is not ours, attack!
       } else {
         console.log("attack with army " + army + " from province " + fromProvince + " to " + toProvince);
-        onUpdateArmies(fromProvince, toProvince, army, fromSlot, true);
+        //onUpdateArmies(fromProvince, toProvince, army, fromSlot, true);
       }
     } else {
       console.log("Province is too far away!");

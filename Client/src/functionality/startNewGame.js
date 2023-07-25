@@ -41,7 +41,8 @@ async function postNewProvinces(allProvinces, sessionId) {
     for (let i = 0; i < nProvinces; i++) {
       const province = allProvinces[i];
       if (province.owner == 'Neutral') {
-        province['army1'] = await postArmyToServer(province, sessionId);
+        const postedArmy = await postArmyToServer(province, sessionId);
+        province.armies.push(postedArmy);
       }
       axios
       .post('http://localhost:8082/api/provinces', province)
@@ -247,7 +248,8 @@ function standardProvince(id, session, player, flavor, terrain, name) {
     tools:     getRandomInt(minRes, maxRes),
     workforce: getRandomInt(minMen, maxMen),
     owner: player.name,
-    army1: null, army2: null, army3: null, army4: null
+    armies: [],
+    pending_armies: []
   }
 }
 
@@ -285,6 +287,7 @@ function playerProvince(id, session, player, flavor, terrain, name) {
     tools: stdRes, 
     workforce: 60,
     owner: player.name,
-    army1: null, army2: null, army3: null, army4: null
+    armies: [],
+    pending_armies: []
   }
 }

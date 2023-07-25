@@ -166,6 +166,7 @@ async function handlePendingEvents(session) {
                 break;
         }
     }
+    Pending.deleteMany({session: session._id, end: session.time});
 }
 
 async function updatePerUser(slotIndex, document, userResources) {

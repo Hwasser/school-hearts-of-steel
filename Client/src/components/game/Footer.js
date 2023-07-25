@@ -10,12 +10,16 @@ import {
 
 /**
  * 
- * @param {dict} properties: All properties of the currently selected province/army
- * @param {function} onRaiseArmy: Function to call in Game when raising an army
- * @param {function} onBuildBuilding: Function to call in Game when building a building
- * @param {dict} session: All information of the current game session (see Session in backend)
- * @param {number} slotIndex: Which index the player has in game session
- * @param {dict} player: Player information (see Player in backend)
+ * @param {Function} onBuildBuilding: Function to call in Game when building a building
+ * @param {Function} onSplitArmy
+ * @param {Function} fetchResourceUpgrades
+ * @param {Function} getArmies
+ * @param {JSON} properties: All properties of the currently selected province/army
+ * @param {JSON} session: All information of the current game session (see Session in backend)
+ * @param {JSON} upgrades:
+ * @param {JSON} player: Player information (see Player in backend)
+ * @param {Integer} slotIndex: Which index the player has in game session
+ * 
  * @returns 
  */
 export default function Footer( {
@@ -23,12 +27,12 @@ export default function Footer( {
   onBuyUpgrade,
   onSplitArmy,
   fetchResourceUpdates,
+  getArmies,
   properties, 
   session, 
   upgrades,
-  slotIndex, 
   player,
-  getArmies} ) {
+  slotIndex} ) {
 
   const [provProp, setProvProp] = useState(properties);
   const [useRaiseMenu, setuseRaiseMenu] = useState(false);
@@ -60,7 +64,7 @@ export default function Footer( {
   function raiseArmyAction(newProvinceInfo) {
     setProvProp(newProvinceInfo); 
     onRaiseArmyMenu();
-    onRaiseArmy(newProvinceInfo);
+    fetchResourceUpdates();
   }
 
   function buildMenuAction(province, buildingType) {

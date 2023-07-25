@@ -104,53 +104,6 @@ export default function ProvinceBuild(
     );
 }
 
-
-
-/*
-// Update the province and the player data
-function updateProvinceDatabase(fromProvince, buildingType, onBuildBuilding, session) {
-    // TODO: Update player resourses
-    
-    // Replace the province value with one with the new workforce
-    const province = fromProvince;
-    // Get the document id of the province
-    const id = province['_id'];
-    // Check which province army slot to put army in
-    const buildingTypes = buildingType + "s";
-    
-    // Push army to database
-    province[buildingTypes] += 1;
-
-    // Update province with army and new value of workforce
-    axios
-    .put(`http://localhost:8082/api/provinces/${id}`, province)
-    .then((res) => {
-        onBuildBuilding(fromProvince);
-    })
-    .catch((err) => {
-    console.log('Error in replacing province: ' + err);
-    });
-
-    // TODO: Remove
-    const pendingAction = {
-        type: 'building',
-        session: session._id,
-        player: session._id, // temp
-        start: session.time,
-        end: session.time + buildings[buildingType].time,
-        province: fromProvince._id,
-        text: buildingType
-    }
-    console.log(pendingAction);
-
-    axios
-    .post(`http://localhost:8082/api/pendings/`, pendingAction)
-    .catch((err) => {
-    console.log('Error with posting pending actions!: ' + err);
-    });
-  }
-*/
-
   // Update the player resources in the session
 function updateSession(curCost, slotIndex, sessionId) {
     // A package with data to send to the backend
