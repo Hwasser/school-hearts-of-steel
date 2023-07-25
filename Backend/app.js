@@ -9,6 +9,7 @@ const armies = require('./routes/api/armies');
 const players = require('./routes/api/players');
 const sessions = require('./routes/api/sessions');
 const upgrades = require('./routes/api/upgrades');
+const pendings = require('./routes/api/pendings');
 
 const app = express();
 const appSSE = express();
@@ -81,6 +82,7 @@ app.use('/api/armies', armies);
 app.use('/api/players', players);
 app.use('/api/sessions', sessions);
 app.use('/api/upgrades', upgrades);
+app.use('/api/pednings', pendings);
 
 const port = process.env.PORT || 8082;
 const port2 = 5001;
