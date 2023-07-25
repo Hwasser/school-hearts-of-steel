@@ -137,8 +137,12 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const armiesCopy = [... armies];
         const ownersCopy = [... provinceOwners];
         // Put new values into copy
-        for (let i = 0; i < province.armies.length; i++) {
-            armiesCopy[i][province.id] = province.armies[i];
+        for (let i = 0; i < maxArmySlots; i++) {
+            if (i < province.armies.length) {
+                armiesCopy[i][province.id] = province.armies[i];    
+            } else {
+                armiesCopy[i][province.id] = null;
+            }
         }
         ownersCopy[province.id] = province.owner;
         // Replace with copy
@@ -276,19 +280,9 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
      * @param {*} inProvince: Which province number the merge happens in 
      */
     function handleMergeArmies(army1, army2, inProvince) {
-        const armyCopy = [... armies];
-        const armySlotPos = new Array(); // The new position of armies in slots in province
-
-        // Push all armies but the one that we are going to merge
-        for (let i = 0; i < maxArmySlots; i++) {
-            if (armyCopy[i][inProvince] != army2) {
-                armySlotPos.push(armyCopy[i][inProvince]);
-            }
-        }  
         // Push the changes to server
         const updatePackage = {
             purpose: "merge_armies",
-            armySlotPos: armySlotPos,
             provinceId: inProvince,
             army1: army1,
             army2: army2
@@ -303,12 +297,15 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
 
     // Update the armies in province if a player merge two armies
     async function handleBroadcastMergeArmies(updatePackage) {
-        const provinceId = updatePackage.province.id;
+        const province = updatePackage.province;
         const armyCopy = [... armies];
-        armyCopy[0][provinceId] = updatePackage.province.army1;
-        armyCopy[1][provinceId] = updatePackage.province.army2;
-        armyCopy[2][provinceId] = updatePackage.province.army3;
-        armyCopy[3][provinceId] = updatePackage.province.army4;
+        for (let i = 0; i < maxArmySlots; i++) {
+            if (i < updatePackage.province.armies.length) {
+                armyCopy[i][province.id] = updatePackage.province.armies[i];    
+            } else {
+                armyCopy[i][province.id] = null;
+            }
+        }
         setArmies(armyCopy);
     }
 

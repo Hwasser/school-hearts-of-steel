@@ -15,20 +15,25 @@ async function mergeArmies(updatePackage) {
     // Get data of both armies
     const army1Document = await Army.findOne({_id: updatePackage.army1});
     const army2Document = await Army.findOne({_id: updatePackage.army2});
-    // Merge armies
+    // Merge armies into army1
     army1Document.soldiers += army2Document.soldiers;
     mergeSoldierTypes(army1Document, army2Document);
     await army1Document.save(); 
-    // Remove the merged army
+    // Remove the merged army (army 2)
     await Army.deleteOne({_id: updatePackage.army2});
     // Store armies in province slots
-    const armySlotPos = updatePackage.armySlotPos;
     const provinceId = updatePackage.provinceId;
     const provinceDocument = await Province.findOne({id: provinceId});
-    provinceDocument.army1 = (armySlotPos.length > 0) ? armySlotPos[0] : null;
-    provinceDocument.army2 = (armySlotPos.length > 1) ? armySlotPos[1] : null;
-    provinceDocument.army3 = (armySlotPos.length > 2) ? armySlotPos[2] : null; 
-    provinceDocument.army4 = (armySlotPos.length > 3) ? armySlotPos[3] : null;
+    // Create a new army list for the province, excluding the removed one
+    const provinceArmies = [];
+    for (let i = 0; i < provinceDocument.armies.length; i++) {
+      const army = provinceDocument.armies[i];
+      if (updatePackage.army2 != army) {
+        provinceArmies.push(army);
+      }
+    }
+    provinceDocument.armies = provinceArmies;
+    // Store and broadcast changes
     provinceDocument.save();
     broadcastMergeArmies(provinceDocument);
 }
