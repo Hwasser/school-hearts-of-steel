@@ -208,7 +208,11 @@ function scavangeResource(provinces, n, workforce, resource) {
 }
 
 
-// Function to send SSE messages to all clients
+/**
+ * @brief: Broadcasts a message for all clients and include their session id 
+ * 
+ * @param {JSON} dataPackage: A ready to go JSON data package 
+ */
 function broadcastMessage(dataPackage) {
     broadcastClients.forEach(client => {
         const current = client['client'];
