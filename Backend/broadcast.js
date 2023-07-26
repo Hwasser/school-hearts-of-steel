@@ -43,9 +43,9 @@ async function broadcastMoveArmy(fromProvince, toProvince) {
     }
 }
 
-async function broadcastAttackWin(fromProvince, toProvince) {
+async function broadcastAttackArmy(fromProvince, toProvince) {
     try {
-        const message = {purpose: 'attack_win', 
+        const message = {purpose: 'attack_army', 
             package: {fromProvince: fromProvince, toProvince: toProvince}};
         broadcastMessage(message);
     } catch (err) {
@@ -53,6 +53,7 @@ async function broadcastAttackWin(fromProvince, toProvince) {
     }
 }
 
+// Broadcast current state of a battle
 async function broadcastAttackBattle(province, soldiers1, soldiers2, performance) {
     try {
         const message = 
@@ -124,7 +125,7 @@ module.exports = {
     broadcastUpdateProvince, 
     broadcastPlayerJoined, 
     broadcastMoveArmy,
-    broadcastAttackWin,
+    broadcastAttackArmy,
     broadcastAttackBattle,
     broadcastHasWon,
     broadcastMergeArmies,

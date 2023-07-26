@@ -145,6 +145,12 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         // Replace with copy
         setArmies(armiesCopy);
         setProvinceOwners(ownersCopy);
+        // Unset battle 
+        if (battle[province.id] != null) {
+            const battleLocal = [... battle]
+            battleLocal[message.province.id] = null;
+            setBattle(battleLocal);
+        }
     }
 
     /**
@@ -156,24 +162,38 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const armiesCopy = [... armies];
         replaceArmiesInProvince(message.fromProvince, armiesCopy);
         replaceArmiesInProvince(message.toProvince, armiesCopy);
-        setArmies(armiesCopy);
-        console.log("Moved army received!");
+        setArmies(armiesCopy);;
     }
 
 
     /**
-     * @brief: Handle broadcast from server telling an army has attacked
+     * @brief: Handle broadcast from an army instantly winning
      * 
      * @param {JSON} message 
      */
-    const handleAttackWin = (message) => {
+    const handleAttackArmy = (message) => {
+        // Update armies in "from" province
         const armiesCopy = [... armies];
         replaceArmiesInProvince(message.fromProvince, armiesCopy);
-        replaceArmiesInProvince(message.toProvince, armiesCopy);
+        // If no army is put as enemy it means instant win
+        if (message.toProvince.enemy_army == null) {
+            const provinceOwnersLocal = [... provinceOwners];
+            provinceOwnersLocal[message.toProvince.id] = message.fromProvince.owner;
+            replaceArmiesInProvince(message.toProvince, armiesCopy);
+        } 
         setArmies(armiesCopy);
-        const provinceOwnersLocal = [... provinceOwners];
-        provinceOwnersLocal[message.toProvince.id] = message.fromProvince.owner;
-        console.log("Player won province received!");
+        // Otherwise, wait for battle to be broadcasted
+    }
+
+    const handleBattleResult = (message) => {
+        // Establish battle results
+        const battleLocal = [... battle]
+        battleLocal[message.province.id] = message;
+        setBattle(battleLocal);
+        // Update armies in province
+        const armiesCopy = [... armies];
+        replaceArmiesInProvince(message.Province, armiesCopy);
+        setArmies(armiesCopy);
     }
 
     /**
@@ -418,7 +438,8 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         armies={armies}    
         session={session}
         player={player}
-    />, [properties, armies, provinceOwners]);
+        battle={battle}
+    />, [properties, armies, provinceOwners, battle]);
     
         
     const renderGame = () => {
@@ -429,7 +450,8 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                     onUpdateResources={handleUpdateSession} 
                     onUpdateProvince={handleUpdateProvince} 
                     onMoveArmy={handleMoveArmy}
-                    onAttackWin={handleAttackWin}
+                    onAttackArmy={handleAttackArmy}
+                    onAttackBattle={handleBattleResult}
                     onPlayerJoined={handlePlayerJoined}
                     onPlayerWon={handlePlayerWon} 
                     onMergeArmies={handleBroadcastMergeArmies}

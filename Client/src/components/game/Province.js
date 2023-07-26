@@ -11,6 +11,7 @@ import image_swamp_rad from "../../graphics/prov_swamp_rad.png";
 import image_urban from "../../graphics/prov_urban.png";
 import image_urban_rad from "../../graphics/prov_urban_rad.png";
 import image_plains_rad from "../../graphics/prov_plain_rad.png";
+import image_swords from "../../graphics/swords.gif";
 
 /**
  * Component for provinces in the main view. 
@@ -21,7 +22,7 @@ import image_plains_rad from "../../graphics/prov_plain_rad.png";
 
 export default function Province(
   { id, onProvinceClick, onArmyClick, onMoveArmy, onMergeArmies, 
-    name, owner, flavor, terrain, armies, session, player }) {
+    name, owner, flavor, terrain, armies, session, player, battle}) {
   // If start dragging an army  
 
   // Setup province colors and set color for each player
@@ -84,7 +85,9 @@ export default function Province(
         ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[2]} onMergeArmies={handleMergeArmies} />
       <Army key={name + '_army4'} name='army4' provinceNumber={id} slotNumber={3} exists={armies[3] != null} 
         ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[3]} onMergeArmies={handleMergeArmies} />
-  
+      {battle && (
+        <img src={image_swords} alt={"battle icon"} className="province_battle_icon" />
+      )}
       </div>
       
   );

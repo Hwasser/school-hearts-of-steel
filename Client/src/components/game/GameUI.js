@@ -15,7 +15,7 @@ import {
 
 export default function GameUI( 
   {onSelectAction, onUpdateArmies, onMergeArmies, 
-    names, owners, flavors, terrains, provinceId, armies, session, player} ) {
+    names, owners, flavors, terrains, provinceId, armies, session, player, battle} ) {
   
   const worldRowSize = Math.sqrt(session.world_size);
   const [mergeConfirmation, setMergeConfirmation] = useState(false);
@@ -148,6 +148,7 @@ export default function GameUI(
             const owner = owners[index];
             const flavor = flavors[index];
             const terrain = terrains[index];
+            const curBattle = battle[index];
             // Armies in province -> provArmies[slot][province index]
             const provArmies = [armies[0][index], armies[1][index], armies[2][index], armies[3][index]]
               listItems.push(<Province 
@@ -163,6 +164,7 @@ export default function GameUI(
                 armies={provArmies}
                 session={session}
                 player={player}
+                battle={curBattle}
               />);
           }
           body.push(<div className='world_row'> {listItems} </div>);

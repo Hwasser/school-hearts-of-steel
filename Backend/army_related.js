@@ -2,18 +2,64 @@
  * Module contains query-functions that are used in routes.
  */
 
+const Upgrade = require('./models/Upgrade');
+const Session = require('./models/Session');
 const Province = require('./models/Province');
 const Army = require('./models/Army');
+
 const { 
     broadcastMoveArmy, 
-    broadcastAttackWin,
+    broadcastAttackArmy,
     broadcastAttackBattle,
     broadcastHasWon, 
     broadcastMergeArmies} = require('./broadcast');
 const { initUpgrades } = require('./GameData/upgradeStats');
 const { units } = require('./GameData/unitStats');
 
+/** Representation of each battle
+ * 
+ * key: province._id
+ * values:
+ *  {
+    province: {... battleProvince},
+    attackerUpgrades: {... attackerUpgrades},
+    defenderUpgrades: {... defenderUpgrades},
+    attackingArmy: {... attackingArmy},
+    defendingArmy: {... defendingArmy},
+    attackingArmyTroops: attackingArmyTroops,
+    defendingArmyTroops: defendingArmyTroops,
+    round: 0
+    }
+ */
 let battles = {};
+
+/**
+ * At each time tick, iterate and perform all battles.
+ * Battle of round = 0 has not started yet.
+ */
+async function iterateBattles() {
+  for (let b in battles) {
+    console.log("Battle in province:", b);
+    if (battles[b].round > 0) {
+      const result = performBattle(battles[b]);
+      if (result == 'win') {
+        // Delete enemy army
+        await Army.deleteOne({_id: battles[b].defendingArmy._id});
+        // Remove it from province
+        battles[b].province.armies.pop();
+        // Continue 
+        if (battles[b].province.armies.length > 0) {
+          continueBattle(battles[b]);
+        } else {
+          const enemy = battles[b].attackArmy;
+          battles[b].province.owner = enemy.owner;
+          battles[b].province.armies.push(enemy._id);
+          broadcastAttackArmy(province1, province2)
+        }
+      }
+    }
+  }
+}
 
 async function mergeArmies(updatePackage) {
     // Get data of both armies
@@ -122,21 +168,22 @@ async function attackArmy(event, province1, province2) {
     if (province2.armies.length == 0) {
       province2.owner = province1.owner;
       province2.armies.push(event.army_id);
-      broadcastAttackWin(event, province1.owner, province2)
+      broadcastAttackArmy(province1, province2)
     } else {
       // .. otherwise move army into their province
       province2.enemy_army = event.army_id;
-      findBattle(province1, province2)
+      broadcastAttackArmy(province1, province2)
+      findBattle(event, province1, province2)
     }
     province1.save();
     province2.save();
   } 
 }
 
-async function findBattle(event, attackerName, battleProvince) {
+async function findBattle(event, fromProvince, battleProvince) {
   // Get session and session slots
   const gameSession = await Session.findOne({_id: event.session});
-  const attackerSlot = gameSession.slot_names.findIndex( (e) => e == attackerName);
+  const attackerSlot = gameSession.slot_names.findIndex( (e) => e == fromProvince.owner);
   const defenderSlot = gameSession.slot_names.findIndex( (e) => e == battleProvince.owner);
   // Get upgrades of both sides
   const attackerUpgrades = await Upgrade.findOne({_id: gameSession.upgrades[attackerSlot]});
@@ -145,26 +192,46 @@ async function findBattle(event, attackerName, battleProvince) {
     ? await Upgrade.findOne({_id: gameSession.upgrades[defenderSlot]})
     : {...initUpgrades};
   // Get the attackers army data
-  const attackingArmy  = await Province.findOne({_id: event.army_id});
+  const attackingArmy  = await Army.findOne({_id: event.army_id});
   // Get the defenders army data
   const getEnemy = battleProvince.armies.slice(-1).pop();
-  const defendingArmy = await Province.findOne({_id: event.army_id});
+  const defendingArmy = await Army.findOne({_id: getEnemy});
   // Set up troops in each army
   let attackingArmyTroops = setUpSoldiers(attackingArmy, attackerUpgrades);
   let defendingArmyTroops = setUpSoldiers(defendingArmy, defenderUpgrades);
-  
+
   // Start a battle
   const battle = {
-    province: {... battleProvince},
-    attackerUpgrades: {... attackerUpgrades},
-    defenderUpgrades: {... defenderUpgrades},
-    attackingArmy: {... attackingArmy},
-    defendingArmy: {... defendingArmy},
+    province: battleProvince,
+    attackerUpgrades: attackerUpgrades,
+    defenderUpgrades: defenderUpgrades,
+    attackingArmy: attackingArmy,
+    defendingArmy: defendingArmy,
     attackingArmyTroops: attackingArmyTroops,
     defendingArmyTroops: defendingArmyTroops,
     round: 0
   };
   battles[battleProvince._id] = battle;
+  // Calculate how the battle is going and broadcast to all players
+  const performance = calculatePerformance(battle);
+  broadcastAttackBattle(
+    battleProvince, 
+    attackingArmyTroops.length, 
+    defendingArmyTroops.length, 
+    performance);
+    
+    console.log("findBattle: Everything worked!!"); // TODO: REMOVE
+}
+
+async function continueBattle(battle) {
+  // Get the defenders next army data
+  const getEnemy = battleProvince.armies.slice(-1).pop();
+  const defendingArmy = await Army.findOne({_id: getEnemy});
+  // Set up new army
+  let defendingArmyTroops = setUpSoldiers(defendingArmy, defenderUpgrades);
+  battle.defendingArmyTroops = defendingArmyTroops;
+  // Reset round in new battle
+  battle.round = 0;
   // Calculate how the battle is going and broadcast to all players
   const performance = calculatePerformance(battle);
   broadcastAttackBattle(
@@ -179,18 +246,18 @@ async function performBattle(battle) {
   const terrain = battle.province.terrain;
   const forts   = battle.province.forts;
   
-      // Let both sides attack
-      for (let i = 0; i < attackingArmyTroops.length; i++) {
-          const attackMod = attackingArmyTroops[i]['attack_mod'][terrain];
-          performAttack(attackingArmyTroops, defendingArmyTroops, i, attackMod, forts);
-      }
-      for (let i = 0; i < defendingArmyTroops.length; i++) {
-          const defenceMod = defendingArmyTroops[i]['defence_mod'][terrain];
-          performAttack(defendingArmyTroops, attackingArmyTroops, i, defenceMod, 0);
-      }
-      // After the attacks, kill all units with HP < 0
-      battle.attackingArmyTroops = battle.attackingArmyTroops.filter(e => e.hp > 0);
-      battle.defendingArmyTroops = battle.defendingArmyTroops.filter(e => e.hp > 0); 
+  // Let both sides attack
+  for (let i = 0; i < attackingArmyTroops.length; i++) {
+      const attackMod = attackingArmyTroops[i]['attack_mod'][terrain];
+      performAttack(attackingArmyTroops, defendingArmyTroops, i, attackMod, forts);
+  }
+  for (let i = 0; i < defendingArmyTroops.length; i++) {
+      const defenceMod = defendingArmyTroops[i]['defence_mod'][terrain];
+      performAttack(defendingArmyTroops, attackingArmyTroops, i, defenceMod, 0);
+  }
+  // After the attacks, kill all units with HP < 0
+  battle.attackingArmyTroops = battle.attackingArmyTroops.filter(e => e.hp > 0);
+  battle.defendingArmyTroops = battle.defendingArmyTroops.filter(e => e.hp > 0); 
 
   // Count survivors in both armies
   const attackLeft  = countSurvivors(battle.attackingArmy, battle.attackingArmyTroops);
@@ -218,10 +285,31 @@ async function performBattle(battle) {
       battle.attackingArmyTroops.length, 
       battle.defendingArmyTroops.length, 
       performance);
+    return '';
   }
 
 
    console.log("ERROR! This should never happen!");}
+
+/**
+ * @brief: A single unit shooting at an enemy 
+ * 
+ * @param {Array} attacker: An array of the attackers units
+ * @param {Array} attacked: An array of the units of the attacked player 
+ * @param {Integer} n: The number of the unit in the array 
+ * @param {Float} mod: The damage modifier related to terrain 
+ * @param {Integer} forts: The forts in the battle province 
+ */
+function performAttack(attacker, attacked, n, mod, forts) {
+  const soldier = attacker[n];
+  const enemyNumber = Math.floor(Math.random()*attacked.length)
+  // Damage (for example 6-10 means random damage between 6 and 10)
+  const damage = soldier.damage_low + Math.random()*(soldier.damage_high - soldier.damage_low);
+  // How much damage can actually go through the armor
+  const inflictedDamage = damage * (1-attacked[enemyNumber].hardness) + soldier.piercing;
+  // Change enemy hp depending on terrain modifier
+  attacked[enemyNumber].hp -= Math.round(inflictedDamage * (mod - forts*0.10));
+}
 
 /**
  * @brief: Count survivors, remove non existing army types and re-calculate n of soldiers
@@ -268,6 +356,7 @@ function calculatePerformance(battle) {
     defendPerf += Math.log10((unit.damage_low + unit.damage_high + unit.piercing * 2
       + unit.hardness * 25) * unit.hp * unit.attack_mod[terrain] * ((10-fort)*0.1));
   }
+
   return attackPerf / defendPerf;
 }
 

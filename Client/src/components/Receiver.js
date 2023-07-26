@@ -39,7 +39,8 @@ export default function Receiver({
   onUpdateResources,
   onUpdateProvince,
   onMoveArmy,
-  onAttackWin,
+  onAttackArmy,
+  onAttackBattle,
   onPlayerJoined,
   onPlayerWon,
   onMergeArmies,
@@ -77,9 +78,13 @@ export default function Receiver({
                 console.log("Received: move_army");
                 onMoveArmy(document.package);
                 break;
-              case 'attack_win':
-                console.log("Received: attack_win");
-                onAttackWin(document.package);
+              case 'attack_army':
+                console.log("Received: attack_army");
+                onAttackArmy(document.package);
+                break;
+              case 'attack_battle':
+                console.log("Received: attack_battle");
+                onAttackBattle(document.package);
                 break;
               case 'player_won':
                 console.log("Received: player_won");
@@ -105,7 +110,7 @@ export default function Receiver({
         }
       };
     }
-  }, [eventSession, onUpdateResources, onUpdateProvince, onMoveArmy, onAttackWin, onPlayerJoined, onPlayerWon, onPlayerConnect]);
+  }, [eventSession, onUpdateResources, onUpdateProvince, onMoveArmy, onAttackArmy, onAttackBattle, onPlayerJoined, onPlayerWon, onPlayerConnect]);
 
   return (
     <div>
