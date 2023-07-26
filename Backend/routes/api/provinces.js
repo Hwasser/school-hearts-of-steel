@@ -5,7 +5,7 @@ const {
   broadcastPlayerJoined} = require('../../broadcast');
 const {
   mergeArmies
-} = require('../../queryfunctions');
+} = require('../../army_related');
 
 const Province = require('../../models/Province');
 const Army = require('../../models/Army');

@@ -1,5 +1,5 @@
 import axios from 'axios';
-const { flavors, terrains, firstNames, lastNames } = require('../provinceStats');
+const { flavors, terrains, firstNames, lastNames } = require('../GameData/provinceStats');
 
 /**
  * All logic for starting a new game

@@ -8,7 +8,7 @@ const Pending = require('./models/Pending');
 
 const {
     attackOrMoveArmy
-  } = require('./queryfunctions');
+  } = require('./army_related');
 const {
     broadcastMessage,
     broadcastUpdateProvince

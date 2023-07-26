@@ -7,7 +7,7 @@ import Xarrow from "react-xarrows";
 import axios from 'axios';
 
 import './UpgradeUI.css';
-import { upgradeNames, upgradeTexts, upgradeDependencies, upgradeCosts } from '../../upgradeStats';
+import { upgradeNames, upgradeTexts, upgradeDependencies, upgradeCosts } from '../../GameData/upgradeStats';
 
 export default function UpgradeUI( {onSelectUpgrade, upgrades} ) {
     function dependencies(listOfDeps) {

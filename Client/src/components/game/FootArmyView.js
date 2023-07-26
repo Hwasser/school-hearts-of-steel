@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './FootArmyView.css';  
-const { units } = require('../../unitStats');
+const { units } = require('../../GameData/unitStats');
 
 export default function FootArmyView({onSplitArmy, provProp, upgrades, isOwner, getArmies}) {
   // Whether or not to use the split menu

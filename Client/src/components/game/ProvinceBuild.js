@@ -4,7 +4,7 @@
 import './ProvinceBuild.css';
 import axios from 'axios';
 import { useState } from 'react';  
-const { buildings } = require('../../provinceStats');
+const { buildings } = require('../../GameData/provinceStats');
 
 export default function ProvinceBuild(
     { buildingType, setInactive, fromProvince, onBuildMenu, session, slotIndex} ) {

@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { initUpgrades } from '../upgradeStats';
-const { units } = require('../unitStats');
+import { initUpgrades } from '../GameData/upgradeStats';
+const { units } = require('../GameData/unitStats');
 
 /**
  * All action for the armies such as move, attack, battle, conquer etc

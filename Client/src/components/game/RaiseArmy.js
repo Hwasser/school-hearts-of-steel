@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useState } from 'react';  
 
 import './RaiseArmy.css';  
-const { units } = require('../../unitStats');
+const { units } = require('../../GameData/unitStats');
 
 // Slider code inspired by "https://codepen.io/rmichels/pen/WNegjyK"
 
