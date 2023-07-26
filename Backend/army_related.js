@@ -6,7 +6,7 @@ const Province = require('./models/Province');
 const Army = require('./models/Army');
 const { 
     broadcastMoveArmy, 
-    broadcastAttackArmy,
+    broadcastAttackWin,
     broadcastHasWon, 
     broadcastMergeArmies} = require('./broadcast');
 const { initUpgrades } = require('./GameData/upgradeStats');
@@ -121,6 +121,7 @@ async function attackArmy(event, province1, province2) {
     if (province2.armies.length == 0) {
       province2.owner = province1.owner;
       province2.armies.push(event.army_id);
+      broadcastAttackWin(event, province1.owner, province2)
     } else {
       // .. otherwise move army into their province
       province2.enemy_army = event.army_id;
@@ -128,7 +129,6 @@ async function attackArmy(event, province1, province2) {
     }
     province1.save();
     province2.save();
-    broadcastAttackArmy(event, province1.owner, province2)
   } 
 }
 

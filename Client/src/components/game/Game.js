@@ -166,13 +166,14 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
      * 
      * @param {JSON} message 
      */
-    const handleAttackArmy = (message) => {
+    const handleAttackWin = (message) => {
         const armiesCopy = [... armies];
         replaceArmiesInProvince(message.fromProvince, armiesCopy);
         replaceArmiesInProvince(message.toProvince, armiesCopy);
         setArmies(armiesCopy);
-        setBattle(message.toProvince.id);
-        console.log("Attack army received!");
+        const provinceOwnersLocal = [... provinceOwners];
+        provinceOwnersLocal[message.toProvince.id] = message.fromProvince.owner;
+        console.log("Player won province received!");
     }
 
     /**
@@ -428,7 +429,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                     onUpdateResources={handleUpdateSession} 
                     onUpdateProvince={handleUpdateProvince} 
                     onMoveArmy={handleMoveArmy}
-                    onAttackArmy={handleAttackArmy}
+                    onAttackWin={handleAttackWin}
                     onPlayerJoined={handlePlayerJoined}
                     onPlayerWon={handlePlayerWon} 
                     onMergeArmies={handleBroadcastMergeArmies}

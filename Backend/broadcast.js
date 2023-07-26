@@ -43,9 +43,9 @@ async function broadcastMoveArmy(fromProvince, toProvince) {
     }
 }
 
-async function broadcastAttackArmy(fromProvince, toProvince) {
+async function broadcastAttackWin(fromProvince, toProvince) {
     try {
-        const message = {purpose: 'attack_army', 
+        const message = {purpose: 'attack_win', 
             package: {fromProvince: fromProvince, toProvince: toProvince}};
         broadcastMessage(message);
     } catch (err) {
