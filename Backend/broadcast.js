@@ -53,6 +53,23 @@ async function broadcastAttackWin(fromProvince, toProvince) {
     }
 }
 
+async function broadcastAttackBattle(province, soldiers1, soldiers2, performance) {
+    try {
+        const message = 
+            {purpose: 'attack_battle', 
+                package: {
+                    province: province,
+                    soldiers1: soldiers1,
+                    soldiers2: soldiers2,
+                    performance: performance
+            }
+        };
+        broadcastMessage(message);
+    } catch (err) {
+        console.log("Failed to attack with army:", err);
+    }
+}
+
 async function broadcastMergeArmies(province) {
     try {
         const message = {purpose: 'merge_armies', 
@@ -107,7 +124,8 @@ module.exports = {
     broadcastUpdateProvince, 
     broadcastPlayerJoined, 
     broadcastMoveArmy,
-    broadcastAttackArmy,
+    broadcastAttackWin,
+    broadcastAttackBattle,
     broadcastHasWon,
     broadcastMergeArmies,
     broadcastMessage

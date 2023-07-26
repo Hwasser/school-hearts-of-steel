@@ -7,6 +7,7 @@ const Army = require('./models/Army');
 const { 
     broadcastMoveArmy, 
     broadcastAttackWin,
+    broadcastAttackBattle,
     broadcastHasWon, 
     broadcastMergeArmies} = require('./broadcast');
 const { initUpgrades } = require('./GameData/upgradeStats');
@@ -153,8 +154,8 @@ async function findBattle(event, attackerName, battleProvince) {
   let defendingArmyTroops = setUpSoldiers(defendingArmy, defenderUpgrades);
   
   // Start a battle
-  battles[battleProvince._id] = {
-    battleProvince: {... battleProvince},
+  const battle = {
+    province: {... battleProvince},
     attackerUpgrades: {... attackerUpgrades},
     defenderUpgrades: {... defenderUpgrades},
     attackingArmy: {... attackingArmy},
@@ -163,10 +164,119 @@ async function findBattle(event, attackerName, battleProvince) {
     defendingArmyTroops: defendingArmyTroops,
     round: 0
   };
+  battles[battleProvince._id] = battle;
+  // Calculate how the battle is going and broadcast to all players
+  const performance = calculatePerformance(battle);
+  broadcastAttackBattle(
+    battleProvince, 
+    attackingArmyTroops.length, 
+    defendingArmyTroops.length, 
+    performance);
+}
+
+async function performBattle(battle) {
+  // Get terrain and the number of forts in the province, since this affect outcome
+  const terrain = battle.province.terrain;
+  const forts   = battle.province.forts;
+  
+      // Let both sides attack
+      for (let i = 0; i < attackingArmyTroops.length; i++) {
+          const attackMod = attackingArmyTroops[i]['attack_mod'][terrain];
+          performAttack(attackingArmyTroops, defendingArmyTroops, i, attackMod, forts);
+      }
+      for (let i = 0; i < defendingArmyTroops.length; i++) {
+          const defenceMod = defendingArmyTroops[i]['defence_mod'][terrain];
+          performAttack(defendingArmyTroops, attackingArmyTroops, i, defenceMod, 0);
+      }
+      // After the attacks, kill all units with HP < 0
+      battle.attackingArmyTroops = battle.attackingArmyTroops.filter(e => e.hp > 0);
+      battle.defendingArmyTroops = battle.defendingArmyTroops.filter(e => e.hp > 0); 
+
+  // Count survivors in both armies
+  const attackLeft  = countSurvivors(battle.attackingArmy, battle.attackingArmyTroops);
+  const defenceLeft = countSurvivors(battle.defendingArmy, battle.defendingArmyTroops);
+  // Update both armies
+  battle.attackingArmy.soldiers = attackLeft;
+  battle.defendingArmy.soldiers = defenceLeft;
+  
+  if (battle.attackingArmyTroops.length == 0 && battle.defendingArmyTroops.length == 0) {
+    if (attackLeft == defenceLeft) {
+        return 'draw';
+    }
+    if (attackLeft < defenceLeft) {
+        return 'lose';
+    }
+    if (attackLeft > defenceLeft) {
+        return 'win';
+    }
+  } else {
+    battle.round -= 1;
+    // Calculate how the battle is going and broadcast to all players
+    const performance = calculatePerformance(battle);
+    broadcastAttackBattle(
+      battle.province, 
+      battle.attackingArmyTroops.length, 
+      battle.defendingArmyTroops.length, 
+      performance);
+  }
+
+
+   console.log("ERROR! This should never happen!");}
+
+/**
+ * @brief: Count survivors, remove non existing army types and re-calculate n of soldiers
+ * 
+ * @param {JSON} army: The MongoDB document object for the army
+ * @param {Array} troops: An array representing all units in the army 
+ */
+function countSurvivors(army, troops) {
+  let soldiers = 0;
+  // Iterate all types of troops and check how many is left
+  for (let u in units) {
+      const troopsLeft = troops.filter(e => e.type == u) 
+      if (troopsLeft.length == 0) {
+          delete army[u]; 
+      } else {
+          army[u] = troopsLeft.length;
+          soldiers += troopsLeft.length;
+      }
+  }
+  return soldiers;
+}
+
+/**
+ * @brief: Iterate through both armies and calculate how the battle is going 
+ * 
+ * @param {Dict} battle 
+ * @returns A float number indicating the performance, perf < 1 if attacker is losing
+ */
+function calculatePerformance(battle) {
+  const attackers = battle.attackingArmyTroops; 
+  const defenders = battle.defendingArmyTroops; 
+  const terrain = battle.province.terrain; 
+  const fort = battle.province.forts;
+
+  let attackPerf = 0;
+  let defendPerf = 0;
+  for (let i = 0; i < attackers.length; i++) {
+    const unit = attackers[i];
+    attackPerf += Math.log10((unit.damage_low + unit.damage_high + unit.piercing * 2
+    + unit.hardness * 25) * unit.hp * unit.attack_mod[terrain] * ((10-fort)*0.1));
+  }
+  for (let i = 0; i < defenders.length; i++) {
+    const unit = defenders[i];
+    defendPerf += Math.log10((unit.damage_low + unit.damage_high + unit.piercing * 2
+      + unit.hardness * 25) * unit.hp * unit.attack_mod[terrain] * ((10-fort)*0.1));
+  }
+  return attackPerf / defendPerf;
 }
 
 /**
  * @brief: Sets up array of units, representing an army during battle
+ * 
+ * VARIANT: 6 soldiers, 4 militia och 2 raiders:
+ *          [militia][militia][militia][militia][raider][raider]
+ *          each cell containing an entry from units in the unitStats-file
  * 
  * @param {JSON} army: The MongoDB document object for the army
  * @param {JSON} upgrades: The upgrade tree beloning to the owner of the army
