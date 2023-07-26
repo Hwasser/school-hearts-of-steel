@@ -21,7 +21,7 @@ import image_swords from "../../graphics/swords.gif";
  */
 
 export default function Province(
-  { id, onProvinceClick, onArmyClick, onMoveArmy, onMergeArmies, 
+  { id, onProvinceClick, onArmyClick, onMoveArmy, onMergeArmies, onBattleClick,
     name, owner, flavor, terrain, armies, session, player, battle}) {
   // If start dragging an army  
 
@@ -86,7 +86,7 @@ export default function Province(
       <Army key={name + '_army4'} name='army4' provinceNumber={id} slotNumber={3} exists={armies[3] != null} 
         ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[3]} onMergeArmies={handleMergeArmies} />
       {battle && (
-        <img src={image_swords} alt={"battle icon"} className="province_battle_icon" />
+        <img src={image_swords} alt={"battle icon"} className="province_battle_icon" onClick={() => onBattleClick(id)} />
       )}
       </div>
       

@@ -4,6 +4,7 @@ import RaiseArmy from './RaiseArmy';
 import ProvinceBuild from './ProvinceBuild';
 import FootArmyView from './FootArmyView';
 import FootUpgradeView from './FootUpgradeView';
+import FootBattleView from './FootBattleView';
 import {
   postBuilding} 
     from '../../functionality/pendingActions';
@@ -78,6 +79,10 @@ export default function Footer( {
   } else if (properties['type'] == 'upgrade') {
     if (footerType !== 'upgrade') {
       setFooterType('upgrade');
+    }
+  } else if (properties['performance'] != null) {
+    if (footerType !== 'battle') {
+      setFooterType('battle');
     }
   } else {
     if (footerType !== 'province') {
@@ -251,6 +256,10 @@ export default function Footer( {
         onBuyUpgrade={onBuyUpgrade} 
         session={session} 
         slotIndex={slotIndex} /> 
+    )}
+    {(footerType === 'battle') && (
+      <FootBattleView 
+        properties={{... provProp}}  /> 
     )}
     </>
   );

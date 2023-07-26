@@ -1,0 +1,11 @@
+#battle_army_left {
+    background-color: lightcoral;
+    border-right: 2px solid blue;
+    margin-right: 0;
+}
+
+#battle_army_right {
+    background-color: lightskyblue;
+    border-left: 2px solid blue;
+    margin-left: 0;
+}

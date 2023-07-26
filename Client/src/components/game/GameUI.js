@@ -14,7 +14,7 @@ import {
     from '../../functionality/pendingActions';
 
 export default function GameUI( 
-  {onSelectAction, onUpdateArmies, onMergeArmies, 
+  {onSelectAction, onMergeArmies,
     names, owners, flavors, terrains, provinceId, armies, session, player, battle} ) {
   
   const worldRowSize = Math.sqrt(session.world_size);
@@ -24,7 +24,7 @@ export default function GameUI(
  /**
   * @param {Integer} index: The province number 
   */
-  function onSelectProvince(index) {
+  function handleSelectProvince(index) {
     axios.get('http://localhost:8082/api/provinces/', {
       params: { id: index}
     })
@@ -42,7 +42,7 @@ export default function GameUI(
    * 
    * @param {String} id: The object id (_id) of an army 
    */
-  function onSelectArmy(id) {
+  function handleSelectArmy(id) {
     if (id == null) {
       return;
     }
@@ -54,6 +54,14 @@ export default function GameUI(
     .catch( (e) => {
       console.log(e)
     });
+  }
+
+  /**
+   * 
+   * @param {Integer} number: Which battle is selected
+   */
+  function handleSelectBattle(number) {
+    onSelectAction(battle[number]);
   }
   
   /**
@@ -153,8 +161,9 @@ export default function GameUI(
             const provArmies = [armies[0][index], armies[1][index], armies[2][index], armies[3][index]]
               listItems.push(<Province 
                 id={index} 
-                onProvinceClick={ () => onSelectProvince(index) }
-                onArmyClick={onSelectArmy}
+                onProvinceClick={ () => handleSelectProvince(index) }
+                onBattleClick={handleSelectBattle}
+                onArmyClick={handleSelectArmy}
                 onMoveArmy={handleMoveArmy}
                 onMergeArmies={handleMergeArmies}
                 owner={owner}
