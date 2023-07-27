@@ -26,7 +26,7 @@ export default function GameUI(
   */
   function handleSelectProvince(index) {
     axios.get('http://localhost:8082/api/provinces/', {
-      params: { id: index}
+      params: { purpose: "get_by_n", id: index}
     })
     .then( (res) => {
       if (res.data.length !== 0) {
@@ -100,7 +100,6 @@ export default function GameUI(
           || armies[2][toProvince] == null 
           || armies[3][toProvince] == null) {      
           console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
-          //onUpdateArmies(fromProvince, toProvince, army, fromSlot, false);
           postMovement(province1, province2, session, player, army)
 
         } else {
@@ -110,7 +109,6 @@ export default function GameUI(
       } else {
         console.log("attack with army " + army + " from province " + fromProvince + " to " + toProvince);
         postMovement(province1, province2, session, player, army)
-        //onUpdateArmies(fromProvince, toProvince, army, fromSlot, true);
       }
     } else {
       console.log("Province is too far away!");

@@ -73,6 +73,8 @@ async function iterateBattles(id) {
           newProvince.armies = [battle.attackingArmy._id];
           newProvince.enemy_army = null;
           newProvince.save();
+          // And update the attacker army due to causalities
+          battle.attackingArmy.save();
           await broadcastUpdateProvince(newProvince);
           endedBattles.push(b);
         }
@@ -84,6 +86,8 @@ async function iterateBattles(id) {
         newProvince.enemy_army = null;
         newProvince.save();
         await broadcastUpdateProvince(newProvince);
+        // Update the defending army to show causalities
+        battle.defendingArmy.save();
         endedBattles.push(b);
       } else if (result == 'draw') {
         // Kill both armies and broadcast

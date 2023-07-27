@@ -71,20 +71,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
 
     const getArmies = () => (armies);
     const getSessionId = () => (session._id);
-    
-    /**
-     * @brief: Responsible for the view of pending 
-     * 
-     * @param {String} id: The HTML id of the object to be pending
-     * @param {String} type: The type of the pending action
-     * @param {Integer} start: The time when the pending action was added 
-     * @param {Integer} end: The time when the pending action is expected to be done
-     */
-    const addPending = (id, type, start, end) => {
-        const pendingCopy = {... pending};
-        pendingCopy[id] = {type: type, start: start, end: end};
-        setPending(pendingCopy);
-    };
 
     // Init all provinces when booting up the game
     function initAllProvinces(index) {
@@ -95,7 +81,9 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const localProvinceId = Array(nProvinces);
         const localArmies = [... armies]
         
-        axios.get('http://localhost:8082/api/provinces/')
+        axios.get('http://localhost:8082/api/provinces/', {
+            params: { purpose: "get_all", session: session._id}
+        })
         .then( (res) => {
             if (res.data.length !== 0) {
                 for (let i = 0; i < nProvinces; i++) {
@@ -118,6 +106,14 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                 setProvinceId(localProvinceId);
                 setArmies(localArmies);
             }
+        })
+        .catch( (e) => {
+            console.log(e)
+        });
+
+        axios.get(`http://localhost:8082/api/pendings/${session._id}`)
+        .then( (res) => {
+            console.log("PENDING:", res.data);
         })
         .catch( (e) => {
             console.log(e)
@@ -288,42 +284,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     /**
-     * @brief: Handle changes of armies coming from this client, handles movement and attack
-     * 
-     * @param {Integer} fromProvince: Province we're moving from
-     * @param {Integer} toProvince: Province we're moving against
-     * @param {JSON} army: Document id of the army
-     * @param {Integer} fromSlot: Army slot the army comes from
-     * @param {Boolean} isAttacking: Whether or not the army is attacking
-     */
-    async function handleUpdateArmies(fromProvince, toProvince, army, fromSlot, isAttacking) {
-        
-        
-        /*
-        // Get a copy of all army slots
-        const armiesCopy = [... armies];
-        
-        // Perform movement or attack of army
-        let newOwner = '';
-        if (isAttacking) {
-            newOwner = await armyAttack(fromProvince, toProvince, army, fromSlot, session, upgrades, armiesCopy);
-        } else {
-            await armyMove(fromProvince, toProvince, army, fromSlot, armiesCopy);
-        }
-
-        // Update armies in view
-        setArmies([armiesCopy[0], armiesCopy[1], armiesCopy[2], armiesCopy[3]]);
-
-        // Update province owners if army won an attack
-        if (newOwner != '') {
-            const provinceOwnersLocal = provinceOwners.slice(0,nProvinces);
-            provinceOwnersLocal[toProvince] = newOwner;
-            setProvinceOwners(provinceOwnersLocal);
-        }
-        */
-    }
-
-    /**
      * @brief: Merge two armies. Updates the database and state.
      * @param {*} army1: The document id of a army
      * @param {*} army2: The document id of a army
@@ -454,7 +414,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     const gameui = React.useMemo( () => 
     <GameUI 
         onSelectAction={handleSelectAction} 
-        onUpdateArmies={handleUpdateArmies}
         onMergeArmies={handleMergeArmies}
         names={provinceNames} 
         owners={provinceOwners}

@@ -11,19 +11,21 @@ const Province = require('../../models/Province');
 const Army = require('../../models/Army');
 
 
-router.get('/test', (req, res) => res.send('test route for provinces'));
-
 // @route GET api/provinces
 // @description Get all provinces
 // @access Public
 router.get('/', (req, res) => {
-  const province_id = req.query.id;
-  if (province_id != null) {
-    Province.find({id: province_id})
+  console.log(req.query.purpose);
+  // Get one province by its province number
+  if (req.query.purpose == "get_by_n") {
+    Province.find({id: req.query.id})
       .then(provinces => res.json(provinces))
       .catch(err => res.status(404).json({ noprovincesfound: 'No provinces found' }));
-  } else {
-    Province.find()
+  }
+  // Get all provinces from a game session
+  if (req.query.purpose == "get_all") {
+    
+    Province.find({session: req.query.session})
       .then(provinces => res.json(provinces))
       .catch(err => res.status(404).json({ noprovincesfound: 'No provinces found' }));
   }

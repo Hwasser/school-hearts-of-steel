@@ -4,10 +4,10 @@ const router = express.Router();
 const Pending = require('../../models/Pending');
 
 // @route GET api/pendings/:id
-// @description Get single Pending by sessions
+// @description Get all Pending events by a session id
 // @access Public
 router.get('/:id', (req, res) => {
-    Pending.findMany({session: req.params.id})
+    Pending.find({session: req.params.id})
       .then(sessions => res.json(sessions))
       .catch(err => res.status(404).json({ noarmyfound: 'No pending actions found' }));
   });
