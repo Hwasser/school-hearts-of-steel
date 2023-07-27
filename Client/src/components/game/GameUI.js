@@ -6,6 +6,7 @@
  */
 
 import axios from 'axios';
+import Xarrow from "react-xarrows";
 import Province from './Province';
 import React, { useState } from 'react';  
 import './GameUI.css';
@@ -15,7 +16,7 @@ import {
 
 export default function GameUI( 
   {onSelectAction, onMergeArmies,
-    names, owners, flavors, terrains, provinceId, armies, session, player, battle} ) {
+    names, owners, flavors, terrains, provinceId, armies, session, player, battle, pending} ) {
   
   const worldRowSize = Math.sqrt(session.world_size);
   const [mergeConfirmation, setMergeConfirmation] = useState(false);

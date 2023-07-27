@@ -273,7 +273,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         axios.get(`http://localhost:8082/api/pendings/${session._id}`)
         .then( (res) => {
             setPending(res.data);
-            console.log(res.data);
+            console.log("PENDING EVENTS:", res.data);
         })
         .catch( (e) => {
             console.log(e)
@@ -430,6 +430,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         session={session}
         player={player}
         battle={battle}
+        pending={pending}
     />, [properties, armies, provinceOwners, battle]);
     
         
