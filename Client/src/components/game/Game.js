@@ -111,13 +111,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             console.log(e)
         });
 
-        axios.get(`http://localhost:8082/api/pendings/${session._id}`)
-        .then( (res) => {
-            console.log("PENDING:", res.data);
-        })
-        .catch( (e) => {
-            console.log(e)
-        });
+        getPendingData();
     }
 
     //--------------------------------------------------
@@ -128,6 +122,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const updatedSession = receiveResourceUpdate(message, {... session}, slotIndex);
         updatedSession.time = message.time;
         setSession(updatedSession);
+        getPendingData()
     }
 
     const handleUpdateProvince = (message) => {
@@ -272,6 +267,17 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             console.log('Error in updating session: ' + err);
             
         });  
+    }
+
+    function getPendingData() {
+        axios.get(`http://localhost:8082/api/pendings/${session._id}`)
+        .then( (res) => {
+            setPending(res.data);
+            console.log(res.data);
+        })
+        .catch( (e) => {
+            console.log(e)
+        });
     }
 
 
