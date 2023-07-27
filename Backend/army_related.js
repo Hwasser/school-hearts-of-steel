@@ -1,5 +1,11 @@
 /**
- * Module contains query-functions that are used in routes.
+ * Module contains all army related in the backend.
+ * 
+ * All pending events are being fired in the backend and thus will occur even
+ * if the player accidently refreshes or closes the browser.
+ * 
+ * Battles also occur 100% is the backend and the result from each tick
+ * is broadcasted to the players.
  */
 
 const Upgrade = require('./models/Upgrade');
@@ -41,40 +47,39 @@ let battles = {};
  * @param {String} id: A game session id 
  */
 async function iterateBattles(id) {
-  console.log("iterateBattles");
+  // This represents all battles that has ended after this round
   const endedBattles = [];
+  // Iterate all battles
   for (let b in battles) {
     const battle = battles[b];
+    // Check whether this battle is part of the session that tries to process it
     if (battle.session.toString() == id.toString()) {
-      console.log("Battle occurs:", id);
+      // This is the execution of battle round
       const result = await performBattle(battle);
-      console.log("RESULT:", result);
+      // If the player won against an army (there can be multiple armies in a province)
       if (result == 'win') {
         console.log("Won!");
-        // Delete enemy army
-        console.log()
+        // Delete the current defender army both from the province and army-database
         const defendingArmy = battle.province.armies.pop();
         await Army.deleteOne({_id: defendingArmy});
-        // Remove it from province
         // If they have more armies, continue the battle
         if (battle.province.armies.length > 0) {
           console.log("Battle continues!");
           continueBattle(battle);
-        } else { // Otherwise complete the battle
-          const enemy = battle.attackArmy;
-          // Get recent updated province and update it
+        } else { // 
+          // .. otherwise complete the battle and declare attacker winner
           const newProvince = await Province.findOne({_id: battle.province._id});
-          newProvince.owner = enemy.owner;
-          newProvince.armies = [enemy._id];
+          newProvince.owner = battle.attackingArmy.owner;
+          newProvince.armies = [battle.attackingArmy._id];
           newProvince.enemy_army = null;
           newProvince.save();
           await broadcastUpdateProvince(newProvince);
           endedBattles.push(b);
         }
       } else if (result == 'lose') {
-        // Kill player army and broadcast
+        // Kill player army and update province without attacker army in it
         console.log("Lose!");
-        Army.deleteOne({_id: battle.province.enemy_army});
+        await Army.deleteOne({_id: battle.province.enemy_army});
         const newProvince = await Province.findOne({_id: battle.province._id});
         newProvince.enemy_army = null;
         newProvince.save();
@@ -87,8 +92,7 @@ async function iterateBattles(id) {
         const defendingArmy = battle.province.armies.pop();
         await Army.deleteOne({_id: defendingArmy});
         await Army.deleteOne({_id: battle.province.enemy_army});
-        battle.province.enemy_army = null;
-        // And updrate province
+        // And update the province
         const newProvince = await Province.findOne({_id: battle.province._id});
         newProvince.armies = [];
         newProvince.enemy_army = null;
@@ -99,7 +103,6 @@ async function iterateBattles(id) {
       }
     }
   }
-  console.log("ENDED BATTLES:", endedBattles);
 
   // Remove all ended battles
   for (let i = 0; i < endedBattles.length; i++) {
