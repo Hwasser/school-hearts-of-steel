@@ -7,7 +7,8 @@ const Province = require('./models/Province');
 const Pending = require('./models/Pending');
 
 const {
-    attackOrMoveArmy
+    attackOrMoveArmy,
+    iterateBattles
   } = require('./army_related');
 const {
     broadcastMessage,
@@ -63,8 +64,9 @@ async function updateSession(id) {
         }
         const message = {purpose: 'update_session', package: sessions};
         broadcastMessage(message);
- 
-        handlePendingEvents(sessions);
+        await iterateBattles(id);
+        await handlePendingEvents(sessions);
+
     } catch (err) {
         console.log("Couldnt update res:", err);
     }

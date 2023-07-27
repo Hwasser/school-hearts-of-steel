@@ -11,6 +11,7 @@ const {
     broadcastMoveArmy, 
     broadcastAttackArmy,
     broadcastAttackBattle,
+    broadcastUpdateProvince,
     broadcastHasWon, 
     broadcastMergeArmies} = require('./broadcast');
 const { initUpgrades } = require('./GameData/upgradeStats');
@@ -22,6 +23,7 @@ const { units } = require('./GameData/unitStats');
  * values:
  *  {
     province: {... battleProvince},
+    session: session._id
     attackerUpgrades: {... attackerUpgrades},
     defenderUpgrades: {... defenderUpgrades},
     attackingArmy: {... attackingArmy},
@@ -37,27 +39,71 @@ let battles = {};
  * At each time tick, iterate and perform all battles.
  * Battle of round = 0 has not started yet.
  */
-async function iterateBattles() {
+async function iterateBattles(id) {
+  console.log("iterateBattles");
+  const endedBattles = [];
   for (let b in battles) {
-    console.log("Battle in province:", b);
-    if (battles[b].round > 0) {
-      const result = performBattle(battles[b]);
+    const battle = battles[b];
+    if (battle.session.toString() == id.toString()) {
+      console.log("Battle occurs:", id);
+      const result = await performBattle(battle);
+      console.log("RESULT:", result);
       if (result == 'win') {
+        console.log("Won!");
         // Delete enemy army
-        await Army.deleteOne({_id: battles[b].defendingArmy._id});
+        console.log()
+        const defendingArmy = battle.province.armies.pop();
+        await Army.deleteOne({_id: defendingArmy});
         // Remove it from province
-        battles[b].province.armies.pop();
-        // Continue 
-        if (battles[b].province.armies.length > 0) {
-          continueBattle(battles[b]);
-        } else {
-          const enemy = battles[b].attackArmy;
-          battles[b].province.owner = enemy.owner;
-          battles[b].province.armies.push(enemy._id);
-          broadcastAttackArmy(province1, province2)
+        // If they have more armies, continue the battle
+        if (battle.province.armies.length > 0) {
+          console.log("Battle continues!");
+          continueBattle(battle);
+        } else { // Otherwise complete the battle
+          const enemy = battle.attackArmy;
+          // Get recent updated province and update it
+          const newProvince = await Province.findOne({_id: battle.province._id});
+          newProvince.owner = enemy.owner;
+          newProvince.armies = [enemy._id];
+          newProvince.enemy_army = null;
+          newProvince.save();
+          await broadcastUpdateProvince(newProvince);
+          endedBattles.push(b);
         }
+      } else if (result == 'lose') {
+        // Kill player army and broadcast
+        console.log("Lose!");
+        Army.deleteOne({_id: battle.province.enemy_army});
+        const newProvince = await Province.findOne({_id: battle.province._id});
+        newProvince.enemy_army = null;
+        newProvince.save();
+        await broadcastUpdateProvince(newProvince);
+        endedBattles.push(b);
+      } else if (result == 'draw') {
+        // Kill both armies and broadcast
+        console.log("Draw!");
+        // Remove both armies
+        const defendingArmy = battle.province.armies.pop();
+        await Army.deleteOne({_id: defendingArmy});
+        await Army.deleteOne({_id: battle.province.enemy_army});
+        battle.province.enemy_army = null;
+        // And updrate province
+        const newProvince = await Province.findOne({_id: battle.province._id});
+        newProvince.armies = [];
+        newProvince.enemy_army = null;
+        newProvince.save();
+        
+        await broadcastUpdateProvince(newProvince);
+        endedBattles.push(b);
       }
     }
+  }
+
+  console.log("ENDED BATTLES:", endedBattles);
+
+  // Remove all ended battles
+  for (let i = 0; i < endedBattles.length; i++) {
+    delete battles[endedBattles[i]];
   }
 }
 
@@ -203,6 +249,7 @@ async function findBattle(event, fromProvince, battleProvince) {
   // Start a battle
   const battle = {
     province: battleProvince,
+    session: event.session,
     attackerUpgrades: attackerUpgrades,
     defenderUpgrades: defenderUpgrades,
     attackingArmy: attackingArmy,
@@ -219,11 +266,11 @@ async function findBattle(event, fromProvince, battleProvince) {
     attackingArmyTroops.length, 
     defendingArmyTroops.length, 
     performance);
-    
-    console.log("findBattle: Everything worked!!"); // TODO: REMOVE
+  
 }
 
 async function continueBattle(battle) {
+  console.log("CONINTUE BATTLE!"); // TODO: REMOVE
   // Get the defenders next army data
   const getEnemy = battleProvince.armies.slice(-1).pop();
   const defendingArmy = await Army.findOne({_id: getEnemy});
@@ -245,15 +292,15 @@ async function performBattle(battle) {
   // Get terrain and the number of forts in the province, since this affect outcome
   const terrain = battle.province.terrain;
   const forts   = battle.province.forts;
-  
+
   // Let both sides attack
-  for (let i = 0; i < attackingArmyTroops.length; i++) {
-      const attackMod = attackingArmyTroops[i]['attack_mod'][terrain];
-      performAttack(attackingArmyTroops, defendingArmyTroops, i, attackMod, forts);
+  for (let i = 0; i < battle.attackingArmyTroops.length; i++) {
+      const attackMod = battle.attackingArmyTroops[i]['attack_mod'][terrain];
+      performAttack(battle.attackingArmyTroops, battle.defendingArmyTroops, i, attackMod, forts);
   }
-  for (let i = 0; i < defendingArmyTroops.length; i++) {
-      const defenceMod = defendingArmyTroops[i]['defence_mod'][terrain];
-      performAttack(defendingArmyTroops, attackingArmyTroops, i, defenceMod, 0);
+  for (let i = 0; i < battle.defendingArmyTroops.length; i++) {
+      const defenceMod = battle.defendingArmyTroops[i]['defence_mod'][terrain];
+      performAttack(battle.defendingArmyTroops, battle.attackingArmyTroops, i, defenceMod, 0);
   }
   // After the attacks, kill all units with HP < 0
   battle.attackingArmyTroops = battle.attackingArmyTroops.filter(e => e.hp > 0);
@@ -265,8 +312,8 @@ async function performBattle(battle) {
   // Update both armies
   battle.attackingArmy.soldiers = attackLeft;
   battle.defendingArmy.soldiers = defenceLeft;
-  
-  if (battle.attackingArmyTroops.length == 0 && battle.defendingArmyTroops.length == 0) {
+
+  if (battle.attackingArmyTroops.length == 0 || battle.defendingArmyTroops.length == 0) {
     if (attackLeft == defenceLeft) {
         return 'draw';
     }
@@ -277,7 +324,7 @@ async function performBattle(battle) {
         return 'win';
     }
   } else {
-    battle.round -= 1;
+    battle.round += 1;
     // Calculate how the battle is going and broadcast to all players
     const performance = calculatePerformance(battle);
     broadcastAttackBattle(
@@ -302,7 +349,7 @@ async function performBattle(battle) {
  */
 function performAttack(attacker, attacked, n, mod, forts) {
   const soldier = attacker[n];
-  const enemyNumber = Math.floor(Math.random()*attacked.length)
+  let enemyNumber = Math.round(Math.random()*(attacked.length-1))
   // Damage (for example 6-10 means random damage between 6 and 10)
   const damage = soldier.damage_low + Math.random()*(soldier.damage_high - soldier.damage_low);
   // How much damage can actually go through the armor
@@ -457,6 +504,7 @@ async function hasWon() {
 
 module.exports = { 
     mergeArmies,
-    attackOrMoveArmy
+    attackOrMoveArmy,
+    iterateBattles
 };
 

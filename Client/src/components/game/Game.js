@@ -135,6 +135,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     const handleUpdateProvince = (message) => {
+        
         const province = message;
         // Make a copy of old state
         const armiesCopy = [... armies];
@@ -147,9 +148,19 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         setProvinceOwners(ownersCopy);
         // Unset battle 
         if (battle[province.id] != null) {
-            const battleLocal = [... battle]
-            battleLocal[message.province.id] = null;
-            setBattle(battleLocal);
+                const battleLocal = [... battle]
+                battleLocal[province.id] = null;
+                setBattle(battleLocal);
+ 
+        }
+
+        // If a battle is currently selected, revert view to province
+        if (properties['performance'] != null) {
+            const curProv = properties.province._id; 
+            const recProv = message._id;
+            if (curProv == recProv) {
+                setProperties(message);
+            }
         }
     }
 
@@ -186,14 +197,29 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     const handleBattleResult = (message) => {
-        // Establish battle results
-        const battleLocal = [... battle]
-        battleLocal[message.province.id] = message;
-        setBattle(battleLocal);
-        // Update armies in province
-        const armiesCopy = [... armies];
-        replaceArmiesInProvince(message.Province, armiesCopy);
-        setArmies(armiesCopy);
+        try {
+
+            // Establish battle results
+            const battleLocal = [... battle]
+            const provinceN = message.province.id;
+            battleLocal[provinceN] = message;
+            setBattle(battleLocal);
+            // Update armies in province
+            const armiesCopy = [... armies];
+            replaceArmiesInProvince(message.province, armiesCopy);
+            setArmies(armiesCopy);
+            
+            // If a battle is currently selected, update its view
+            if (properties['performance'] != null) {
+                const curProv = properties.province._id; 
+                const recProv = message.province._id;
+                if (curProv == recProv) {
+                    setProperties(message);
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     /**
