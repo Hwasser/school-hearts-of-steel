@@ -27,7 +27,7 @@ export default function GameUI(
   */
   function handleSelectProvince(index) {
     axios.get('http://localhost:8082/api/provinces/', {
-      params: { purpose: "get_by_n", id: index}
+      params: { purpose: "get_by_n", id: index, session: session._id}
     })
     .then( (res) => {
       if (res.data.length !== 0) {

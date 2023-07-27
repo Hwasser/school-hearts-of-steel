@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
   console.log(req.query.purpose);
   // Get one province by its province number
   if (req.query.purpose == "get_by_n") {
-    Province.find({id: req.query.id})
+    Province.find({id: req.query.id, session: req.query.session})
       .then(provinces => res.json(provinces))
       .catch(err => res.status(404).json({ noprovincesfound: 'No provinces found' }));
   }
