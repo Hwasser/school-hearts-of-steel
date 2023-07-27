@@ -36,8 +36,9 @@ const { units } = require('./GameData/unitStats');
 let battles = {};
 
 /**
- * At each time tick, iterate and perform all battles.
- * Battle of round = 0 has not started yet.
+ * @brief At each time tick, iterate and perform all battles.
+ *        Battle of round = 0 has not started yet.
+ * @param {String} id: A game session id 
  */
 async function iterateBattles(id) {
   console.log("iterateBattles");
@@ -98,7 +99,6 @@ async function iterateBattles(id) {
       }
     }
   }
-
   console.log("ENDED BATTLES:", endedBattles);
 
   // Remove all ended battles
@@ -107,6 +107,26 @@ async function iterateBattles(id) {
   }
 }
 
+/**
+ * @brief: Terminate all battles of a certain game session
+ * 
+ * @param {String} id: A game session id 
+ */
+async function terminateAllBattles(id) {
+  console.log("iterateBattles");
+  const endedBattles = [];
+  for (let b in battles) {
+    const battle = battles[b];
+    if (battle.session.toString() == id.toString()) {
+      delete battles[b];
+    }
+  }
+}
+
+/**
+ * 
+ * @param {JSON} updatePackage 
+ */
 async function mergeArmies(updatePackage) {
     // Get data of both armies
     const army1Document = await Army.findOne({_id: updatePackage.army1});
@@ -166,6 +186,10 @@ function mergeSoldierTypes(army1, army2) {
     }
 }
 
+/**
+ * 
+ * @param {JSON} event: A pending action event
+ */
 async function attackOrMoveArmy(event) {
   // Fetch provinces from database
   const province1 = await Province.findOne({_id: event.province});
@@ -505,6 +529,7 @@ async function hasWon() {
 module.exports = { 
     mergeArmies,
     attackOrMoveArmy,
-    iterateBattles
+    iterateBattles,
+    terminateAllBattles
 };
 

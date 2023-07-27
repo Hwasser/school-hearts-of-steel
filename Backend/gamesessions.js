@@ -8,7 +8,8 @@ const Pending = require('./models/Pending');
 
 const {
     attackOrMoveArmy,
-    iterateBattles
+    iterateBattles,
+    terminateAllBattles
   } = require('./army_related');
 const {
     broadcastMessage,
@@ -20,7 +21,7 @@ const timePerUpdate = 5000;
 
 function gameSessionStart(id) {
     try {
-        console.log("broadcast: started game session", id);
+        console.log("gamesessions.js: started game session", id);
         // A loop for updating resources for all users
         const sessionLoop = setInterval(() => {
             updateSession(id);
@@ -34,8 +35,14 @@ function gameSessionStart(id) {
 
 // Stops all game sessions for now and end their loops
 function gameSessionStop(id) {
+    console.log("gamesessions.js: ended game session", id);
+    // Kill the time loop for the session and remove it from the dict of game sessions
     clearInterval(gameSessions[id]);
     delete gameSessions[id];
+    // Remove all pending events
+    Pending.deleteMany({session: id});
+    // Remove all battles that is currently running
+    terminateAllBattles(id)
     console.log("broadcast: Sessions left on server:", gameSessions);
 }
 
@@ -72,6 +79,11 @@ async function updateSession(id) {
     }
 }
 
+/**
+ * @brief: Handle all incoming pending event that is due
+ * 
+ * @param {JSON} session 
+ */
 async function handlePendingEvents(session) {
     const finishedEvents = await Pending.find({session: session._id, end: session.time});
     for (let i = 0; i < finishedEvents.length; i++) {
@@ -107,9 +119,16 @@ async function handlePendingEvents(session) {
             console.log("Error with event:", err);
         }
     }
+    // Remove a pending event after it has fired
     Pending.deleteMany({session: session._id, end: session.time});
 }
 
+/**
+ * 
+ * @param {Integer} slotIndex: The index the player has within a session
+ * @param {JSON} document: The game session
+ * @param {[Integer]} userResources: All resources gathered by the player 
+ */
 async function updatePerUser(slotIndex, document, userResources) {
     // Upgrades contribute to resource extraction
     const upgradeTreeId = document.upgrades[slotIndex];
