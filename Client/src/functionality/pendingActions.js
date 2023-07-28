@@ -36,19 +36,22 @@ export function postBuilding(province, session, player, building) {
  * @param {JSON} player 
  * @param {String} army: Document id of an army
  */
-export function postMovement(fromProvinceID, toProvinceID, fromProvinceN, toProvinceN, session, player, army) {
+export function postMovement(fromProvinceID, toProvinceID, fromProvinceN, toProvinceN, session, player, army, pushPendingData) {
+    const movementTime = 3;
     const pendingAction = {
         type: 'movement',
         session: session._id,
         player: player._id, 
         start: session.time,
-        end: session.time + 3,
+        end: session.time + movementTime,
         provinceID: fromProvinceID,
         province2ID: toProvinceID,
         provinceN: fromProvinceN,
         province2N: toProvinceN,
         army_id: army
     }
+    // Push to UI before being posted to make UI seem more snappy
+    pushPendingData(pendingAction);
     // Post to server
     axios
     .post(`http://localhost:8082/api/pendings/`, pendingAction)

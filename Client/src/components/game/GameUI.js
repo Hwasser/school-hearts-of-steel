@@ -15,7 +15,7 @@ import {
     from '../../functionality/pendingActions';
 
 export default function GameUI( 
-  {onSelectAction, onMergeArmies,
+  {onSelectAction, onMergeArmies, pushPendingData,
     names, owners, flavors, terrains, provinceId, armies, session, player, battle, pending} ) {
   
   const worldRowSize = Math.sqrt(session.world_size);
@@ -101,7 +101,7 @@ export default function GameUI(
           || armies[2][toProvince] == null 
           || armies[3][toProvince] == null) {      
           console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
-          postMovement(province1, province2, fromProvince, toProvince, session, player, army);
+          postMovement(province1, province2, fromProvince, toProvince, session, player, army, pushPendingData);
 
         } else {
           console.log("No available army slots in that province!");
@@ -109,7 +109,7 @@ export default function GameUI(
       // If the province is not ours, attack!
       } else {
         console.log("attack with army " + army + " from province " + fromProvince + " to " + toProvince);
-        postMovement(province1, province2, fromProvince, toProvince, session, player, army);
+        postMovement(province1, province2, fromProvince, toProvince, session, player, army, pushPendingData);
       }
     } else {
       console.log("Province is too far away!");
@@ -213,6 +213,7 @@ function ShowMovement({pending, armies}) {
       const startDestination = "province" + pending[i].provinceN + "_army" + slot;
       const endDestination = "province" + pending[i].province2N + "_army1";
       const endLabel = "Arrives at: " + days + ":" + hours; 
+
       arrows.push(<Xarrow start={startDestination} end={endDestination} labels={{middle: endLabel}} />);
     }
   }

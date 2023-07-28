@@ -272,12 +272,21 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     function getPendingData() {
         axios.get(`http://localhost:8082/api/pendings/${session._id}`)
         .then( (res) => {
-            console.log(res.data);
             setPending(res.data);
         })
         .catch( (e) => {
             console.log(e)
         });
+    }
+
+    /**
+     * 
+     * @param {Dict} event: Pending event 
+     */
+    function pushPendingData(event) {
+        const pendingCopy = [... pending];
+        pendingCopy.push(event);
+        setPending(pendingCopy);
     }
 
 
@@ -421,6 +430,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     <GameUI 
         onSelectAction={handleSelectAction} 
         onMergeArmies={handleMergeArmies}
+        pushPendingData={pushPendingData}
         names={provinceNames} 
         owners={provinceOwners}
         flavors={provinceFlavors}
@@ -459,9 +469,12 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                     upgradeView={upgradeView}
                 />
                 {!upgradeView && (gameui)}
-                {upgradeView  && (<UpgradeUI 
-                                    onSelectUpgrade={handeSelectUpgrade} 
-                                    upgrades={upgrades} />)}
+                {upgradeView  && (
+                    <UpgradeUI 
+                        onSelectUpgrade={handeSelectUpgrade} 
+                        upgrades={upgrades} 
+                    />
+                )}
                 {footer}
             </div>
             </>
