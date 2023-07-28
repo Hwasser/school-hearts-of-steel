@@ -120,7 +120,8 @@ async function handlePendingEvents(session) {
         }
     }
     // Remove a pending event after it has fired
-    Pending.deleteMany({session: session._id, end: session.time});
+
+    await Pending.deleteMany({session: session._id, end: session.time});
 }
 
 /**

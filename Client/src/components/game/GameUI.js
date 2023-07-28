@@ -189,6 +189,37 @@ export default function GameUI(
     <div className="main_screen">
         <BuildBody />
     </div>
+    <ShowMovement pending={pending} armies={armies} />
     </>
   );
+}
+
+
+function ShowMovement({pending, armies}) {
+  const arrows = [];
+  for (let i = 0; i < pending.length; i++) {
+    if (pending[i].type == 'movement') {
+      // Check which slot the army comes from
+      let slot = 1;
+      for (let j = 0; j < armies.length; j++) {
+        if (armies[j][pending[i].provinceN] == pending[i].army_id) {
+          slot = j+1;
+        }
+      }
+
+      const days = pending[i].end / 24 | 0;
+      const hours = pending[i].end % 24;
+
+      const startDestination = "province" + pending[i].provinceN + "_army" + slot;
+      const endDestination = "province" + pending[i].province2N + "_army1";
+      const endLabel = "Arrives at: " + days + ":" + hours; 
+      arrows.push(<Xarrow start={startDestination} end={endDestination} labels={{middle: endLabel}} />);
+    }
+  }
+  
+  return (
+    <>
+      {arrows}
+    </>
+  )
 }
