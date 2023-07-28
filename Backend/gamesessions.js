@@ -103,7 +103,7 @@ async function handlePendingEvents(session) {
                 case 'movement':
                     console.log("pending event: completed movement!");
                     try {
-                        attackOrMoveArmy(event);
+                        await attackOrMoveArmy(event);
                     } catch (err) {
                         console.log("Failed to move unit due to:", err);
                     }

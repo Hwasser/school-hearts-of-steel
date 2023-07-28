@@ -23,6 +23,9 @@ const {
 const { initUpgrades } = require('./GameData/upgradeStats');
 const { units } = require('./GameData/unitStats');
 
+// ------------------------ MOVE/ATTACK-related ---------------------------
+
+
 /** Representation of each battle
  * 
  * key: province._id
@@ -72,9 +75,9 @@ async function iterateBattles(id) {
           newProvince.owner = battle.attackingArmy.owner;
           newProvince.armies = [battle.attackingArmy._id];
           newProvince.enemy_army = null;
-          newProvince.save();
+          await newProvince.save();
           // And update the attacker army due to causalities
-          battle.attackingArmy.save();
+          await battle.attackingArmy.save();
           await broadcastUpdateProvince(newProvince);
           endedBattles.push(b);
         }
@@ -84,7 +87,7 @@ async function iterateBattles(id) {
         await Army.deleteOne({_id: battle.province.enemy_army});
         const newProvince = await Province.findOne({_id: battle.province._id});
         newProvince.enemy_army = null;
-        newProvince.save();
+        await newProvince.save();
         await broadcastUpdateProvince(newProvince);
         // Update the defending army to show causalities
         battle.defendingArmy.save();
@@ -100,7 +103,7 @@ async function iterateBattles(id) {
         const newProvince = await Province.findOne({_id: battle.province._id});
         newProvince.armies = [];
         newProvince.enemy_army = null;
-        newProvince.save();
+        await newProvince.save();
         
         await broadcastUpdateProvince(newProvince);
         endedBattles.push(b);
@@ -130,68 +133,6 @@ async function terminateAllBattles(id) {
   }
 }
 
-/**
- * 
- * @param {JSON} updatePackage 
- */
-async function mergeArmies(updatePackage) {
-    // Get data of both armies
-    const army1Document = await Army.findOne({_id: updatePackage.army1});
-    const army2Document = await Army.findOne({_id: updatePackage.army2});
-    if (!army1Document || !army2Document) {
-      console.log('mergeArmies failed! One army is missing!');
-      return;
-    }
-    // Merge armies into army1
-    army1Document.soldiers += army2Document.soldiers;
-    mergeSoldierTypes(army1Document, army2Document);
-    await army1Document.save(); 
-    // Remove the merged army (army 2)
-    await Army.deleteOne({_id: updatePackage.army2});
-    // Store armies in province slots
-    const provinceId = updatePackage.provinceId;
-    const provinceDocument = await Province.findOne({id: provinceId});
-    // Create a new army list for the province, excluding the removed one
-    const provinceArmies = [];
-    for (let i = 0; i < provinceDocument.armies.length; i++) {
-      const army = provinceDocument.armies[i];
-      if (updatePackage.army2 != army) {
-        provinceArmies.push(army);
-      }
-    }
-    provinceDocument.armies = provinceArmies;
-    // Store and broadcast changes
-    provinceDocument.save();
-    broadcastMergeArmies(provinceDocument);
-}
-
-/**
- * @brief: Merge every single soldier type in the army
- * @param {JSON} army1: Army1 document object
- * @param {JSON} army2: Army2 document object
- */
-function mergeSoldierTypes(army1, army2) {
-    if (army2.militia != null) {
-        army1.militia = (army1.militia == null) 
-            ? army2.militia : army1.militia + army2.militia;
-    }
-    if (army2.demolition_maniac != null) {
-        army1.demolition_maniac = (army1.demolition_maniac == null) 
-            ? army2.demolition_maniac : army1.demolition_maniac + army2.demolition_maniac;
-    }
-    if (army2.gun_nut != null) {
-        army1.gun_nut = (army1.gun_nut == null) 
-            ? army2.gun_nut : army1.gun_nut + army2.gun_nut;
-    }
-    if (army2.fortified_truck != null) {
-        army1.fortified_truck = (army1.fortified_truck == null) 
-            ? army2.fortified_truck : army1.fortified_truck + army2.fortified_truck;
-    }
-    if (army2.power_suit != null) {
-        army1.power_suit = (army1.power_suit == null) 
-            ? army2.power_suit : army1.power_suit + army2.power_suit;
-    }
-}
 
 /**
  * 
@@ -210,23 +151,18 @@ async function attackOrMoveArmy(event) {
   }
 }
 
-function moveArmy(event, province1, province2) {
+async function moveArmy(event, province1, province2) {
   // Cannot move into a full province
   if (province2.armies.length < 4) {
     // Remove old army from province 1
-    const province1Armies = [];
-    for (let i = 0; i < province1.armies.length; i++) {
-      if (province1.armies[i].toString() != event.army_id.toString()) {
-        province1Armies.push(province1.armies[i]);
-      }
-    }
+    const province1Armies = province1.armies.filter((e) => e.toString() != event.army_id.toString()); 
     province1.armies = province1Armies;
     // Move province into province 2
     province2.armies.push(event.army_id);
     broadcastMoveArmy(province1, province2) 
-
-    province1.save();
-    province2.save();
+    
+    await province1.save();
+    await province2.save();
   }
 }
 
@@ -234,12 +170,7 @@ async function attackArmy(event, province1, province2) {
   // Only attack if there are no other enemies in their province
   if (province2.enemy_army == null) { 
     // Remove old army from province 1
-    const province1Armies = [];
-    for (let i = 0; i < province1.armies.length; i++) {
-      if (province1.armies[i].toString() != event.army_id.toString()) {
-        province1Armies.push(province1.armies[i]);
-      }
-    }
+    const province1Armies = province1.armies.filter((e) => e.toString() != event.army_id.toString()); 
     province1.armies = province1Armies;
     // If their province has no armies, simply switch owners and move in army
     if (province2.armies.length == 0) {
@@ -252,8 +183,8 @@ async function attackArmy(event, province1, province2) {
       broadcastAttackArmy(province1, province2)
       findBattle(event, province1, province2)
     }
-    province1.save();
-    province2.save();
+    await province1.save();
+    await province2.save();
   } 
 }
 
@@ -531,7 +462,72 @@ async function hasWon() {
   broadcastHasWon(firstOwner);  
 }
 
-  
+
+// ------------------------ OTHER ---------------------------
+ 
+
+/**
+ * 
+ * @param {JSON} updatePackage 
+ */
+async function mergeArmies(updatePackage) {
+  // Get data of both armies
+  const army1Document = await Army.findOne({_id: updatePackage.army1});
+  const army2Document = await Army.findOne({_id: updatePackage.army2});
+  if (!army1Document || !army2Document) {
+    console.log('mergeArmies failed! One army is missing!');
+    return;
+  }
+  // Merge armies into army1
+  army1Document.soldiers += army2Document.soldiers;
+  mergeSoldierTypes(army1Document, army2Document);
+  await army1Document.save(); 
+  // Remove the merged army (army 2)
+  await Army.deleteOne({_id: updatePackage.army2});
+  // Store armies in province slots
+  const provinceId = updatePackage.provinceId;
+  const provinceDocument = await Province.findOne({id: provinceId});
+  // Create a new army list for the province, excluding the removed one
+  const provinceArmies = [];
+  for (let i = 0; i < provinceDocument.armies.length; i++) {
+    const army = provinceDocument.armies[i];
+    if (updatePackage.army2 != army) {
+      provinceArmies.push(army);
+    }
+  }
+  provinceDocument.armies = provinceArmies;
+  // Store and broadcast changes
+  provinceDocument.save();
+  broadcastMergeArmies(provinceDocument);
+}
+
+/**
+* @brief: Merge every single soldier type in the army
+* @param {JSON} army1: Army1 document object
+* @param {JSON} army2: Army2 document object
+*/
+function mergeSoldierTypes(army1, army2) {
+  if (army2.militia != null) {
+      army1.militia = (army1.militia == null) 
+          ? army2.militia : army1.militia + army2.militia;
+  }
+  if (army2.demolition_maniac != null) {
+      army1.demolition_maniac = (army1.demolition_maniac == null) 
+          ? army2.demolition_maniac : army1.demolition_maniac + army2.demolition_maniac;
+  }
+  if (army2.gun_nut != null) {
+      army1.gun_nut = (army1.gun_nut == null) 
+          ? army2.gun_nut : army1.gun_nut + army2.gun_nut;
+  }
+  if (army2.fortified_truck != null) {
+      army1.fortified_truck = (army1.fortified_truck == null) 
+          ? army2.fortified_truck : army1.fortified_truck + army2.fortified_truck;
+  }
+  if (army2.power_suit != null) {
+      army1.power_suit = (army1.power_suit == null) 
+          ? army2.power_suit : army1.power_suit + army2.power_suit;
+  }
+}
 
 module.exports = { 
     mergeArmies,
