@@ -92,7 +92,7 @@ async function handlePendingEvents(session) {
             switch (event.type) {
                 case 'building':
                     console.log("pending event: constructed building!");
-                    const document = await Province.findOne({_id: event.province});
+                    const document = await Province.findOne({_id: event.provinceID});
                     document[event.text] += 1;
                     document.save();
                     broadcastUpdateProvince(document);

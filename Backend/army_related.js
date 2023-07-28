@@ -199,8 +199,8 @@ function mergeSoldierTypes(army1, army2) {
  */
 async function attackOrMoveArmy(event) {
   // Fetch provinces from database
-  const province1 = await Province.findOne({_id: event.province});
-  const province2 = await Province.findOne({_id: event.province2});
+  const province1 = await Province.findOne({_id: event.provinceID});
+  const province2 = await Province.findOne({_id: event.province2ID});
 
   const isAttacking = (province2.owner == event.player.name) ? false : true;
   if (!isAttacking) {

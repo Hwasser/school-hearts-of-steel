@@ -101,7 +101,7 @@ export default function GameUI(
           || armies[2][toProvince] == null 
           || armies[3][toProvince] == null) {      
           console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
-          postMovement(province1, province2, session, player, army)
+          postMovement(province1, province2, fromProvince, toProvince, session, player, army);
 
         } else {
           console.log("No available army slots in that province!");
@@ -109,7 +109,7 @@ export default function GameUI(
       // If the province is not ours, attack!
       } else {
         console.log("attack with army " + army + " from province " + fromProvince + " to " + toProvince);
-        postMovement(province1, province2, session, player, army)
+        postMovement(province1, province2, fromProvince, toProvince, session, player, army);
       }
     } else {
       console.log("Province is too far away!");

@@ -36,12 +36,20 @@ const PendingSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    province: {
+    provinceID: {
         type:  mongoose.Schema.Types.ObjectId,
         required: true
     },
-    province2: {
+    province2ID: {
         type:  mongoose.Schema.Types.ObjectId,
+        required: false
+    },
+    provinceN: {
+        type:  Number,
+        required: true
+    },
+    province2N: {
+        type:  Number,
         required: false
     },
     army_id: {
