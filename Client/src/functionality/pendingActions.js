@@ -36,14 +36,24 @@ export function postBuilding(province, session, player, building) {
  * @param {JSON} player 
  * @param {String} army: Document id of an army
  */
-export function postMovement(fromProvinceID, toProvinceID, fromProvinceN, toProvinceN, session, player, army, pushPendingData) {
+export function postMovement(
+        fromProvinceID, 
+        toProvinceID, 
+        fromProvinceN, 
+        toProvinceN, 
+        session, 
+        player, 
+        army, 
+        getTime,
+        pushPendingData 
+    ) {
     const movementTime = 3;
     const pendingAction = {
         type: 'movement',
         session: session._id,
         player: player._id, 
-        start: session.time,
-        end: session.time + movementTime,
+        start: getTime(),
+        end: getTime() + movementTime,
         provinceID: fromProvinceID,
         province2ID: toProvinceID,
         provinceN: fromProvinceN,

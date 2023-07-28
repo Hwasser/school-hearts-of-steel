@@ -8,6 +8,7 @@ import Footer from './Footer';
 import GameUI from './GameUI';
 import UpgradeUI from './UpgradeUI';
 import Receiver from '../Receiver';
+import MovementGUI from './MovementGUI';
 import {
     receiveResourceUpdate, 
     receiveJoinedPlayer, 
@@ -55,6 +56,10 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     const [upgradeView, setUpgradeView] = useState(false);
     const [upgrades, setUpgrades] = useState({});
     const [pending, setPending] = useState({});
+
+    function getTime() {
+        return session.time;
+    }
 
     // Fetch province information from the server once when opening the game
     // and set slot index of the player.
@@ -431,6 +436,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         onSelectAction={handleSelectAction} 
         onMergeArmies={handleMergeArmies}
         pushPendingData={pushPendingData}
+        getTime={getTime}
         names={provinceNames} 
         owners={provinceOwners}
         flavors={provinceFlavors}
@@ -440,8 +446,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         session={session}
         player={player}
         battle={battle}
-        pending={pending}
-    />, [properties, armies, provinceOwners, battle, pending]);
+    />, [properties, armies, provinceOwners, battle]);
     
         
     const renderGame = () => {
@@ -476,6 +481,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                     />
                 )}
                 {footer}
+                <MovementGUI pending={pending} armies={armies} session={session}/>
             </div>
             </>
         )

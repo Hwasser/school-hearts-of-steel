@@ -53,10 +53,10 @@ export default function Army(
   }
 
   const name = "army" + (slotNumber+1);
+  const provinceId = "province" + provinceNumber + "_" + name; // ex: province0_army1
   const positionStart = 10;
   const positionOffset = 30;
   const position = positionStart + positionOffset * slotNumber;
-  const provinceId = "province" + provinceNumber + "_" + name; // ex: province0_army1
 
   return (
       <button className='province_army' id={provinceId} style={{opacity: armyVisibility, top: position}} draggable={armyDraggable} 
