@@ -157,7 +157,9 @@ function setPlayerPositions(playerNames, startPlayerId, slots, nProvinces) {
   playerPositions[0] = {name: playerNames[0], id: startPlayerId};
 
   if (slots == 2) {
-    playerPositions[nProvinces-1] = {name: playerNames[1], id: null};
+    // TODO: ÅTERSTÄLL!!!
+    //playerPositions[nProvinces-1] = {name: playerNames[1], id: null};
+    playerPositions[1] = {name: playerNames[1], id: null};
   }
   if (slots == 3) {
     playerPositions[rowSize-1] = {name: playerNames[1], id: null};

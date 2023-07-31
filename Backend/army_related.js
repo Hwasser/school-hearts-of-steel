@@ -25,8 +25,102 @@ const { units } = require('./GameData/unitStats');
 
 // ------------------------ MOVE/ATTACK-related ---------------------------
 
+/**
+ * @brief: When an army moves from one province to another, 
+ * either move or attack and move.
+ *  
+ * @param {JSON} event: A pending action event
+ */
+async function attackOrMoveArmy(event) {
+  // Fetch provinces from database
+  const province1 = await Province.findOne({_id: event.provinceID});
+  const province2 = await Province.findOne({_id: event.province2ID});
 
-/** Representation of each battle
+  const isAttacking = (province1.owner == province2.owner) ? false : true;
+  if (!isAttacking) {
+    await moveArmy(event, province1, province2);
+  } else {
+    await attackArmy(event, province1, province2);
+  }
+}
+
+/**
+ * @brief: Move an army from one province to another, if there 
+ * are no available slots -> abort!
+ * 
+ * @param {JSON} event 
+ * @param {JSON} province1 
+ * @param {JSON} province2 
+ */
+async function moveArmy(event, province1, province2) {
+  // Cannot move into a full province
+  if (province2.armies.length < 4) {
+    // Filter out the army from the "FROM"-province
+    await Province.findOneAndUpdate( 
+      { _id: province1._id},
+      { $pull: {
+        armies: event.army_id
+      }},
+      { new: true }
+      );
+    // Push the army to the "TO"-province
+    await Province.findOneAndUpdate( 
+      { _id: province2._id},
+      { $push: {
+        armies: event.army_id
+      }},
+      { new: true }
+      );
+    }
+}
+
+/**
+ * @brief: If the army is attacking then three scenarios are possible:
+ * 1. There are already an enemy in the province -> abort
+ * 2. There are no armies in the defender province -> marsch right in
+ * 3. There are one or more armies in the defender province -> set-up battle
+ * 
+ * @param {JSON} event 
+ * @param {JSON} province1 
+ * @param {JSON} province2 
+ */
+async function attackArmy(event, province1, province2) {
+  // Only attack if there are no other enemies in their province
+  if (province2.enemy_army == null) { 
+    // Filter out the army from the "FROM"-province
+    await Province.findOneAndUpdate( 
+      { _id: province1._id},
+      { $pull: {
+        armies: event.army_id
+      }},
+      { new: true }
+      );
+    // If their province has no armies, simply switch owners and move in army
+    if (province2.armies.length == 0) {
+      await Province.findOneAndUpdate( 
+        { _id: province2._id},
+        { $set: {
+          armies: [event.army_id],
+          owner: province1.owner
+        }},
+        { new: true }
+      );
+    } else {
+      // .. otherwise move army into their province
+      const updatedProvince2 = await Province.findOneAndUpdate( 
+        { _id: province2._id},
+        { $set: { enemy_army: event.army_id }},
+        { new: true }
+      );
+      findBattle(event, province1, updatedProvince2);
+    }
+  } 
+}
+
+
+// ------------------------ BATTLE-related ---------------------------
+
+/** Representation of each battle at create time
  * 
  * key: province._id
  * values:
@@ -62,64 +156,17 @@ async function iterateBattles(id) {
       // If the player won against an army (there can be multiple armies in a province)
       if (result == 'win') {
         console.log("Won!");
-        // Delete the current defender army
-        await Army.deleteOne({_id: battle.defendingArmy._id});
-        // If they have more armies, continue the battle
-        if (battle.province.armies.length > 1) {
-          console.log("Battle continues!");
-          // Delete the defender army from the province and update battle.province
-          const updatedProvince = await Province.findOneAndUpdate( 
-            { _id: battle.province._id},
-            { $pull: {
-              armies: battle.defendingArmy._id }},
-            { new: true }
-            );
-          battle.province = updatedProvince;
-          await continueBattle(battle);
-        } else { // 
-          // .. otherwise complete the battle and declare attacker winner
-          await Province.findOneAndUpdate( 
-            { _id: battle.province._id},
-            { $set: {
-              owner: battle.attackingArmy.owner,
-              armies: [battle.attackingArmy._id],
-              enemy_army: null
-            }},
-            { new: true }
-          );
-          // And update the attacker army due to causalities
-          await battle.attackingArmy.save();
+        const ended = await battleWon(battle);
+        if (ended) {
           endedBattles.push(b);
         }
       } else if (result == 'lose') {
-        // Kill player army and update province without attacker army in it
         console.log("Lose!");
-        await Army.deleteOne({_id: battle.province.enemy_army});
-        await Province.findOneAndUpdate( 
-          { _id: battle.province._id},
-          { $set: {
-            enemy_army: null
-          }},
-          { new: true }
-        );
-        // Update the defending army to show causalities
-        battle.defendingArmy.save();
+        await battleLost(battle);
         endedBattles.push(b);
       } else if (result == 'draw') {
-        // Kill both armies
         console.log("Draw!");
-        // Remove both armies
-        await Army.deleteOne({_id: battle.defendingArmy._id});
-        await Army.deleteOne({_id: battle.attackingArmy._id});
-        // And update the province
-        await Province.findOneAndUpdate( 
-          { _id: battle.province._id},
-          { $set: {
-            armies: [],
-            enemy_army: null
-          }},
-          { new: true }
-        );
+        await battleDraw(battle);
         endedBattles.push(b);
       }
     }
@@ -147,78 +194,86 @@ async function terminateAllBattles(id) {
   }
 }
 
+/**
+ * @brief: If the battle is won there 
+ * 
+ * @param {JSON} battle 
+ * @returns: Whether the battle ended or not
+ */
+async function battleWon(battle) {
+  // Delete the current defender army
+  await Army.deleteOne({_id: battle.defendingArmy._id});
+  // If they have more armies, continue the battle
+  if (battle.province.armies.length > 1) {
+    console.log("Battle continues!");
+    // Delete the defender army from the province and update battle.province
+    const updatedProvince = await Province.findOneAndUpdate( 
+      { _id: battle.province._id},
+      { $pull: { armies: battle.defendingArmy._id }},
+      { new: true }
+      );
+    console.log("UPDATED PROVINCE:", updatedProvince); // TODO: REMOVE
+    battle.province = updatedProvince;
+    await continueBattle(battle);
+    return false;
+  } else { // 
+    // .. otherwise complete the battle and declare attacker winner
+    await Province.findOneAndUpdate( 
+      { _id: battle.province._id},
+      { $set: {
+        owner: battle.attackingArmy.owner,
+        armies: [battle.attackingArmy._id],
+        enemy_army: null
+      }},
+      { new: true }
+    );
+    // And update the attacker army due to causalities
+    await battle.attackingArmy.save();
+  }
+  return true;
+}
 
 /**
+ * @brief: When an attacker loses a battle, kill its army from the db and in the 
+ * enemy_army slot
  * 
- * @param {JSON} event: A pending action event
+ * @param {JSON} battle 
  */
-async function attackOrMoveArmy(event) {
-  // Fetch provinces from database
-  const province1 = await Province.findOne({_id: event.provinceID});
-  const province2 = await Province.findOne({_id: event.province2ID});
-
-  const isAttacking = (province1.owner == province2.owner) ? false : true;
-  if (!isAttacking) {
-    await moveArmy(event, province1, province2);
-  } else {
-    await attackArmy(event, province1, province2);
-  }
+async function battleLost(battle) {
+  await Army.deleteOne({_id: battle.province.enemy_army});
+  await Province.findOneAndUpdate( 
+    { _id: battle.province._id},
+    { $set: {
+      enemy_army: null
+    }},
+    { new: true }
+  );
+  // Update the defending army to show causalities
+  battle.defendingArmy.save();
 }
 
-async function moveArmy(event, province1, province2) {
-  // Cannot move into a full province
-  if (province2.armies.length < 4) {
-    // Filter out the army from the "FROM"-province
-    await Province.findOneAndUpdate( 
-      { _id: province1._id},
-      { $pull: {
-        armies: event.army_id
-      }},
-      { new: true }
-      );
-    // Push the army to the "TO"-province
-    await Province.findOneAndUpdate( 
-      { _id: province2._id},
-      { $push: {
-        armies: event.army_id
-      }},
-      { new: true }
-      );
-    }
+/**
+ * @brief: Destroy both armies and remove the attacker from the enemy_army slot 
+ * and remove one army from defender slot
+ * 
+ * @param {JSON} battle 
+ */
+async function battleDraw(battle) {
+  // Remove both armies
+  await Army.deleteOne({_id: battle.defendingArmy._id});
+  await Army.deleteOne({_id: battle.attackingArmy._id});
+  // And update the province
+  await Province.findOneAndUpdate( 
+    { _id: battle.province._id},
+    { 
+      $set: { enemy_army: null }, 
+      $pull: { armies: battle.defendingArmy._id }
+    },
+    { new: true }
+  );
 }
 
-async function attackArmy(event, province1, province2) {
-  // Only attack if there are no other enemies in their province
-  if (province2.enemy_army == null) { 
-    // Filter out the army from the "FROM"-province
-    await Province.findOneAndUpdate( 
-      { _id: province1._id},
-      { $pull: {
-        armies: event.army_id
-      }},
-      { new: true }
-      );
-    // If their province has no armies, simply switch owners and move in army
-    if (province2.armies.length == 0) {
-      await Province.findOneAndUpdate( 
-        { _id: province2._id},
-        { $set: {
-          armies: [event.army_id],
-          owner: province1.owner
-        }},
-        { new: true }
-      );
-    } else {
-      // .. otherwise move army into their province
-      const updatedProvince2 = await Province.findOneAndUpdate( 
-        { _id: province2._id},
-        { $set: { enemy_army: event.army_id }},
-        { new: true }
-      );
-      findBattle(event, province1, updatedProvince2);
-    }
-  } 
-}
+
 
 async function findBattle(event, fromProvince, battleProvince) {
   // Get session and session slots
@@ -264,12 +319,13 @@ async function findBattle(event, fromProvince, battleProvince) {
 }
 
 async function continueBattle(battle) {
-  console.log("CONINTUE BATTLE!"); // TODO: REMOVE
+  console.log("CONTINUE BATTLE PROVINCE: ", battle.province);
   // Get the defenders next army data
   const getEnemy = battle.province.armies.slice(-1).pop();
+  console.log("GET ENEMY: ", getEnemy);
   const defendingArmy = await Army.findOne({_id: getEnemy});
   // Set up new army
-  let defendingArmyTroops = setUpSoldiers(defendingArmy, defenderUpgrades);
+  let defendingArmyTroops = setUpSoldiers(defendingArmy, battle.defenderUpgrades);
   battle.defendingArmyTroops = defendingArmyTroops;
   // Reset round in new battle
   battle.round = 0;
@@ -277,7 +333,7 @@ async function continueBattle(battle) {
   const performance = calculatePerformance(battle);
   broadcastAttackBattle(
     battle.province, 
-    attackingArmyTroops.length, 
+    battle.attackingArmyTroops.length, 
     defendingArmyTroops.length, 
     performance);
 }
