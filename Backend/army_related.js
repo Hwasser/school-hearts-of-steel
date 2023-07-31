@@ -62,16 +62,23 @@ async function iterateBattles(id) {
       // If the player won against an army (there can be multiple armies in a province)
       if (result == 'win') {
         console.log("Won!");
-        // Delete the current defender army both from the province and army-database
-        const defendingArmy = battle.province.armies.pop();
-        await Army.deleteOne({_id: defendingArmy});
+        // Delete the current defender army
+        await Army.deleteOne({_id: battle.defendingArmy._id});
         // If they have more armies, continue the battle
-        if (battle.province.armies.length > 0) {
+        if (battle.province.armies.length > 1) {
           console.log("Battle continues!");
+          // Delete the defender army from the province and update battle.province
+          const updatedProvince = await Province.findOneAndUpdate( 
+            { _id: battle.province._id},
+            { $pull: {
+              armies: battle.defendingArmy._id          }},
+            { new: true }
+            );
+          battle.province = updatedProvince;
           continueBattle(battle);
         } else { // 
           // .. otherwise complete the battle and declare attacker winner
-          Province.findOneAndUpdate( 
+          const test = await Province.findOneAndUpdate( 
             { _id: battle.province._id},
             { $set: {
               owner: battle.attackingArmy.owner,
@@ -80,9 +87,9 @@ async function iterateBattles(id) {
             }},
             { new: true }
           );
+          console.log("WIN updated province:", test);
           // And update the attacker army due to causalities
           await battle.attackingArmy.save();
-          // -- await broadcastUpdateProvince(newProvince);
           endedBattles.push(b);
         }
       } else if (result == 'lose') {
@@ -96,12 +103,11 @@ async function iterateBattles(id) {
           }},
           { new: true }
         );
-        // -- await broadcastUpdateProvince(newProvince);
         // Update the defending army to show causalities
         battle.defendingArmy.save();
         endedBattles.push(b);
       } else if (result == 'draw') {
-        // Kill both armies and broadcast
+        // Kill both armies
         console.log("Draw!");
         // Remove both armies
         const defendingArmy = battle.province.armies.pop();
@@ -116,8 +122,6 @@ async function iterateBattles(id) {
           }},
           { new: true }
         );
-        
-        // -- await broadcastUpdateProvince(newProvince);
         endedBattles.push(b);
       }
     }
@@ -178,7 +182,7 @@ async function moveArmy(event, province1, province2) {
     await Province.findOneAndUpdate( 
       { _id: province2._id},
       { $push: {
-        armies: event.army_id
+        armies: event.army_id.toString()
       }},
       { new: true }
       );
@@ -199,14 +203,13 @@ async function attackArmy(event, province1, province2) {
     // If their province has no armies, simply switch owners and move in army
     if (province2.armies.length == 0) {
       Province.findOneAndUpdate( 
-        { _id: province1._id},
+        { _id: province2._id},
         { $set: {
           armies: [event.army_id],
           owner: province1.owner
         }},
         { new: true }
       );
-      // -- broadcastAttackArmy(province1, province2)
     } else {
       // .. otherwise move army into their province
       Province.findOneAndUpdate( 
@@ -214,7 +217,6 @@ async function attackArmy(event, province1, province2) {
         { $set: { enemy_army: event.army_id }},
         { new: true }
       );
-      // - broadcastAttackArmy(province1, province2)
       findBattle(event, province1, province2)
     }
   } 
@@ -266,7 +268,7 @@ async function findBattle(event, fromProvince, battleProvince) {
 async function continueBattle(battle) {
   console.log("CONINTUE BATTLE!"); // TODO: REMOVE
   // Get the defenders next army data
-  const getEnemy = battleProvince.armies.slice(-1).pop();
+  const getEnemy = battle.province.armies.slice(-1).pop();
   const defendingArmy = await Army.findOne({_id: getEnemy});
   // Set up new army
   let defendingArmyTroops = setUpSoldiers(defendingArmy, defenderUpgrades);
@@ -276,7 +278,7 @@ async function continueBattle(battle) {
   // Calculate how the battle is going and broadcast to all players
   const performance = calculatePerformance(battle);
   broadcastAttackBattle(
-    battleProvince, 
+    battle.province, 
     attackingArmyTroops.length, 
     defendingArmyTroops.length, 
     performance);
