@@ -15,6 +15,8 @@ export default function MovementGUI({pending, armies, session}) {
             slot = j+1;
           }
         }
+
+        console.log(arrows);
   
         const startDestination = "province" + pending[i].provinceN + "_army" + slot;
         const endDestination = "province" + pending[i].province2N + "_army1";

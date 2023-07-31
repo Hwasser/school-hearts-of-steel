@@ -34,13 +34,15 @@ function gameSessionStart(id) {
 }
 
 // Stops all game sessions for now and end their loops
-function gameSessionStop(id) {
+async function gameSessionStop(id) {
     console.log("gamesessions.js: ended game session", id);
     // Kill the time loop for the session and remove it from the dict of game sessions
     clearInterval(gameSessions[id]);
     delete gameSessions[id];
     // Remove all pending events
-    Pending.deleteMany({session: id});
+    console.log("Removed pending events:", await Pending.deleteMany({session: id}));
+    // Delete all armies
+    console.log("Removed armies:", await Army.deleteMany({session: id}));
     // Remove all battles that is currently running
     terminateAllBattles(id)
     console.log("broadcast: Sessions left on server:", gameSessions);

@@ -16,7 +16,7 @@ export function postBuilding(province, session, player, building) {
         start: session.time,
         end: session.time + 5,
         provinceID: province._id,
-        provinceN: province._id,
+        provinceN: province.id,
         text: building + 's'
     }
     // Post to server
