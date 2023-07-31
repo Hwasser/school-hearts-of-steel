@@ -161,37 +161,39 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     /**
-     * @brief: Handle broadcast from server telling an army has moved
+     * @brief: At each session ending, update all armies on the map
      * 
-     * @param {JSON} message 
+     * @param {JSON} dataPackage: key: province._id, value: province data 
      */
-    const handleMoveArmy = (message) => {
+    function handleUpdateArmies(dataPackage) {
         const armiesCopy = [... armies];
-        replaceArmiesInProvince(message.fromProvince, armiesCopy);
-        replaceArmiesInProvince(message.toProvince, armiesCopy);
-        setArmies(armiesCopy);;
+        const provinceOwnersLocal = [... provinceOwners];
+        const battleLocal = [... battle]
+        let ownersChanged = false;
+        // Iterate through each province by their key
+        for (let provinceId in dataPackage) {
+            const province = dataPackage[provinceId];
+            replaceArmiesInProvince(province, armiesCopy);
+            if (provinceOwners[province.id] != province.owner) {
+                provinceOwners[province.id] = province.owner;
+                ownersChanged = true;
+            }
+            battleLocal[province.id] = province.enemy_army;
+        }
+        // Set armies to new positions
+        setArmies(armiesCopy);
+        // Only change owners if owners have actually changed somewhere
+        if (ownersChanged) {
+            setProvinceOwners(provinceOwnersLocal);
+        }
+        setBattle(battleLocal);
     }
-
 
     /**
-     * @brief: Handle broadcast from an army instantly winning
+     * @brief: Handle incoming battle results
      * 
      * @param {JSON} message 
      */
-    const handleAttackArmy = (message) => {
-        // Update armies in "from" province
-        const armiesCopy = [... armies];
-        replaceArmiesInProvince(message.fromProvince, armiesCopy);
-        // If no army is put as enemy it means instant win
-        if (message.toProvince.enemy_army == null) {
-            const provinceOwnersLocal = [... provinceOwners];
-            provinceOwnersLocal[message.toProvince.id] = message.fromProvince.owner;
-            replaceArmiesInProvince(message.toProvince, armiesCopy);
-        } 
-        setArmies(armiesCopy);
-        // Otherwise, wait for battle to be broadcasted
-    }
-
     const handleBattleResult = (message) => {
         try {
 
@@ -313,7 +315,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         // Push the changes to server
         const updatePackage = {
             purpose: "merge_armies",
-            provinceId: inProvince,
+            provinceId: provinceId[inProvince],
             army1: army1,
             army2: army2
         };
@@ -456,8 +458,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                 <Receiver 
                     onUpdateResources={handleUpdateSession} 
                     onUpdateProvince={handleUpdateProvince} 
-                    onMoveArmy={handleMoveArmy}
-                    onAttackArmy={handleAttackArmy}
+                    onUpdateArmies={handleUpdateArmies}
                     onAttackBattle={handleBattleResult}
                     onPlayerJoined={handlePlayerJoined}
                     onPlayerWon={handlePlayerWon} 

@@ -71,24 +71,32 @@ async function iterateBattles(id) {
           continueBattle(battle);
         } else { // 
           // .. otherwise complete the battle and declare attacker winner
-          const newProvince = await Province.findOne({_id: battle.province._id});
-          newProvince.owner = battle.attackingArmy.owner;
-          newProvince.armies = [battle.attackingArmy._id];
-          newProvince.enemy_army = null;
-          await newProvince.save();
+          Province.findOneAndUpdate( 
+            { _id: battle.province._id},
+            { $set: {
+              owner: battle.attackingArmy.owner,
+              armies: [battle.attackingArmy._id],
+              enemy_army: null
+            }},
+            { new: true }
+          );
           // And update the attacker army due to causalities
           await battle.attackingArmy.save();
-          await broadcastUpdateProvince(newProvince);
+          // -- await broadcastUpdateProvince(newProvince);
           endedBattles.push(b);
         }
       } else if (result == 'lose') {
         // Kill player army and update province without attacker army in it
         console.log("Lose!");
         await Army.deleteOne({_id: battle.province.enemy_army});
-        const newProvince = await Province.findOne({_id: battle.province._id});
-        newProvince.enemy_army = null;
-        await newProvince.save();
-        await broadcastUpdateProvince(newProvince);
+        Province.findOneAndUpdate( 
+          { _id: battle.province._id},
+          { $set: {
+            enemy_army: null
+          }},
+          { new: true }
+        );
+        // -- await broadcastUpdateProvince(newProvince);
         // Update the defending army to show causalities
         battle.defendingArmy.save();
         endedBattles.push(b);
@@ -100,12 +108,16 @@ async function iterateBattles(id) {
         await Army.deleteOne({_id: defendingArmy});
         await Army.deleteOne({_id: battle.province.enemy_army});
         // And update the province
-        const newProvince = await Province.findOne({_id: battle.province._id});
-        newProvince.armies = [];
-        newProvince.enemy_army = null;
-        await newProvince.save();
+        Province.findOneAndUpdate( 
+          { _id: battle.province._id},
+          { $set: {
+            armies: [],
+            enemy_army: null
+          }},
+          { new: true }
+        );
         
-        await broadcastUpdateProvince(newProvince);
+        // -- await broadcastUpdateProvince(newProvince);
         endedBattles.push(b);
       }
     }
@@ -154,37 +166,57 @@ async function attackOrMoveArmy(event) {
 async function moveArmy(event, province1, province2) {
   // Cannot move into a full province
   if (province2.armies.length < 4) {
-    // Remove old army from province 1
-    const province1Armies = province1.armies.filter((e) => e.toString() != event.army_id.toString()); 
-    province1.armies = province1Armies;
-    // Move province into province 2
-    province2.armies.push(event.army_id);
-    broadcastMoveArmy(province1, province2) 
-    
-    await province1.save();
-    await province2.save();
-  }
+    // Filter out the army from the "FROM"-province
+    await Province.findOneAndUpdate( 
+      { _id: province1._id},
+      { $pull: {
+        armies: event.army_id.toString()
+      }},
+      { new: true }
+      );
+    // Push the army to the "TO"-province
+    await Province.findOneAndUpdate( 
+      { _id: province2._id},
+      { $push: {
+        armies: event.army_id
+      }},
+      { new: true }
+      );
+    }
 }
 
 async function attackArmy(event, province1, province2) {
   // Only attack if there are no other enemies in their province
   if (province2.enemy_army == null) { 
-    // Remove old army from province 1
-    const province1Armies = province1.armies.filter((e) => e.toString() != event.army_id.toString()); 
-    province1.armies = province1Armies;
+    // Filter out the army from the "FROM"-province
+    await Province.findOneAndUpdate( 
+      { _id: province1._id},
+      { $pull: {
+        armies: event.army_id.toString()
+      }},
+      { new: true }
+      );
     // If their province has no armies, simply switch owners and move in army
     if (province2.armies.length == 0) {
-      province2.owner = province1.owner;
-      province2.armies.push(event.army_id);
-      broadcastAttackArmy(province1, province2)
+      Province.findOneAndUpdate( 
+        { _id: province1._id},
+        { $set: {
+          armies: [event.army_id],
+          owner: province1.owner
+        }},
+        { new: true }
+      );
+      // -- broadcastAttackArmy(province1, province2)
     } else {
       // .. otherwise move army into their province
-      province2.enemy_army = event.army_id;
-      broadcastAttackArmy(province1, province2)
+      Province.findOneAndUpdate( 
+        { _id: province2._id},
+        { $set: { enemy_army: event.army_id }},
+        { new: true }
+      );
+      // - broadcastAttackArmy(province1, province2)
       findBattle(event, province1, province2)
     }
-    await province1.save();
-    await province2.save();
   } 
 }
 
@@ -484,20 +516,15 @@ async function mergeArmies(updatePackage) {
   await army1Document.save(); 
   // Remove the merged army (army 2)
   await Army.deleteOne({_id: updatePackage.army2});
-  // Store armies in province slots
+  // Update the armies in the province
   const provinceId = updatePackage.provinceId;
-  const provinceDocument = await Province.findOne({id: provinceId});
-  // Create a new army list for the province, excluding the removed one
-  const provinceArmies = [];
-  for (let i = 0; i < provinceDocument.armies.length; i++) {
-    const army = provinceDocument.armies[i];
-    if (updatePackage.army2 != army) {
-      provinceArmies.push(army);
-    }
-  }
-  provinceDocument.armies = provinceArmies;
-  // Store and broadcast changes
-  provinceDocument.save();
+  const provinceDocument = await Province.findOneAndUpdate( 
+    { _id: provinceId},
+    { $pull: {
+      armies: updatePackage.army2
+    }},
+    { new: true }
+    );
   broadcastMergeArmies(provinceDocument);
 }
 

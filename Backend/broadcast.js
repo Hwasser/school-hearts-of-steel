@@ -33,24 +33,30 @@ async function broadcastUpdateProvince(province) {
     }
 }
 
-async function broadcastMoveArmy(fromProvince, toProvince) {
-    try {
-        const message = {purpose: 'move_army', 
-            package: {fromProvince: fromProvince, toProvince: toProvince}};
-        broadcastMessage(message);
-    } catch (err) {
-        console.log("Failed to move army:", err);
+/**
+ * @brief: Broadcast the changes that has been done to provinces regarding armies and battles
+ * 
+ * @param {String} sessionId 
+ */
+async function broadcastUpdateArmies(sessionId) {
+    const provinces = await Province.find({session: sessionId});
+    provinceUpdates = {};
+    // Pick up armies-list, enemy_army and owner of each province
+    for (let i = 0; i < provinces.length; i++) {
+        const provinceId = provinces[i]._id;
+        provinceUpdates[provinceId] = {
+            id: provinces[i].id,
+            armies: provinces[i].armies,
+            enemy_army: provinces[i].enemy_army,
+            owner: provinces[i].owner
+        };
     }
-}
-
-async function broadcastAttackArmy(fromProvince, toProvince) {
-    try {
-        const message = {purpose: 'attack_army', 
-            package: {fromProvince: fromProvince, toProvince: toProvince}};
-        broadcastMessage(message);
-    } catch (err) {
-        console.log("Failed to attack with army:", err);
-    }
+    // Package and send
+    const message = {
+        purpose: 'update_armies',
+        package: provinceUpdates
+    };
+    broadcastMessage(message);
 }
 
 // Broadcast current state of a battle
@@ -124,8 +130,7 @@ module.exports = {
     gameSessionSetupClients, 
     broadcastUpdateProvince, 
     broadcastPlayerJoined, 
-    broadcastMoveArmy,
-    broadcastAttackArmy,
+    broadcastUpdateArmies,
     broadcastAttackBattle,
     broadcastHasWon,
     broadcastMergeArmies,

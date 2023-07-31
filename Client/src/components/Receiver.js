@@ -38,8 +38,7 @@ ReceiverSession = React.memo(ReceiverSession);
 export default function Receiver({
   onUpdateResources,
   onUpdateProvince,
-  onMoveArmy,
-  onAttackArmy,
+  onUpdateArmies,
   onAttackBattle,
   onPlayerJoined,
   onPlayerWon,
@@ -74,13 +73,9 @@ export default function Receiver({
                 console.log("Received: update_province");
                 onUpdateProvince(document.package);
                 break;
-              case 'move_army':
-                console.log("Received: move_army");
-                onMoveArmy(document.package);
-                break;
-              case 'attack_army':
-                console.log("Received: attack_army");
-                onAttackArmy(document.package);
+              case 'update_armies':
+                console.log("Received: update_armies");
+                onUpdateArmies(document.package);
                 break;
               case 'attack_battle':
                 console.log("Received: attack_battle");
@@ -110,7 +105,7 @@ export default function Receiver({
         }
       };
     }
-  }, [eventSession, onUpdateResources, onUpdateProvince, onMoveArmy, onAttackArmy, onAttackBattle, onPlayerJoined, onPlayerWon, onPlayerConnect]);
+  }, [eventSession, onUpdateResources, onUpdateProvince, onUpdateArmies, onAttackBattle, onPlayerJoined, onPlayerWon, onPlayerConnect]);
 
   return (
     <div>

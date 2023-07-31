@@ -13,7 +13,7 @@ const {
   } = require('./army_related');
 const {
     broadcastMessage,
-    broadcastUpdateProvince
+    broadcastUpdateArmies
 } = require('./broadcast');
 
 const gameSessions = {};
@@ -72,7 +72,7 @@ async function updateSession(id) {
         broadcastMessage(message);
         await iterateBattles(id);
         await handlePendingEvents(sessions);
-
+        broadcastUpdateArmies(id);
     } catch (err) {
         console.log("Couldnt update res:", err);
     }
@@ -91,13 +91,11 @@ async function handlePendingEvents(session) {
             switch (event.type) {
                 case 'building':
                     console.log("pending event: constructed building!");
-                    await Province.findOneAndUpdate( 
+                    Province.findOneAndUpdate( 
                         { _id: event.provinceID},
                         { $inc: {[event.text]: 1}},
                         { new: true }
                     );
-                    
-                    broadcastUpdateProvince(document);
                     break;
                 case 'upgrade':
                     console.log("pending event: completed upgrade!");
