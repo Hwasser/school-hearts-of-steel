@@ -15,7 +15,6 @@ const Army = require('../../models/Army');
 // @description Get all provinces
 // @access Public
 router.get('/', (req, res) => {
-  console.log(req.query.purpose);
   // Get one province by its province number
   if (req.query.purpose == "get_by_n") {
     Province.find({id: req.query.id, session: req.query.session})
