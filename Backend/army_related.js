@@ -112,7 +112,7 @@ async function iterateBattles(id) {
         await Army.deleteOne({_id: battle.defendingArmy._id});
         await Army.deleteOne({_id: battle.attackingArmy._id});
         // And update the province
-        Province.findOneAndUpdate( 
+        await Province.findOneAndUpdate( 
           { _id: battle.province._id},
           { $set: {
             armies: [],

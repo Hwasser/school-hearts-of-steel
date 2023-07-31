@@ -161,7 +161,8 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     /**
-     * @brief: At each session ending, update all armies on the map
+     * @brief: At each session ending, update all armies on the map.
+     *         This includes changing province owners and ending battles.
      * 
      * @param {JSON} dataPackage: key: province._id, value: province data 
      */
@@ -174,8 +175,8 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         for (let provinceId in dataPackage) {
             const province = dataPackage[provinceId];
             replaceArmiesInProvince(province, armiesCopy);
-            if (provinceOwners[province.id] != province.owner) {
-                provinceOwners[province.id] = province.owner;
+            if (provinceOwnersLocal[province.id] != province.owner) {
+                provinceOwnersLocal[province.id] = province.owner;
                 ownersChanged = true;
             }
             if (province.enemy_army == null) {
