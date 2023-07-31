@@ -178,7 +178,9 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                 provinceOwners[province.id] = province.owner;
                 ownersChanged = true;
             }
-            battleLocal[province.id] = province.enemy_army;
+            if (province.enemy_army == null) {
+                battleLocal[province.id] = null;
+            }
         }
         // Set armies to new positions
         setArmies(armiesCopy);

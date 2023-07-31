@@ -71,14 +71,14 @@ async function iterateBattles(id) {
           const updatedProvince = await Province.findOneAndUpdate( 
             { _id: battle.province._id},
             { $pull: {
-              armies: battle.defendingArmy._id          }},
+              armies: battle.defendingArmy._id }},
             { new: true }
             );
           battle.province = updatedProvince;
-          continueBattle(battle);
+          await continueBattle(battle);
         } else { // 
           // .. otherwise complete the battle and declare attacker winner
-          const test = await Province.findOneAndUpdate( 
+          await Province.findOneAndUpdate( 
             { _id: battle.province._id},
             { $set: {
               owner: battle.attackingArmy.owner,
@@ -87,7 +87,6 @@ async function iterateBattles(id) {
             }},
             { new: true }
           );
-          console.log("WIN updated province:", test);
           // And update the attacker army due to causalities
           await battle.attackingArmy.save();
           endedBattles.push(b);
@@ -96,7 +95,7 @@ async function iterateBattles(id) {
         // Kill player army and update province without attacker army in it
         console.log("Lose!");
         await Army.deleteOne({_id: battle.province.enemy_army});
-        Province.findOneAndUpdate( 
+        await Province.findOneAndUpdate( 
           { _id: battle.province._id},
           { $set: {
             enemy_army: null
@@ -110,9 +109,8 @@ async function iterateBattles(id) {
         // Kill both armies
         console.log("Draw!");
         // Remove both armies
-        const defendingArmy = battle.province.armies.pop();
-        await Army.deleteOne({_id: defendingArmy});
-        await Army.deleteOne({_id: battle.province.enemy_army});
+        await Army.deleteOne({_id: battle.defendingArmy._id});
+        await Army.deleteOne({_id: battle.attackingArmy._id});
         // And update the province
         Province.findOneAndUpdate( 
           { _id: battle.province._id},
@@ -159,11 +157,11 @@ async function attackOrMoveArmy(event) {
   const province1 = await Province.findOne({_id: event.provinceID});
   const province2 = await Province.findOne({_id: event.province2ID});
 
-  const isAttacking = (province2.owner == event.player.name) ? false : true;
+  const isAttacking = (province1.owner == province2.owner) ? false : true;
   if (!isAttacking) {
-    moveArmy(event, province1, province2);
+    await moveArmy(event, province1, province2);
   } else {
-    attackArmy(event, province1, province2);
+    await attackArmy(event, province1, province2);
   }
 }
 
@@ -174,7 +172,7 @@ async function moveArmy(event, province1, province2) {
     await Province.findOneAndUpdate( 
       { _id: province1._id},
       { $pull: {
-        armies: event.army_id.toString()
+        armies: event.army_id
       }},
       { new: true }
       );
@@ -182,7 +180,7 @@ async function moveArmy(event, province1, province2) {
     await Province.findOneAndUpdate( 
       { _id: province2._id},
       { $push: {
-        armies: event.army_id.toString()
+        armies: event.army_id
       }},
       { new: true }
       );
@@ -196,13 +194,13 @@ async function attackArmy(event, province1, province2) {
     await Province.findOneAndUpdate( 
       { _id: province1._id},
       { $pull: {
-        armies: event.army_id.toString()
+        armies: event.army_id
       }},
       { new: true }
       );
     // If their province has no armies, simply switch owners and move in army
     if (province2.armies.length == 0) {
-      Province.findOneAndUpdate( 
+      await Province.findOneAndUpdate( 
         { _id: province2._id},
         { $set: {
           armies: [event.army_id],
@@ -212,12 +210,12 @@ async function attackArmy(event, province1, province2) {
       );
     } else {
       // .. otherwise move army into their province
-      Province.findOneAndUpdate( 
+      const updatedProvince2 = await Province.findOneAndUpdate( 
         { _id: province2._id},
         { $set: { enemy_army: event.army_id }},
         { new: true }
       );
-      findBattle(event, province1, province2)
+      findBattle(event, province1, updatedProvince2);
     }
   } 
 }
