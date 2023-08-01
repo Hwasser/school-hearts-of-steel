@@ -189,7 +189,9 @@ export default function FootArmyView({onSplitArmy, provProp, upgrades, isOwner, 
             )}
           </div>
           <div className="footer_army">
-            {listOfUnits}
+            <div className='army_box'>
+              {listOfUnits}
+            </div>
           </div>
         </div>
         </>

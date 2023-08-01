@@ -322,6 +322,11 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         sendEvent(event, pendingData, getPendingData, fetchResourceUpdates, slotIndex);   
     }
 
+    // TODO: Ska den här ens vara kvar?!
+    /**
+     * 
+     * @param {JSON} event 
+     */
     function handleMovements(event) {
         if (event.type != 'movement') {
             return;
@@ -454,6 +459,10 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         setProperties({...upgrade});
     };
 
+    function updateProperties(newProperty) {
+        setProperties(newProperty);
+    }
+
     //------------------------------------------
     // --------- Handle the game views ---------
 
@@ -467,6 +476,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             fetchResourceUpdates={fetchResourceUpdates} 
             pushPendingData={pushPendingData}
             properties={properties} 
+            updateProperties={updateProperties}
             session={session}
             upgrades={upgrades}
             slotIndex={slotIndex}
@@ -542,8 +552,10 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
 
 
 const defaultProvinceState = {
-id: -1,
+id: 0,
+session: null,
 name: '-',
+owner: '-',
 houses: 0,
 workshops: 0,
 farms: 0,

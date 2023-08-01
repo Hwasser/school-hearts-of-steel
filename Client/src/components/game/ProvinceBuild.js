@@ -7,7 +7,7 @@ import { useState } from 'react';
 const { buildings } = require('../../GameData/provinceStats');
 
 export default function ProvinceBuild(
-    { buildingType, setInactive, fromProvince, onBuildMenu, session, slotIndex} ) {
+    { buildingType, setInactive, fromProvince, onBuildMenu, session, slotIndex, constructing} ) {
     const [errorMessage, setErrorMessage] = useState('');
 
     const maxBuildings = 5;
@@ -19,8 +19,7 @@ export default function ProvinceBuild(
     const canAffordMaterial = buildings[buildingType]['material'] <= session.material[slotIndex];
 
     function onConfirmButton() {
-        const buildingTypes = buildingType + "s";
-        if (fromProvince[buildingTypes] >= maxBuildings) {
+        if (fromProvince[buildingType] >= maxBuildings) {
             setErrorMessage("You cannot construct more buildings of that type in this province!");
             return;
         } else if (!canAffordFood || !canAffordFuel || !canAffordTools || !canAffordMaterial) {
@@ -54,7 +53,9 @@ export default function ProvinceBuild(
         {
             errorMessage == '' && (
             <div className='build_building' style={{display: toDraw}}>
-            <h2 className='build_desc'> Construct a {buildingType}</h2>
+            {constructing[fromProvince.id].type == '' && (
+                <>
+                <h2 className='build_desc'> Construct a {buildingType}</h2>
                 <div className='cost_field'> 
                 <span>Food:</span>
                 <span style={{color: (canAffordFood) ? 'black' : 'red'}}>
@@ -75,6 +76,11 @@ export default function ProvinceBuild(
                 <span style={{color: (canAffordMaterial) ? 'black' : 'red'}}>
                     {buildings[buildingType]['material']}</span> 
                 </div>
+                </>
+            )}
+            {constructing[fromProvince.id].type != '' && (
+                <h2 className='build_desc'> Abort building! </h2>
+            )}
                 <button 
                     className='confirm_button'
                     onClick={() => {onConfirmButton()}} 

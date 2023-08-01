@@ -25,7 +25,8 @@ export default function Footer( {
   fetchResourceUpdates,
   pushPendingData,
   getArmies,
-  properties, 
+  updateProperties,
+  properties,
   session, 
   upgrades,
   player,
@@ -35,6 +36,8 @@ export default function Footer( {
   const [useRaiseMenu, setuseRaiseMenu] = useState(false);
   const [useBuildMenu, setUseBuildMenu] = useState('none');
   const [footerType, setFooterType] = useState('province');
+  const constructionInit = Array(session.world_size).fill(null).map(() => ({ type: "", value: 0 }));
+  const [constructing, setConstructing] = useState(constructionInit);
   
   // For deactivating menus
   const makeSliderInactive = () => {setuseRaiseMenu(false)};  
@@ -53,15 +56,26 @@ export default function Footer( {
   
   // Only change properties if they have actually changed
   if (properties !== provProp) {
-    setProvProp(properties);
+    // Reset building states
+    const constructingCopy = [... constructing];
+    for (let i = 0; i < constructing.length; i++) {
+      if (constructingCopy[i].type != '') {
+        if (provProp[constructingCopy[i].type] > constructingCopy[i].value) {
+          constructingCopy[i].type = '';
+        }
+      }
+    }
+    setConstructing(constructingCopy);
+    // Change province property and reset sliders and buildmenues
     makeSliderInactive();
     makeBuildInactive();
+    setProvProp(properties);
   }
 
   function raiseArmyAction(newProvinceInfo) {
-    setProvProp(newProvinceInfo); 
     onRaiseArmyMenu();
     fetchResourceUpdates();
+    updateProperties(newProvinceInfo);
   }
 
   function buildMenuAction(province, buildingType) {
@@ -70,6 +84,15 @@ export default function Footer( {
       text: buildingType,
       provinceID: province._id,
       provinceN: province.id
+    }
+    const constructingCopy = [... constructing];
+    if (constructing[provProp.id].type == '') {
+      constructingCopy[provProp.id].type = buildingType;
+      constructingCopy[provProp.id].value = provProp[buildingType];
+      setConstructing(constructingCopy);
+    } else {
+      constructingCopy[provProp.id].type = '';
+      setConstructing(constructingCopy);
     }
     pushPendingData(eventPackage);
   }
@@ -91,7 +114,7 @@ export default function Footer( {
     if (footerType !== 'province') {
       setFooterType('province');
     }
-  }
+  } 
 
   // The buttons for constucting buildings
   function BuildingButtons() {
@@ -99,27 +122,32 @@ export default function Footer( {
       <div className='footer_row'>
         {player.name === properties.owner && (
           <>
-          <button className='property_button' onClick={() => onBuildMenu('houses')} >
+          <button className={(constructing[provProp.id].type == 'houses') ? 'property_button_constructing' : 'property_button'} 
+            onClick={() => onBuildMenu('houses')} >
             <span id="name6"> Houses: </span>
             <span id="value6"> {provProp['houses']} </span>
           </button>
 
-          <button className='property_button' onClick={() => onBuildMenu('mines')} >
+          <button className={(constructing[provProp.id].type == 'mines') ? 'property_button_constructing' : 'property_button'}  
+            onClick={() => onBuildMenu('mines')} >
             <span id="name7"> Mines: </span>
             <span id="value7"> {provProp['mines']} </span>
           </button>
 
-          <button className='property_button' onClick={() => onBuildMenu('workshops')} >
+          <button className={(constructing[provProp.id].type == 'workshops') ? 'property_button_constructing' : 'property_button'}  
+            onClick={() => onBuildMenu('workshops')} >
             <span id="name8"> Workshops: </span>
             <span id="value8"> {provProp['workshops']} </span>
           </button>
 
-          <button className='property_button' onClick={() => onBuildMenu('farms')}>
+          <button className={(constructing[provProp.id].type == 'farms') ? 'property_button_constructing' : 'property_button'} 
+            onClick={() => onBuildMenu('farms')}>
             <span id="name9"> Farms: </span>
             <span id="value9"> {provProp['farms']} </span>
           </button>
 
-          <button className='property_button' onClick={() => onBuildMenu('forts')} >
+          <button className={(constructing[provProp.id].type == 'forts') ? 'property_button_constructing' : 'property_button'} 
+            onClick={() => onBuildMenu('forts')} >
             <span id="name11"> Fortifications: </span>
             <span id="value11"> {provProp['forts']} </span>
           </button>
@@ -180,6 +208,7 @@ export default function Footer( {
         onBuildMenu={buildMenuAction}
         session={session}
         slotIndex={slotIndex}
+        constructing={constructing}
       />
 
       <div className='footer_row'>
@@ -196,7 +225,7 @@ export default function Footer( {
           <span id="value1b"> {provProp['owner']} </span>
         </div>
         <div className='property'>
-          <span id="name10"> Manpower: </span>
+          <span id="name10"> Workforce: </span>
           <span id="value10"> {provProp['workforce']} </span>
         </div>
 
@@ -267,4 +296,5 @@ export default function Footer( {
     </>
   );
 }
+
 

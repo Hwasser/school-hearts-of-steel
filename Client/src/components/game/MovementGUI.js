@@ -24,7 +24,6 @@ export default function MovementGUI({movements, armies}) {
         
         arrows.push(<Xarrow key={m.toString()} start={startDestination} end={endDestination} labels={{start: endLabel}} />);
       }
-      console.log(arrows);
     
     return (
       <>
