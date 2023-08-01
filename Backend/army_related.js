@@ -195,10 +195,10 @@ async function terminateAllBattles(id) {
 }
 
 /**
- * @brief: If the battle is won there 
+ * @brief: If the battle against one army is won  
  * 
  * @param {JSON} battle 
- * @returns: Whether the battle ended or not
+ * @returns: Whether the battle ended or not after the victory
  */
 async function battleWon(battle) {
   // Delete the current defender army
@@ -211,9 +211,8 @@ async function battleWon(battle) {
       { _id: battle.province._id},
       { $pull: { armies: battle.defendingArmy._id }},
       { new: true }
-      );
-    console.log("UPDATED PROVINCE:", updatedProvince); // TODO: REMOVE
-    battle.province = updatedProvince;
+      );    battle.province = updatedProvince;
+    // Find a new army to and restart battle
     await continueBattle(battle);
     return false;
   } else { // 
@@ -273,8 +272,15 @@ async function battleDraw(battle) {
   );
 }
 
-
-
+/**
+ * @brief: Find everything you need to know for a battle like upgrades on both sides,
+ * the terrain, fetch both armies and set up a list of units for both, set round to 0 
+ * and add the battle to "battles" in the top of the BATTLE-section.
+ * 
+ * @param {JSON} event 
+ * @param {JSON} fromProvince 
+ * @param {JSON} battleProvince 
+ */
 async function findBattle(event, fromProvince, battleProvince) {
   // Get session and session slots
   const gameSession = await Session.findOne({_id: event.session});
@@ -318,15 +324,20 @@ async function findBattle(event, fromProvince, battleProvince) {
   
 }
 
+/**
+ * @brief: If won against an army and the province contains more armies
+ * -> continue with a new battle against the next army in the province.
+ * 
+ * @param {JSON} battle 
+ */
 async function continueBattle(battle) {
-  console.log("CONTINUE BATTLE PROVINCE: ", battle.province);
   // Get the defenders next army data
   const getEnemy = battle.province.armies.slice(-1).pop();
   console.log("GET ENEMY: ", getEnemy);
-  const defendingArmy = await Army.findOne({_id: getEnemy});
+  battle.defendingArmy = await Army.findOne({_id: getEnemy});
   // Set up new army
-  let defendingArmyTroops = setUpSoldiers(defendingArmy, battle.defenderUpgrades);
-  battle.defendingArmyTroops = defendingArmyTroops;
+  let defendingArmyTroops = setUpSoldiers(battle.defendingArmy, battle.defenderUpgrades);
+  battle.defendingArmyTroops = defendingArmyTroops; 
   // Reset round in new battle
   battle.round = 0;
   // Calculate how the battle is going and broadcast to all players
@@ -469,62 +480,25 @@ function calculatePerformance(battle) {
  * @returns {Array}: An array of units, each one represented by an object from imported "units"
  */
 function setUpSoldiers(army, upgrades) {
-  const armySoldiers = new Array(army.soldiers);
-  let n = 0;
-  // Add all army types to the list of troops
-  if (army.militia != null) {
-      for (let i = n; i < n + army.militia; i++) {
-          armySoldiers[i] = {... units.militia};
-      }
-      n += army.militia;
-  }
-  if (army.demolition_maniac != null) {
-      for (let i = n; i < n + army.demolition_maniac; i++) {
-          armySoldiers[i] = {... units.demolition_maniac};
-      }
-      n += army.demolition_maniac;
-  }
-  if (army.gun_nut != null) {
-      for (let i = n; i < n + army.gun_nut; i++) {
-          armySoldiers[i] = {... units.gun_nut};
-      }
-      n += army.gun_nut;
-  }
-  if (army.fortified_truck != null) {
-      for (let i = n; i < n + army.fortified_truck; i++) {
-          armySoldiers[i] = {... units.fortified_truck};
-      }
-      n += army.fortified_truck;
-  }
-  if (army.power_suit != null) {
-      for (let i = n; i < n + army.power_suit; i++) {
-          armySoldiers[i] = {... units.power_suit};
-      }
-      n += army.power_suit;
-  }
-  if (army.raider != null) {
-      for (let i = n; i < n + army.raider; i++) {
-          armySoldiers[i] = {... units.raider};
-      }
-      n += army.raider;
-  }
-  if (army.mutant != null) {
-      for (let i = n; i < n + army.mutant; i++) {
-          armySoldiers[i] = {... units.mutant};
-      }
-      n += army.mutant;
-  
-  }
-  // Apply upgrades to armies
+  // Get modifiers of upgrades
   const upgradedDamage = 1 + upgrades['upg_weap2_dam'] * 0.1 + upgrades['upg_weap3_dam'] * 0.1;
   const upgradedArmor  = 0 + upgrades['upg_weap2_arm'] * 0.1 + upgrades['upg_weap3_arm'] * 0.1;  
-  for (let i = 0; i < army.soldiers; i++) {
-      armySoldiers[i].hardness += upgradedArmor;
-      armySoldiers[i].damage_low *= upgradedDamage;
-      armySoldiers[i].damage_high *= upgradedDamage;
-      armySoldiers[i].piercing *= upgradedDamage;
+  // Set up all units of every type in an array
+  const armySoldiers = new Array(army.soldiers);
+  let n = 0;
+  for (let armyType in units) {
+    if (army[armyType] != null) {
+      for (let i = n; i < n + army[armyType]; i++) {
+        armySoldiers[i] = {... units[armyType]};
+        // Apply upgrades to armies
+        armySoldiers[i].hardness += upgradedArmor;
+        armySoldiers[i].damage_low *= upgradedDamage;
+        armySoldiers[i].damage_high *= upgradedDamage;
+        armySoldiers[i].piercing *= upgradedDamage;
+      }
+      n += army[armyType];
+    }  
   }
-
   return armySoldiers;
 }
   
