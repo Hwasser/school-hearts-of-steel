@@ -66,7 +66,7 @@ async function updateSession(id) {
         }
         // Update time
         sessions.time += 1;
-        sessions.save();
+        await sessions.save();
         // Store and broadcast updated value
         const message = {purpose: 'update_session', package: sessions};
         broadcastMessage(message);
@@ -91,8 +91,8 @@ async function handlePendingEvents(session) {
             switch (event.type) {
                 case 'building':
                     console.log("pending event: constructed building!");
-                    Province.findOneAndUpdate( 
-                        { _id: event.provinceID},
+                    await Province.findOneAndUpdate( 
+                        { session: event.session, _id: event.provinceID},
                         { $inc: {[event.text]: 1}},
                         { new: true }
                     );

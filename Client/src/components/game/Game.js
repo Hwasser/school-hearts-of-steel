@@ -1,5 +1,6 @@
 import React from 'react'
 import axios from 'axios';
+import Xarrow from "react-xarrows";
 import { useState, useMemo } from 'react';  
 
 import './Game.css';
@@ -14,6 +15,7 @@ import {
     receiveJoinedPlayer, 
     receiveUpdateProvince} 
     from '../../functionality/receiveEvents';
+import {sendEvent} from '../../functionality/sendEvents';
 import { armyMove, armyAttack } from '../../functionality/manageArmies';
 
 /**
@@ -55,11 +57,9 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     // Whether to use the upgrade view or the game view
     const [upgradeView, setUpgradeView] = useState(false);
     const [upgrades, setUpgrades] = useState({});
-    const [pending, setPending] = useState({});
+    const [movements, setMovements] = useState({});
 
-    function getTime() {
-        return session.time;
-    }
+    let pendingData = [];
 
     // Fetch province information from the server once when opening the game
     // and set slot index of the player.
@@ -128,6 +128,14 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         updatedSession.time = message.time;
         setSession(updatedSession);
         getPendingData()
+        // Remove complete movements
+        const movementsCopy = {... movements}
+        for (let m in movements) {
+            if (movementsCopy[m].end == updatedSession.time) {
+                delete movementsCopy[m];
+            }
+        }
+        setMovements(movementsCopy);
     }
 
     const handleUpdateProvince = (message) => {
@@ -175,6 +183,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         for (let provinceId in dataPackage) {
             const province = dataPackage[provinceId];
             replaceArmiesInProvince(province, armiesCopy);
+            // Change owners if possible
             if (provinceOwnersLocal[province.id] != province.owner) {
                 provinceOwnersLocal[province.id] = province.owner;
                 ownersChanged = true;
@@ -190,6 +199,14 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             setProvinceOwners(provinceOwnersLocal);
         }
         setBattle(battleLocal);
+        // If a battle is currently selected and the battle has ended, 
+        // revert view to default footer view
+        if (properties['performance'] != null) {
+            const provinceN = properties.province.id;
+            if (battleLocal[provinceN] == null) {
+                setProperties(defaultProvinceState);
+            } 
+        }
     }
 
     /**
@@ -282,7 +299,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     function getPendingData() {
         axios.get(`http://localhost:8082/api/pendings/${session._id}`)
         .then( (res) => {
-            setPending(res.data);
+            pendingData = [... res.data];
         })
         .catch( (e) => {
             console.log(e)
@@ -294,11 +311,32 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
      * @param {Dict} event: Pending event 
      */
     function pushPendingData(event) {
-        const pendingCopy = [... pending];
-        pendingCopy.push(event);
-        setPending(pendingCopy);
+        // Add some additional data
+        event['player'] = player._id;
+        event['session'] = session._id;
+        event['start'] = session.time;
+        event['end'] = session.time + 3; // TODO: TEMPORARY!
+
+        handleMovements(event);
+
+        sendEvent(event, pendingData, getPendingData, fetchResourceUpdates, slotIndex);   
     }
 
+    function handleMovements(event) {
+        if (event.type != 'movement') {
+            return;
+        }
+
+        const movementsCopy = {... movements};
+        movementsCopy[event.army_id] = {
+            from: event.provinceN,
+            to: event.province2N,
+            start: event.start,
+            end: event.end
+        };
+
+        setMovements(movementsCopy);
+    }
 
     //----------------------------------------
     // --------- Handle game actions ---------
@@ -419,6 +457,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     //------------------------------------------
     // --------- Handle the game views ---------
 
+
     // Specify exactly which states that re-renders this component
     // and remember the states of the rest.
     const footer = React.useMemo( () => 
@@ -426,6 +465,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             onSplitArmy={handleSplitArmy}
             onBuyUpgrade={handleBuyUpgrade} 
             fetchResourceUpdates={fetchResourceUpdates} 
+            pushPendingData={pushPendingData}
             properties={properties} 
             session={session}
             upgrades={upgrades}
@@ -441,7 +481,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         onSelectAction={handleSelectAction} 
         onMergeArmies={handleMergeArmies}
         pushPendingData={pushPendingData}
-        getTime={getTime}
         names={provinceNames} 
         owners={provinceOwners}
         flavors={provinceFlavors}
@@ -453,6 +492,11 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         battle={battle}
     />, [properties, armies, provinceOwners, battle]);
     
+    const movementsui = React.useMemo( () => 
+    <MovementGUI
+        movements={movements}
+        armies={armies}
+    />, [movements] );
         
     const renderGame = () => {
         return (
@@ -485,7 +529,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                     />
                 )}
                 {footer}
-                <MovementGUI pending={pending} armies={armies} session={session}/>
+                {movementsui}
             </div>
             </>
         )

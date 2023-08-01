@@ -9,12 +9,9 @@ import axios from 'axios';
 import Province from './Province';
 import React, { useState } from 'react';  
 import './GameUI.css';
-import {
-  postMovement} 
-    from '../../functionality/pendingActions';
 
 export default function GameUI( 
-  {onSelectAction, onMergeArmies, pushPendingData, getTime,
+  {onSelectAction, onMergeArmies, pushPendingData, 
     names, owners, flavors, terrains, provinceId, armies, session, player, battle} ) {
   
   const worldRowSize = Math.sqrt(session.world_size);
@@ -92,6 +89,15 @@ export default function GameUI(
     || (move == 1 && (fromProvince % worldRowSize != 0)) ) {
       const province1 = provinceId[fromProvince];
       const province2 = provinceId[toProvince];
+      // Event package to send to server
+      const pendingEventPackage = {
+        type: "movement",
+        provinceID: province1,
+        province2ID: province2,
+        provinceN: fromProvince,
+        province2N: toProvince,
+        army_id: army
+      }
       // Check if the destination province is ours or belongs to another player
       if (owners[toProvince] == owners[fromProvince]) {
         // Only start moving an army if there are any available army slots in dst!
@@ -100,17 +106,16 @@ export default function GameUI(
           || armies[2][toProvince] == null 
           || armies[3][toProvince] == null) {      
           console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
-          postMovement(province1, province2, fromProvince, toProvince, 
-            session, player, army, getTime, pushPendingData);
-
+          // Push pending event to server
+          pushPendingData(pendingEventPackage);
         } else {
           console.log("No available army slots in that province!");
         }
       // If the province is not ours, attack!
       } else {
         console.log("attack with army " + army + " from province " + fromProvince + " to " + toProvince);
-        postMovement(province1, province2, fromProvince, toProvince, 
-          session, player, army, getTime, pushPendingData);
+        // Push pending event to server
+        pushPendingData(pendingEventPackage);
       }
     } else {
       console.log("Province is too far away!");
@@ -160,6 +165,7 @@ export default function GameUI(
             // Armies in province -> provArmies[slot][province index]
             const provArmies = [armies[0][index], armies[1][index], armies[2][index], armies[3][index]]
               listItems.push(<Province 
+                key={"province"+index}
                 id={index} 
                 onProvinceClick={ () => handleSelectProvince(index) }
                 onBattleClick={handleSelectBattle}

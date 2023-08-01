@@ -18,13 +18,6 @@ export default function ProvinceBuild(
     const canAffordTools    = buildings[buildingType]['tools']    <= session.tools[slotIndex];
     const canAffordMaterial = buildings[buildingType]['material'] <= session.material[slotIndex];
 
-    const curCost = {
-        food: buildings[buildingType]['food'],
-        fuel: buildings[buildingType]['fuel'],
-        tools: buildings[buildingType]['tools'],
-        material: buildings[buildingType]['material']
-    };
-
     function onConfirmButton() {
         const buildingTypes = buildingType + "s";
         if (fromProvince[buildingTypes] >= maxBuildings) {
@@ -34,8 +27,6 @@ export default function ProvinceBuild(
             setErrorMessage("You cannot afford to construct this building!");
             return;           
         }
-        updateSession(curCost, slotIndex, session._id);
-        //updateProvinceDatabase(fromProvince, buildingType, onBuildMenu, session);
         onBuildMenu(fromProvince, buildingType);
         setInactive();
         setErrorMessage('');
@@ -104,21 +95,3 @@ export default function ProvinceBuild(
     );
 }
 
-  // Update the player resources in the session
-function updateSession(curCost, slotIndex, sessionId) {
-    // A package with data to send to the backend
-    const updatePackage = {
-      food: curCost['food'],
-      fuel: curCost['fuel'],
-      tools: curCost['tools'],
-      material: curCost['material'],
-      purpose: 'buy_stuff',
-      slotIndex: slotIndex,
-    };
-    
-    axios
-    .put(`http://localhost:8082/api/sessions/${sessionId}`, updatePackage)
-    .catch((err) => {
-        console.log('Couldnt update the session: ' + err);
-    });  
-  }

@@ -15,10 +15,24 @@ router.get('/:id', (req, res) => {
 // @route GET api/pendings/
 // @description add Pending action
 // @access Public
-router.post('/', (req, res) => {
-  Pending.create(req.body)
-    .then(pending => res.json({msg: 'Player added successfully' }))
-    .catch(err => res.status(400).json({ error: 'Unable to add this Player' }));
+router.post('/', async (req, res) => {
+  
+  // For movements, remove current pending movement of unit if we change direction
+  // Don't allow changing the movement on the same time as the execution
+  if (req.body.type == 'movement') {
+    const result = await Pending.deleteOne(
+      {session: req.body.session, type: 'movement', army_id: req.body.army_id, end: { $ne: req.body.start }})
+      console.log("RES:", result);
+      Pending.create(req.body)
+      .then(pending => res.json(pending))
+      .catch(err => res.status(400).json({ error: 'Unable to add pending event' }));
+    } else {
+      // Other stuff is taken care on the client side
+      Pending.create(req.body)
+        .then(pending => res.json(pending))
+        .catch(err => res.status(400).json({ error: 'Unable to add pending event' }));
+    }
+
 });
 
 // @route DELETE api/pendings/:id
@@ -27,7 +41,7 @@ router.post('/', (req, res) => {
 router.delete('/:id', (req, res) => {
     Pending.findOneAndDelete({_id: req.params.id})
       .then(army => res.json({ mgs: 'Army ' + req.params.id + ' successfully removed!' }))
-      .catch(err => res.status(404).json({ error: 'No such army' }));
+      .catch(err => res.status(404).json({ error: 'No such pending event' }));
   });
   
 

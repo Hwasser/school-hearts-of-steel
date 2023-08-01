@@ -1,30 +1,30 @@
 import Xarrow from "react-xarrows";
+import React, {useState} from 'react';
 
 /**
  * This module draws army movements between provinces
  */
 
-export default function MovementGUI({pending, armies, session}) {
+export default function MovementGUI({movements, armies}) {
     const arrows = [];
-    for (let i = 0; i < pending.length; i++) {
-      if (pending[i].type == 'movement') {
+
+    for (let m in movements) {
         // Check which slot the army comes from
         let slot = 1;
         for (let j = 0; j < armies.length; j++) {
-          if (armies[j][pending[i].provinceN] == pending[i].army_id) {
+          if (armies[j][movements[m].from] == m) {
             slot = j+1;
           }
         }
 
-        console.log(arrows);
-  
-        const startDestination = "province" + pending[i].provinceN + "_army" + slot;
-        const endDestination = "province" + pending[i].province2N + "_army1";
-        const endLabel = "Arrives in: " + (pending[i].end - session.time); 
-  
-        arrows.push(<Xarrow start={startDestination} end={endDestination} labels={{middle: endLabel}} />);
+        
+        const startDestination = "province" + movements[m].from + "_army" + slot;
+        const endDestination = "province" + movements[m].to + "_army1";
+        const endLabel = "Arrives at: " + (movements[m].end); 
+        
+        arrows.push(<Xarrow key={m.toString()} start={startDestination} end={endDestination} labels={{start: endLabel}} />);
       }
-    }
+      console.log(arrows);
     
     return (
       <>

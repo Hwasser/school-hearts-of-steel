@@ -5,9 +5,6 @@ import ProvinceBuild from './ProvinceBuild';
 import FootArmyView from './FootArmyView';
 import FootUpgradeView from './FootUpgradeView';
 import FootBattleView from './FootBattleView';
-import {
-  postBuilding} 
-    from '../../functionality/pendingActions';
 
 /**
  * @param {Function} onBuyUpgrade
@@ -26,6 +23,7 @@ export default function Footer( {
   onBuyUpgrade,
   onSplitArmy,
   fetchResourceUpdates,
+  pushPendingData,
   getArmies,
   properties, 
   session, 
@@ -67,8 +65,13 @@ export default function Footer( {
   }
 
   function buildMenuAction(province, buildingType) {
-    postBuilding(province, session, player, buildingType);
-    fetchResourceUpdates();
+    const eventPackage = {
+      type: 'building',
+      text: buildingType,
+      provinceID: province._id,
+      provinceN: province.id
+    }
+    pushPendingData(eventPackage);
   }
 
   // Whether to show properties for a province or an army
@@ -96,27 +99,27 @@ export default function Footer( {
       <div className='footer_row'>
         {player.name === properties.owner && (
           <>
-          <button className='property_button' onClick={() => onBuildMenu('house')} >
+          <button className='property_button' onClick={() => onBuildMenu('houses')} >
             <span id="name6"> Houses: </span>
             <span id="value6"> {provProp['houses']} </span>
           </button>
 
-          <button className='property_button' onClick={() => onBuildMenu('mine')} >
+          <button className='property_button' onClick={() => onBuildMenu('mines')} >
             <span id="name7"> Mines: </span>
             <span id="value7"> {provProp['mines']} </span>
           </button>
 
-          <button className='property_button' onClick={() => onBuildMenu('workshop')} >
+          <button className='property_button' onClick={() => onBuildMenu('workshops')} >
             <span id="name8"> Workshops: </span>
             <span id="value8"> {provProp['workshops']} </span>
           </button>
 
-          <button className='property_button' onClick={() => onBuildMenu('farm')}>
+          <button className='property_button' onClick={() => onBuildMenu('farms')}>
             <span id="name9"> Farms: </span>
             <span id="value9"> {provProp['farms']} </span>
           </button>
 
-          <button className='property_button' onClick={() => onBuildMenu('fort')} >
+          <button className='property_button' onClick={() => onBuildMenu('forts')} >
             <span id="name11"> Fortifications: </span>
             <span id="value11"> {provProp['forts']} </span>
           </button>

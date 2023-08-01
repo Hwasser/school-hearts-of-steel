@@ -28,35 +28,35 @@ const lastNames = {
 
 // The cost of all buildings in a province
 const buildings = {
-  house: {
+  houses: {
       food: 50,
       fuel: 0,
       tools: 50,
       material: 150,
       time: 5
   },
-  mine: {
+  mines: {
       food: 50,
       fuel: 50,
       tools: 150,
       material: 0,
       time: 5
   },
-  workshop: {
+  workshops: {
       food: 0,
       fuel: 50,
       tools: 50,
       material: 150,
       time: 5
   },
-  farm: {
+  farms: {
       food: 0,
       fuel: 0,
       tools: 100,
       material: 150,
       time: 5
   },
-  fort: {
+  forts: {
       food: 0,
       fuel: 0,
       tools: 50,
