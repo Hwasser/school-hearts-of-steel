@@ -23,7 +23,7 @@ export default function GameUI(
   * @param {Integer} index: The province number 
   */
   function handleSelectProvince(index) {
-    axios.get('http://localhost:8082/api/provinces/', {
+    axios.get(host + '/api/provinces/', {
       params: { purpose: "get_by_n", id: index, session: session._id}
     })
     .then( (res) => {
@@ -45,7 +45,7 @@ export default function GameUI(
       return;
     }
     
-    axios.get(`http://localhost:8082/api/armies/${id}` )
+    axios.get(host + `/api/armies/${id}` )
     .then( (res) => {
       onSelectAction(res.data, 'army');
     })
