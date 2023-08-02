@@ -16,7 +16,6 @@ import {
     receiveUpdateProvince} 
     from '../../functionality/receiveEvents';
 import {sendEvent} from '../../functionality/sendEvents';
-import { armyMove, armyAttack } from '../../functionality/manageArmies';
 import { buildings } from '../../GameData/provinceStats';
 import {host} from '../../backend_adress';
 
