@@ -298,7 +298,9 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     function getPendingData() {
-        axios.get(`http://localhost:8082/api/pendings/${session._id}`)
+        axios.get("http://localhost:8082/api/pendings", {
+            params: {session: session._id, player: player._id}
+        })
         .then( (res) => {
             pendingData = [... res.data];
         })

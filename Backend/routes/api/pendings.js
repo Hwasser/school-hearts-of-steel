@@ -12,6 +12,15 @@ router.get('/:id', (req, res) => {
       .catch(err => res.status(404).json({ noarmyfound: 'No pending actions found' }));
   });
 
+// @route GET api/pendings/:id
+// @description Get all Pending events by other means
+// @access Public
+router.get('/', (req, res) => {
+  Pending.find({session: req.query.session, player: req.query.player})
+    .then(sessions => res.json(sessions))
+    .catch(err => res.status(404).json({ noarmyfound: 'No pending actions found' }));
+});
+
 // @route GET api/pendings/
 // @description add Pending action
 // @access Public
