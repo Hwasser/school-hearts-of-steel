@@ -31,7 +31,6 @@ router.post('/', async (req, res) => {
   if (req.body.type == 'movement') {
     const result = await Pending.deleteOne(
       {session: req.body.session, type: 'movement', army_id: req.body.army_id, end: { $ne: req.body.start }})
-      console.log("RES:", result);
       Pending.create(req.body)
       .then(pending => res.json(pending))
       .catch(err => res.status(400).json({ error: 'Unable to add pending event' }));

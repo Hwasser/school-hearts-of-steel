@@ -14,8 +14,6 @@ const Province = require('./models/Province');
 const Army = require('./models/Army');
 
 const { 
-    broadcastMoveArmy, 
-    broadcastAttackArmy,
     broadcastAttackBattle,
     broadcastUpdateProvince,
     broadcastHasWon, 
@@ -42,6 +40,8 @@ async function attackOrMoveArmy(event) {
   } else {
     await attackArmy(event, province1, province2);
   }
+  // Check whether the player has won and possibly declare winner
+  hasWon(event.session); 
 }
 
 /**
@@ -106,7 +106,7 @@ async function attackArmy(event, province1, province2) {
         { new: true }
       );
     } else {
-      // .. otherwise move army into their province
+      // .. otherwise move army into their province and set-up battle
       const updatedProvince2 = await Province.findOneAndUpdate( 
         { _id: province2._id},
         { $set: { enemy_army: event.army_id }},
@@ -176,6 +176,9 @@ async function iterateBattles(id) {
   for (let i = 0; i < endedBattles.length; i++) {
     delete battles[endedBattles[i]];
   }
+
+  // Check whether the player has won and possibly declare winner
+  hasWon(id); 
 }
 
 /**
@@ -501,28 +504,7 @@ function setUpSoldiers(army, upgrades) {
   }
   return armySoldiers;
 }
-  
-/**
- * @brief: Check whether a player has won. The rule is that if one player
- * has defeated all all player he/she has won.
- */
-async function hasWon() {
-  const allProvinces = await Province.find({});
-  // There will always be a player who owns province 0
-  const firstOwner = allProvinces[0].owner;
-  for (let i = 1; i < allProvinces.length; i++) {
-    const province = allProvinces[i];
-    // Ignore neutral provinces, you only need to defeat all players to win!
-    if (province.owner == 'Neutral') {
-      continue;
-    }
-    // If there is another player that owns territory, no one has won!
-    if (firstOwner != province.owner) {
-      return;
-    }
-  }
-  broadcastHasWon(firstOwner);  
-}
+
 
 
 // ------------------------ OTHER ---------------------------
@@ -584,6 +566,29 @@ function mergeSoldierTypes(army1, army2) {
       army1.power_suit = (army1.power_suit == null) 
           ? army2.power_suit : army1.power_suit + army2.power_suit;
   }
+}
+
+/**
+ * @brief: Check whether a player has won. The rule is that if one player
+ * has defeated all all player he/she has won.
+ */
+async function hasWon(sessionId) {
+  const allProvinces = await Province.find({session: sessionId});
+  // There will always be a player who owns province 0
+  const province0 = allProvinces.findIndex((x) => x.id == 0);
+  const firstOwner = allProvinces[province0].owner;
+  for (let i = 1; i < allProvinces.length; i++) {
+    const province = allProvinces[i];
+    // Ignore neutral provinces, you only need to defeat all players to win!
+    if (province.owner == 'Neutral') {
+      continue;
+    }
+    // If there is another player that owns territory, no one has won!
+    if (firstOwner != province.owner) {
+      return;
+    }
+  }
+  broadcastHasWon(firstOwner);  
 }
 
 module.exports = { 
