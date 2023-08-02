@@ -381,6 +381,25 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     });  
     }
 
+    /**
+     * @brief: Fetch a province from database and update the province
+     * 
+     * @param {Integer} index: The province number (index in array)
+     */
+    async function fetchAndUpdateProvince(index) {
+        axios.get('http://localhost:8082/api/provinces/', {
+            params: { purpose: "get_by_n", id: index, session: session._id}
+        })
+        .then( (res) => {
+            if (res.data.length !== 0) {
+                handleSelectAction(res.data[0], 'province');
+            }
+        })
+        .catch( (e) => {
+            console.log(e)
+        });
+    }
+
     // Update the armies in province if a player merge two armies
     async function handleBroadcastMergeArmies(updatePackage) {
         const province = updatePackage.province;
