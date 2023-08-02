@@ -9,6 +9,7 @@ const armies = require('./routes/api/armies');
 const players = require('./routes/api/players');
 const sessions = require('./routes/api/sessions');
 const upgrades = require('./routes/api/upgrades');
+const pendings = require('./routes/api/pendings');
 
 const app = express();
 const appSSE = express();
@@ -29,7 +30,8 @@ let clients = [];
 // Function to send SSE messages to all clients
 function broadcastMessage(message) {
   clients.forEach(client => {
-    client.res.write(`data: ${message}\n\n`); // Send SSE message to client
+    const current = client['client'];
+    current.res.write(`data: ${message}\n\n`); // Send SSE message to client
   });
 }
 
@@ -41,11 +43,12 @@ appSSE.get('/rec', (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.flushHeaders();
 
-  
+  const token = new Date().getTime();
+  const dataPackage = JSON.stringify({purpose: 'connect', package: token});
   // Send initial SSE message to client
-  res.write('data: Connected to SSE\n\n');
+  res.write(`data: ${dataPackage}\n\n`);
   
-  const client = { res };
+  const client = { client: {res}, token: token, session: '', player: '' };
   
   // Add the client to the list of connected clients
   clients.push(client);
@@ -53,7 +56,7 @@ appSSE.get('/rec', (req, res) => {
   // Handle client disconnection
   req.on('close', () => {
     // Remove the client from the list of connected clients
-    const index = clients.indexOf(client);
+    const index = clients.indexOf(client['client']);
     if (index !== -1) {
       clients.splice(index, 1);
     }
@@ -79,6 +82,7 @@ app.use('/api/armies', armies);
 app.use('/api/players', players);
 app.use('/api/sessions', sessions);
 app.use('/api/upgrades', upgrades);
+app.use('/api/pendings', pendings);
 
 const port = process.env.PORT || 8082;
 const port2 = 5001;

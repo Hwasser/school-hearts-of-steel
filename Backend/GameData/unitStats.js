@@ -6,6 +6,7 @@ const units = {
     militia: {
         type: 'militia',
         name: 'Militia',
+        travel_time: 4,
         damage_low: 6,
         damage_high: 10,
         piercing: 1,
@@ -36,6 +37,7 @@ const units = {
     demolition_maniac: {
         type: 'demolition_maniac',
         name: 'Demolition Maniac',
+        travel_time: 4,
         damage_low: 4,
         damage_high: 10,
         piercing: 6,
@@ -66,6 +68,7 @@ const units = {
     gun_nut: {
         type: 'gun_nut',
         name: 'Gun Nut',
+        travel_time: 4,
         damage_low: 8,
         damage_high: 14,
         piercing: 2,
@@ -96,6 +99,7 @@ const units = {
     fortified_truck: {
         type: 'fortified_truck',
         name: 'Fortified Truck',
+        travel_time: 2,
         damage_low: 6,
         damage_high: 14,
         piercing: 4,
@@ -126,6 +130,7 @@ const units = {
     power_suit: {
         type: 'power_suit',
         name: 'Power Suit',
+        travel_time: 3,
         damage_low: 10,
         damage_high: 16,
         piercing: 8,
@@ -156,6 +161,7 @@ const units = {
     raider: {
         type: 'raider',
         name: 'Raider',
+        travel_time: 3,
         damage_low: 2,
         damage_high: 12,
         piercing: 2,
@@ -186,6 +192,7 @@ const units = {
     mutant: {
         type: 'mutant',
         name: 'Mutant',
+        travel_time: 4,
         damage_low: 3,
         damage_high: 16,
         piercing: 3,

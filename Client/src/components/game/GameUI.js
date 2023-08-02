@@ -11,8 +11,8 @@ import React, { useState } from 'react';
 import './GameUI.css';
 
 export default function GameUI( 
-  {onSelectAction, onUpdateArmies, onMergeArmies, 
-    names, owners, flavors, terrains, armies, session, player} ) {
+  {onSelectAction, onMergeArmies, pushPendingData, 
+    names, owners, flavors, terrains, provinceId, armies, session, player, battle} ) {
   
   const worldRowSize = Math.sqrt(session.world_size);
   const [mergeConfirmation, setMergeConfirmation] = useState(false);
@@ -21,9 +21,9 @@ export default function GameUI(
  /**
   * @param {Integer} index: The province number 
   */
-  function onSelectProvince(index) {
+  function handleSelectProvince(index) {
     axios.get('http://localhost:8082/api/provinces/', {
-      params: { id: index}
+      params: { purpose: "get_by_n", id: index, session: session._id}
     })
     .then( (res) => {
       if (res.data.length !== 0) {
@@ -39,7 +39,7 @@ export default function GameUI(
    * 
    * @param {String} id: The object id (_id) of an army 
    */
-  function onSelectArmy(id) {
+  function handleSelectArmy(id) {
     if (id == null) {
       return;
     }
@@ -51,6 +51,14 @@ export default function GameUI(
     .catch( (e) => {
       console.log(e)
     });
+  }
+
+  /**
+   * 
+   * @param {Integer} number: Which battle is selected
+   */
+  function handleSelectBattle(number) {
+    onSelectAction(battle[number]);
   }
   
   /**
@@ -68,17 +76,28 @@ export default function GameUI(
  * @param {Integer} fromProvince: Province number 
  * @param {Integer} toProvince: Province number 
  * @param {JSON} army: The object id (_id) of an army
- * @param {Integer} fromSlot: The slot number from where the army came
  */
-  function handleMoveArmy(fromProvince, toProvince, army, fromSlot) {
+  function handleMoveArmy(fromProvince, toProvince, army) {
   if (fromProvince == toProvince) {
     return;
   }
+
   // Check if destination province is neightbour from this province
   const move = fromProvince - toProvince; 
   if (Math.abs(move) == worldRowSize 
     || (move == -1 &&  (fromProvince % worldRowSize != worldRowSize-1))
     || (move == 1 && (fromProvince % worldRowSize != 0)) ) {
+      const province1 = provinceId[fromProvince];
+      const province2 = provinceId[toProvince];
+      // Event package to send to server
+      const pendingEventPackage = {
+        type: "movement",
+        provinceID: province1,
+        province2ID: province2,
+        provinceN: fromProvince,
+        province2N: toProvince,
+        army_id: army
+      }
       // Check if the destination province is ours or belongs to another player
       if (owners[toProvince] == owners[fromProvince]) {
         // Only start moving an army if there are any available army slots in dst!
@@ -87,14 +106,16 @@ export default function GameUI(
           || armies[2][toProvince] == null 
           || armies[3][toProvince] == null) {      
           console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
-          onUpdateArmies(fromProvince, toProvince, army, fromSlot, false);
+          // Push pending event to server
+          pushPendingData(pendingEventPackage);
         } else {
           console.log("No available army slots in that province!");
         }
       // If the province is not ours, attack!
       } else {
         console.log("attack with army " + army + " from province " + fromProvince + " to " + toProvince);
-        onUpdateArmies(fromProvince, toProvince, army, fromSlot, true);
+        // Push pending event to server
+        pushPendingData(pendingEventPackage);
       }
     } else {
       console.log("Province is too far away!");
@@ -140,12 +161,15 @@ export default function GameUI(
             const owner = owners[index];
             const flavor = flavors[index];
             const terrain = terrains[index];
+            const curBattle = battle[index];
             // Armies in province -> provArmies[slot][province index]
             const provArmies = [armies[0][index], armies[1][index], armies[2][index], armies[3][index]]
               listItems.push(<Province 
+                key={"province"+index}
                 id={index} 
-                onProvinceClick={ () => onSelectProvince(index) }
-                onArmyClick={onSelectArmy}
+                onProvinceClick={ () => handleSelectProvince(index) }
+                onBattleClick={handleSelectBattle}
+                onArmyClick={handleSelectArmy}
                 onMoveArmy={handleMoveArmy}
                 onMergeArmies={handleMergeArmies}
                 owner={owner}
@@ -155,6 +179,7 @@ export default function GameUI(
                 armies={provArmies}
                 session={session}
                 player={player}
+                battle={curBattle}
               />);
           }
           body.push(<div className='world_row'> {listItems} </div>);

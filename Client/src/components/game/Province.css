@@ -25,3 +25,11 @@
   background: rgba(0, 0, 0, 0.20);
 }
 
+.province_battle_icon {
+  background-color: rgba(255, 255, 0, 0.25);
+  position: absolute;
+  left: 33%;
+  top: 33%;
+  width: 33%;
+}
+

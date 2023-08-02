@@ -1,5 +1,6 @@
 import React from 'react'
 import axios from 'axios';
+import Xarrow from "react-xarrows";
 import { useState, useMemo } from 'react';  
 
 import './Game.css';
@@ -8,13 +9,13 @@ import Footer from './Footer';
 import GameUI from './GameUI';
 import UpgradeUI from './UpgradeUI';
 import Receiver from '../Receiver';
+import MovementGUI from './MovementGUI';
 import {
-    receiveMoveArmy, 
-    receiveAttackArmy, 
     receiveResourceUpdate, 
     receiveJoinedPlayer, 
     receiveUpdateProvince} 
     from '../../functionality/receiveEvents';
+import {sendEvent} from '../../functionality/sendEvents';
 import { armyMove, armyAttack } from '../../functionality/manageArmies';
 
 /**
@@ -42,9 +43,11 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     const [provinceOwners, setProvinceOwners] = useState(Array(nProvinces).fill('Neutral'));
     const [provinceFlavors, setProvinceFlavors] = useState(Array(nProvinces).fill('-'));
     const [provinceTerrains, setProvinceTerrains] = useState(Array(nProvinces).fill('-'));
+    const [provinceId, setProvinceId] = useState(Array(nProvinces).fill(null));
     // Contains the documentId of each army in each slot and province
     // VARIANT: armies[slot][province index]  
     const [armies, setArmies] = useState([Array(nProvinces), Array(nProvinces), Array(nProvinces), Array(nProvinces)]);
+    const [battle, setBattle] = useState(Array(nProvinces).fill(null));
     // We keep another session state in the HeartsOfSteel-module to store the session when
     // starting the game. This one is regularly updated.
     // It stores the name of all players and their resources
@@ -54,6 +57,9 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     // Whether to use the upgrade view or the game view
     const [upgradeView, setUpgradeView] = useState(false);
     const [upgrades, setUpgrades] = useState({});
+    const [movements, setMovements] = useState({});
+
+    let pendingData = [];
 
     // Fetch province information from the server once when opening the game
     // and set slot index of the player.
@@ -69,6 +75,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     const getArmies = () => (armies);
+    const getSessionId = () => (session._id);
 
     // Init all provinces when booting up the game
     function initAllProvinces(index) {
@@ -76,12 +83,12 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const localProvinceOwners = Array(nProvinces);
         const localProvinceFlavors = Array(nProvinces);
         const localProvinceTerrains = Array(nProvinces);
-        const localArmy1 = Array(nProvinces);
-        const localArmy2 = Array(nProvinces);
-        const localArmy3 = Array(nProvinces);
-        const localArmy4 = Array(nProvinces);
+        const localProvinceId = Array(nProvinces);
+        const localArmies = [... armies]
         
-        axios.get('http://localhost:8082/api/provinces/')
+        axios.get('http://localhost:8082/api/provinces/', {
+            params: { purpose: "get_all", session: session._id}
+        })
         .then( (res) => {
             if (res.data.length !== 0) {
                 for (let i = 0; i < nProvinces; i++) {
@@ -91,22 +98,25 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                     localProvinceOwners[index] = province.owner;
                     localProvinceFlavors[index] = province.flavor;
                     localProvinceTerrains[index] = province.terrain;
-                    localArmy1[index] = province.army1;
-                    localArmy2[index] = province.army2;
-                    localArmy3[index] = province.army3;
-                    localArmy4[index] = province.army4;
+                    localProvinceId[index] = province._id;
+                    for (let j = 0; j < province.armies.length; j++) {
+                        localArmies[j][index] = province.armies[j];
+                    }
                 }
 
-                setProvinceFlavors(localProvinceFlavors);
-                setProvinceTerrains(localProvinceTerrains);
                 setProvinceNames(localProvinceNames);
                 setProvinceOwners(localProvinceOwners);
-                setArmies([localArmy1, localArmy2, localArmy3, localArmy4]);
+                setProvinceFlavors(localProvinceFlavors);
+                setProvinceTerrains(localProvinceTerrains);
+                setProvinceId(localProvinceId);
+                setArmies(localArmies);
             }
         })
         .catch( (e) => {
             console.log(e)
         });
+
+        getPendingData();
     }
 
     //--------------------------------------------------
@@ -117,46 +127,117 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const updatedSession = receiveResourceUpdate(message, {... session}, slotIndex);
         updatedSession.time = message.time;
         setSession(updatedSession);
+        getPendingData()
+        // Remove complete movements
+        const movementsCopy = {... movements}
+        for (let m in movements) {
+            if (movementsCopy[m].end == updatedSession.time) {
+                delete movementsCopy[m];
+            }
+        }
+        setMovements(movementsCopy);
     }
 
     const handleUpdateProvince = (message) => {
+        
         const province = message;
         // Make a copy of old state
         const armiesCopy = [... armies];
         const ownersCopy = [... provinceOwners];
         // Put new values into copy
-        armiesCopy[0][province.id] = province.army1;
-        armiesCopy[1][province.id] = province.army2;
-        armiesCopy[2][province.id] = province.army3;
-        armiesCopy[3][province.id] = province.army4;
+        replaceArmiesInProvince(province, armiesCopy)
         ownersCopy[province.id] = province.owner;
         // Replace with copy
         setArmies(armiesCopy);
         setProvinceOwners(ownersCopy);
+        // Unset battle 
+        if (battle[province.id] != null) {
+                const battleLocal = [... battle]
+                battleLocal[province.id] = null;
+                setBattle(battleLocal);
+ 
+        }
+
+        // If a battle is currently selected, revert view to province
+        if (properties['performance'] != null) {
+            const curProv = properties.province._id; 
+            const recProv = message._id;
+            if (curProv == recProv) {
+                setProperties(message);
+            }
+        }
     }
 
     /**
-     * @brief: Handle broadcast from server telling an army has moved
+     * @brief: At each session ending, update all armies on the map.
+     *         This includes changing province owners and ending battles.
      * 
-     * @param {JSON} message 
+     * @param {JSON} dataPackage: key: province._id, value: province data 
      */
-    const handleMoveArmy = (message) => {
-        const armiesCopy = receiveMoveArmy(message, [... armies]);
+    function handleUpdateArmies(dataPackage) {
+        const armiesCopy = [... armies];
+        const provinceOwnersLocal = [... provinceOwners];
+        const battleLocal = [... battle]
+        let ownersChanged = false;
+        // Iterate through each province by their key
+        for (let provinceId in dataPackage) {
+            const province = dataPackage[provinceId];
+            replaceArmiesInProvince(province, armiesCopy);
+            // Change owners if possible
+            if (provinceOwnersLocal[province.id] != province.owner) {
+                provinceOwnersLocal[province.id] = province.owner;
+                ownersChanged = true;
+            }
+            if (province.enemy_army == null) {
+                battleLocal[province.id] = null;
+            }
+        }
+        // Set armies to new positions
         setArmies(armiesCopy);
-        console.log("Moved army received!");
+        // Only change owners if owners have actually changed somewhere
+        if (ownersChanged) {
+            setProvinceOwners(provinceOwnersLocal);
+        }
+        setBattle(battleLocal);
+        // If a battle is currently selected and the battle has ended, 
+        // revert view to default footer view
+        if (properties['performance'] != null) {
+            const provinceN = properties.province.id;
+            if (battleLocal[provinceN] == null) {
+                setProperties(defaultProvinceState);
+            } 
+        }
     }
 
-
     /**
-     * @brief: Handle broadcast from server telling an army has attacked
+     * @brief: Handle incoming battle results
      * 
      * @param {JSON} message 
      */
-    const handleAttackArmy = (message) => {
-        const updateData = receiveAttackArmy(message, [... armies], [... provinceOwners]);
-        setArmies(updateData.armies);
-        setProvinceOwners(updateData.owners);
-        console.log("Attack army received!");
+    const handleBattleResult = (message) => {
+        try {
+
+            // Establish battle results
+            const battleLocal = [... battle]
+            const provinceN = message.province.id;
+            battleLocal[provinceN] = message;
+            setBattle(battleLocal);
+            // Update armies in province
+            const armiesCopy = [... armies];
+            replaceArmiesInProvince(message.province, armiesCopy);
+            setArmies(armiesCopy);
+            
+            // If a battle is currently selected, update its view
+            if (properties['performance'] != null) {
+                const curProv = properties.province._id; 
+                const recProv = message.province._id;
+                if (curProv == recProv) {
+                    setProperties(message);
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     /**
@@ -176,6 +257,16 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         ownersCopy[replaceIndex] = newOwner;
         setProvinceOwners(ownersCopy);
     }
+
+    const handlePlayerConnect = (message) => {
+        axios.put('http://localhost:8082/api/players', {
+          params: { sessionId: session._id, token: message, player: player._id}
+        })
+        .catch((err) => {
+            console.log('Error in connecting player: ' + err);
+            
+        });  
+    };
 
 
     /**
@@ -205,6 +296,52 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         });  
     }
 
+    function getPendingData() {
+        axios.get(`http://localhost:8082/api/pendings/${session._id}`)
+        .then( (res) => {
+            pendingData = [... res.data];
+        })
+        .catch( (e) => {
+            console.log(e)
+        });
+    }
+
+    /**
+     * 
+     * @param {Dict} event: Pending event 
+     */
+    function pushPendingData(event) {
+        // Add some additional data
+        event['player'] = player._id;
+        event['session'] = session._id;
+        event['start'] = session.time;
+        event['end'] = session.time + 3; // TODO: TEMPORARY!
+
+        handleMovements(event);
+
+        sendEvent(event, pendingData, getPendingData, fetchResourceUpdates, slotIndex);   
+    }
+
+    // TODO: Ska den här ens vara kvar?!
+    /**
+     * 
+     * @param {JSON} event 
+     */
+    function handleMovements(event) {
+        if (event.type != 'movement') {
+            return;
+        }
+
+        const movementsCopy = {... movements};
+        movementsCopy[event.army_id] = {
+            from: event.provinceN,
+            to: event.province2N,
+            start: event.start,
+            end: event.end
+        };
+
+        setMovements(movementsCopy);
+    }
 
     //----------------------------------------
     // --------- Handle game actions ---------
@@ -214,65 +351,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         setProperties(selectedObject);
     }
 
-    // Function for raising an army from the footer
-    function handleRaiseArmy(provinceInfo) {
-        const provinceId = provinceInfo['id'];
-        try {
-            // Update province to see affected manpower
-            setProperties(provinceInfo);
-            // Update armies in province
-            const armiesCopy = [... armies];
-            armiesCopy[0][provinceId] = provinceInfo['army1']
-            armiesCopy[1][provinceId] = provinceInfo['army2']
-            armiesCopy[2][provinceId] = provinceInfo['army3']
-            armiesCopy[3][provinceId] = provinceInfo['army4']
-            setArmies(armiesCopy);
-            fetchResourceUpdates()
-
-        } catch(err) {
-            console.error("handleRaiseArmy: " + err);
-        }
-
-    }
-
-    // Function for constructing a building from the footer
-    function handleBuildBuilding(provinceInfo) {
-        setProperties(provinceInfo);
-        fetchResourceUpdates()
-    }
-
-    /**
-     * @brief: Handle changes of armies coming from this client, handles movement and attack
-     * 
-     * @param {Integer} fromProvince: Province we're moving from
-     * @param {Integer} toProvince: Province we're moving against
-     * @param {JSON} army: Document id of the army
-     * @param {Integer} fromSlot: Army slot the army comes from
-     * @param {Boolean} isAttacking: Whether or not the army is attacking
-     */
-    async function handleUpdateArmies(fromProvince, toProvince, army, fromSlot, isAttacking) {
-        // Get a copy of all army slots
-        const armiesCopy = [... armies];
-        
-        // Perform movement or attack of army
-        let newOwner = '';
-        if (isAttacking) {
-            newOwner = await armyAttack(fromProvince, toProvince, army, fromSlot, session, upgrades, armiesCopy);
-        } else {
-            await armyMove(fromProvince, toProvince, army, fromSlot, armiesCopy);
-        }
-
-        // Update armies in view
-        setArmies([armiesCopy[0], armiesCopy[1], armiesCopy[2], armiesCopy[3]]);
-
-        // Update province owners if army won an attack
-        if (newOwner != '') {
-            const provinceOwnersLocal = provinceOwners.slice(0,nProvinces);
-            provinceOwnersLocal[toProvince] = newOwner;
-            setProvinceOwners(provinceOwnersLocal);
-        }
-    }
-
     /**
      * @brief: Merge two armies. Updates the database and state.
      * @param {*} army1: The document id of a army
@@ -280,20 +358,10 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
      * @param {*} inProvince: Which province number the merge happens in 
      */
     function handleMergeArmies(army1, army2, inProvince) {
-        const armyCopy = [... armies];
-        const armySlotPos = new Array(); // The new position of armies in slots in province
-
-        // Push all armies but the one that we are going to merge
-        for (let i = 0; i < maxArmySlots; i++) {
-            if (armyCopy[i][inProvince] != army2) {
-                armySlotPos.push(armyCopy[i][inProvince]);
-            }
-        }  
         // Push the changes to server
         const updatePackage = {
             purpose: "merge_armies",
-            armySlotPos: armySlotPos,
-            provinceId: inProvince,
+            provinceId: provinceId[inProvince],
             army1: army1,
             army2: army2
         };
@@ -307,12 +375,9 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
 
     // Update the armies in province if a player merge two armies
     async function handleBroadcastMergeArmies(updatePackage) {
-        const provinceId = updatePackage.province.id;
+        const province = updatePackage.province;
         const armyCopy = [... armies];
-        armyCopy[0][provinceId] = updatePackage.province.army1;
-        armyCopy[1][provinceId] = updatePackage.province.army2;
-        armyCopy[2][provinceId] = updatePackage.province.army3;
-        armyCopy[3][provinceId] = updatePackage.province.army4;
+        replaceArmiesInProvince(updatePackage.province, armyCopy)
         setArmies(armyCopy);
     }
 
@@ -326,7 +391,10 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         let newLeftId  = "";
         await axios
         .put(`http://localhost:8082/api/armies/${leftArmyId}`, leftArmy)
-        .then((res) => {newLeftId = res.data.armydata._id})
+        .then((res) => {
+            newLeftId = res.data.armydata._id;
+            handleSelectAction(res.data);
+        })
         .catch((err) => {
             console.log('Error in updating army: ' + err);
         });
@@ -358,14 +426,16 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             .catch((err) => {
             console.log('Error in replacing armies in province: ' + err);
         });
-        // Update the view of the new splitted army
-        axios.get(`http://localhost:8082/api/armies/${leftArmyId}` )
-        .then( (res) => {
-            handleSelectAction(res.data);
-        })
-        .catch( (e) => {
-            console.log(e)
-        });
+    }
+
+    function replaceArmiesInProvince(province, armiesCopy) {
+        for (let i = 0; i < maxArmySlots; i++) {
+            if (i < province.armies.length) {
+                armiesCopy[i][province.id] = province.armies[i];    
+            } else {
+                armiesCopy[i][province.id] = null;
+            }
+        }
     }
 
     const handleBuyUpgrade = (upgrade) => {
@@ -389,18 +459,24 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         setProperties({...upgrade});
     };
 
+    function updateProperties(newProperty) {
+        setProperties(newProperty);
+    }
+
     //------------------------------------------
     // --------- Handle the game views ---------
+
 
     // Specify exactly which states that re-renders this component
     // and remember the states of the rest.
     const footer = React.useMemo( () => 
         <Footer 
             onSplitArmy={handleSplitArmy}
-            onRaiseArmy={handleRaiseArmy} 
-            onBuildBuilding={handleBuildBuilding} 
             onBuyUpgrade={handleBuyUpgrade} 
+            fetchResourceUpdates={fetchResourceUpdates} 
+            pushPendingData={pushPendingData}
             properties={properties} 
+            updateProperties={updateProperties}
             session={session}
             upgrades={upgrades}
             slotIndex={slotIndex}
@@ -413,17 +489,24 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     const gameui = React.useMemo( () => 
     <GameUI 
         onSelectAction={handleSelectAction} 
-        onUpdateArmies={handleUpdateArmies}
         onMergeArmies={handleMergeArmies}
+        pushPendingData={pushPendingData}
         names={provinceNames} 
         owners={provinceOwners}
         flavors={provinceFlavors}
         terrains={provinceTerrains}
+        provinceId={provinceId}
         armies={armies}    
         session={session}
         player={player}
-    />, [properties, armies, provinceOwners]);
+        battle={battle}
+    />, [properties, armies, provinceOwners, battle]);
     
+    const movementsui = React.useMemo( () => 
+    <MovementGUI
+        movements={movements}
+        armies={armies}
+    />, [movements] );
         
     const renderGame = () => {
         return (
@@ -432,11 +515,13 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                 <Receiver 
                     onUpdateResources={handleUpdateSession} 
                     onUpdateProvince={handleUpdateProvince} 
-                    onMoveArmy={handleMoveArmy}
-                    onAttackArmy={handleAttackArmy}
+                    onUpdateArmies={handleUpdateArmies}
+                    onAttackBattle={handleBattleResult}
                     onPlayerJoined={handlePlayerJoined}
                     onPlayerWon={handlePlayerWon} 
                     onMergeArmies={handleBroadcastMergeArmies}
+                    onPlayerConnect={handlePlayerConnect}
+                    getSessionId={getSessionId}
                 />
                 <Header 
                     onExitGame={onExitGame}
@@ -447,10 +532,14 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                     upgradeView={upgradeView}
                 />
                 {!upgradeView && (gameui)}
-                {upgradeView  && (<UpgradeUI 
-                                    onSelectUpgrade={handeSelectUpgrade} 
-                                    upgrades={upgrades} />)}
+                {upgradeView  && (
+                    <UpgradeUI 
+                        onSelectUpgrade={handeSelectUpgrade} 
+                        upgrades={upgrades} 
+                    />
+                )}
                 {footer}
+                {movementsui}
             </div>
             </>
         )
@@ -463,8 +552,10 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
 
 
 const defaultProvinceState = {
-id: -1,
+id: 0,
+session: null,
 name: '-',
+owner: '-',
 houses: 0,
 workshops: 0,
 farms: 0,
@@ -473,6 +564,7 @@ food: 0,
 fuel: 0,
 material: 0,
 tools: 0,
-workforce: 0
+workforce: 0,
+armies: []
 };
 

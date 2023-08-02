@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-const Province = require('../../models/Player');
+const {connectPlayer} = require('../../broadcast');
+const Player = require('../../models/Player');
 
 // @route GET api/armies/:id
 // @description Get single army by id
@@ -19,6 +20,15 @@ router.post('/', (req, res) => {
   Player.create(req.body)
     .then(player => res.json({ playerdata: player, msg: 'Player added successfully' }))
     .catch(err => res.status(400).json({ error: 'Unable to add this Player' }));
+});
+
+
+// @route GET api/players/
+// @description used when player connects
+// @access Public
+router.put('/', (req, res) => {
+  const dataPackage = req.body.params;
+  connectPlayer(dataPackage.token, dataPackage.sessionId, dataPackage.player)
 });
 
 module.exports = router;

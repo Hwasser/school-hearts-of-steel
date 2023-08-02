@@ -1,14 +1,13 @@
-
 /**
  * Module for the build-menu within a province - that is when you want to build a farm etc
 */
 import './ProvinceBuild.css';
 import axios from 'axios';
 import { useState } from 'react';  
-const { buildings } = require('../../provinceStats');
+const { buildings } = require('../../GameData/provinceStats');
 
 export default function ProvinceBuild(
-    { buildingType, setInactive, fromProvince, onBuildMenu, session, slotIndex} ) {
+    { buildingType, setInactive, fromProvince, onBuildMenu, session, slotIndex, constructing} ) {
     const [errorMessage, setErrorMessage] = useState('');
 
     const maxBuildings = 5;
@@ -19,24 +18,15 @@ export default function ProvinceBuild(
     const canAffordTools    = buildings[buildingType]['tools']    <= session.tools[slotIndex];
     const canAffordMaterial = buildings[buildingType]['material'] <= session.material[slotIndex];
 
-    const curCost = {
-        food: buildings[buildingType]['food'],
-        fuel: buildings[buildingType]['fuel'],
-        tools: buildings[buildingType]['tools'],
-        material: buildings[buildingType]['material']
-    };
-
     function onConfirmButton() {
-        const buildingTypes = buildingType + "s";
-        if (fromProvince[buildingTypes] >= maxBuildings) {
+        if (fromProvince[buildingType] >= maxBuildings) {
             setErrorMessage("You cannot construct more buildings of that type in this province!");
             return;
         } else if (!canAffordFood || !canAffordFuel || !canAffordTools || !canAffordMaterial) {
             setErrorMessage("You cannot afford to construct this building!");
             return;           
         }
-        updateSession(curCost, slotIndex, session._id);
-        updateProvinceDatabase(fromProvince, buildingType, onBuildMenu);
+        onBuildMenu(fromProvince, buildingType);
         setInactive();
         setErrorMessage('');
     }    
@@ -63,7 +53,9 @@ export default function ProvinceBuild(
         {
             errorMessage == '' && (
             <div className='build_building' style={{display: toDraw}}>
-            <h2 className='build_desc'> Construct a {buildingType}</h2>
+            {constructing[fromProvince.id].type == '' && (
+                <>
+                <h2 className='build_desc'> Construct a {buildingType}</h2>
                 <div className='cost_field'> 
                 <span>Food:</span>
                 <span style={{color: (canAffordFood) ? 'black' : 'red'}}>
@@ -84,6 +76,11 @@ export default function ProvinceBuild(
                 <span style={{color: (canAffordMaterial) ? 'black' : 'red'}}>
                     {buildings[buildingType]['material']}</span> 
                 </div>
+                </>
+            )}
+            {constructing[fromProvince.id].type != '' && (
+                <h2 className='build_desc'> Abort building! </h2>
+            )}
                 <button 
                     className='confirm_button'
                     onClick={() => {onConfirmButton()}} 
@@ -104,51 +101,3 @@ export default function ProvinceBuild(
     );
 }
 
-
-
-
-// Update the province and the player data
-function updateProvinceDatabase(fromProvince, buildingType, onBuildBuilding) {
-    // TODO: Update player resourses
-    
-    // Replace the province value with one with the new workforce
-    const province = fromProvince;
-    // Get the document id of the province
-    const id = province['_id'];
-    // Check which province army slot to put army in
-    const buildingTypes = buildingType + "s";
-    
-    // Push army to database
-    province[buildingTypes] += 1;
-
-    // Update province with army and new value of workforce
-    axios
-    .put(`http://localhost:8082/api/provinces/${id}`, province)
-    .then((res) => {
-        onBuildBuilding(fromProvince);
-    })
-    .catch((err) => {
-    console.log('Error in replacing province: ' + err);
-    });
-
-    
-  }
-
-  // Update the player resources in the session
-function updateSession(curCost, slotIndex, sessionId) {
-    // A package with data to send to the backend
-    const updatePackage = {
-      food: curCost['food'],
-      fuel: curCost['fuel'],
-      tools: curCost['tools'],
-      material: curCost['material'],
-      purpose: 'buy_stuff',
-      slotIndex: slotIndex,
-    };
-    
-    axios
-    .put(`http://localhost:8082/api/sessions/${sessionId}`, updatePackage)
-    .catch((err) => {
-        console.log('Couldnt update the session: ' + err);
-    });  
-  }

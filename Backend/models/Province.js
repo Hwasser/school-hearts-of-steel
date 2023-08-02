@@ -69,20 +69,11 @@ const ProvinceSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-
-    army1: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: false
+    armies: {
+        type: [mongoose.Schema.Types.ObjectId],
+        required: true
     },
-    army2: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: false
-    },
-    army3: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: false
-    },
-    army4: {
+    enemy_army: {
         type: mongoose.Schema.Types.ObjectId,
         required: false
     }

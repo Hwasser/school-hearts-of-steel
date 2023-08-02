@@ -87,6 +87,11 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
                 <span key="upg_value6"> {provProp['text']} </span>
               </div>
             </div>
+            <div className='footer_row'>
+              <div className='property_progress'>
+                <div id="upgrade_progress_bar" key="upg_value7"> Researched </div>
+              </div>
+            </div>
         </div>
         {!canAffordMessage && (<PopupCannotPurchase />)}
       </>

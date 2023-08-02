@@ -4,27 +4,27 @@ const {
   broadcastUpdateProvince, 
   broadcastPlayerJoined} = require('../../broadcast');
 const {
-  mergeArmies,
-  attackOrMoveArmy
-} = require('../../queryfunctions');
+  mergeArmies
+} = require('../../army_related');
 
 const Province = require('../../models/Province');
 const Army = require('../../models/Army');
 
 
-router.get('/test', (req, res) => res.send('test route for provinces'));
-
 // @route GET api/provinces
 // @description Get all provinces
 // @access Public
 router.get('/', (req, res) => {
-  const province_id = req.query.id;
-  if (province_id != null) {
-    Province.find({id: province_id})
+  // Get one province by its province number
+  if (req.query.purpose == "get_by_n") {
+    Province.find({id: req.query.id, session: req.query.session})
       .then(provinces => res.json(provinces))
       .catch(err => res.status(404).json({ noprovincesfound: 'No provinces found' }));
-  } else {
-    Province.find()
+  }
+  // Get all provinces from a game session
+  if (req.query.purpose == "get_all") {
+    
+    Province.find({session: req.query.session})
       .then(provinces => res.json(provinces))
       .catch(err => res.status(404).json({ noprovincesfound: 'No provinces found' }));
   }
@@ -70,15 +70,7 @@ router.put('/', async (req, res) => {
       res.status(500).json({ error: 'Unable to update empty slot in province' })
     }
   }
-  // If a player moves his army on the screen, broadcast it to other users
-  if (req.body.purpose == 'move_army' || req.body.purpose == 'attack_army' ) {
-    try {
-      await attackOrMoveArmy(req.body.package, req.body.purpose);
-      res.status(200).send('Session updated');
-    } catch (err) {
-      res.status(500).json({ error: 'Unable to move army between provinces' })
-    }
-  }
+
   // If a player merge his armies, apply this to db and broadcast to other users
   if (req.body.purpose == "merge_armies") {
     try {
@@ -88,33 +80,14 @@ router.put('/', async (req, res) => {
       console.log(err);
     }
   }
+  
   // Update all army slots in a province
   if (req.body.purpose == "update_province_armies") {
     const armySlots = req.body.armySlots;
     const provinceN = req.body.provinceN;
     const document = await Province.findOne({id: provinceN});
-    console.log(document, armySlots, provinceN);
-    // Update all four slots
-    if (armySlots.length >= 1) {
-      document['army1'] = armySlots[0];
-    } else {
-      document['army1'] = null;
-    }
-    if (armySlots.length >= 2) {
-      document['army2'] = armySlots[1];
-    } else {
-      document['army2'] = null;
-    }
-    if (armySlots.length >= 3) {
-      document['army3'] = armySlots[2];
-    } else {
-      document['army3'] = null;
-    }
-    if (armySlots.length === 4) {
-      document['army4'] = armySlots[3];
-    } else {
-      document['army4'] = null;
-    }
+    // Replace army slots
+    document.armies = armySlots;
     // Store and broadcast
     document.save();
     broadcastUpdateProvince(document);

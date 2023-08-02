@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { initUpgrades } from '../upgradeStats';
-const { units } = require('../unitStats');
+import { initUpgrades } from '../GameData/upgradeStats';
+const { units } = require('../GameData/unitStats');
 
 /**
  * All action for the armies such as move, attack, battle, conquer etc
@@ -12,12 +12,11 @@ const { units } = require('../unitStats');
  *  @param {Integer} fromProvince: Which province number to move from
  *  @param {Integer} toProvince: Which province number to move to
  *  @param {String} army: The Document Id of the army to move
- *  @param {Integer} fromSlot: Which slot in the province it moves from
  *  @param {[[String]]} armiesCopy: A copy of the state of all army slots in all provinces
  */
-export async function armyMove(fromProvince, toProvince, army, fromSlot, armiesCopy) {
+export async function armyMove(fromProvince, toProvince, army, armiesCopy) {
     // Manage army slots of source province
-    rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy);
+    rearrangeSourceSlots(fromProvince, armiesCopy, army);
  
     // Manage army slots of destination province
     for (let i = 0; i < 4; i++) {
@@ -37,20 +36,19 @@ export async function armyMove(fromProvince, toProvince, army, fromSlot, armiesC
  *  @param {Integer} fromProvince: Which province number to attack from
  *  @param {Integer} toProvince: Which province number to attack to
  *  @param {String} army: The Document Id of the army to attack
- *  @param {Integer} fromSlot: Which slot in the province it attacks from
  *  @param {JSON} session: Contains the game session
  *  @param {JSON} upgrades: All the upgrades of the attacker
  *  @param {[[String]]} armiesCopy: A copy of the state of all army slots in all provinces
  *  @returns {String} The new owner of the province, empty string if no change 
  */
-export async function armyAttack(fromProvince, toProvince, army, fromSlot, session, upgrades, armiesCopy) {
+export async function armyAttack(fromProvince, toProvince, army, session, upgrades, armiesCopy) {
     // Fetch data of the attacking army
     const attackingArmy  = await fetchArmy(army);
     const battleProvince = await getBattleProvince(toProvince);
     const enemyUpgrades  = await getEnemyUpgradeTree(battleProvince.owner, session);
     
     // Manage army slots of source province
-    rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy);
+    rearrangeSourceSlots(fromProvince, armiesCopy, army);
 
     // Iterate through all enemy army slots, perform battle at each slot
     for (let i = 3; i >= 0; i--) {
@@ -92,7 +90,8 @@ export async function armyAttack(fromProvince, toProvince, army, fromSlot, sessi
 }
 
 // Re-arrange the slots in the source province
-function rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy) {
+function rearrangeSourceSlots(fromProvince, armiesCopy, army) {
+    /*
     armiesCopy[fromSlot][fromProvince] = null;
     if (fromSlot < 3) {
         for (let i = 0; i < 3; i++) {
@@ -102,6 +101,7 @@ function rearrangeSourceSlots(fromProvince, fromSlot, armiesCopy) {
             }
         }
     }
+    */
 }
 
 /**

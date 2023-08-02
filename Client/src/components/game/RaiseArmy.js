@@ -2,12 +2,24 @@ import axios from 'axios';
 import { useState } from 'react';  
 
 import './RaiseArmy.css';  
-const { units } = require('../../unitStats');
+const { units } = require('../../GameData/unitStats');
 
 // Slider code inspired by "https://codepen.io/rmichels/pen/WNegjyK"
 
 /**
- * Contains the menu for raising armies within a province.
+ * 
+ */
+/**
+ * @brief: Contains the menu for raising armies within a province.
+ * 
+ * @param {Function} setInactive
+ * @param {Function} onRaiseArmy
+ * @param {Boolean} active // Whether the raise army bar is active
+ * @param {JSON} fromProvince
+ * @param {JSON} upgrades
+ * @param {JSON} session 
+ * @param {Integer} slotIndex: The session slot index
+ * @returns 
  */
 export default function RaiseArmy({ 
   setInactive, 
@@ -43,7 +55,7 @@ export default function RaiseArmy({
       setErrorMessage("You annot afford this army!");
       return;
     }
-    if (findArmySlot(fromProvince) == null) {
+    if (fromProvince.armies.length >= 4) {
       setErrorMessage("All army slots in the province are occupied!");
       return;
     } else if (workforce < 20) {
@@ -202,12 +214,6 @@ function postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selected
   const province = {... fromProvince};
   // Get the document id of the province
   const id = province['_id'];
-  // Check which province army slot to put army in
-  const armySlot = findArmySlot(province);
-  if (armySlot == null) {
-    console.log("No army slot in province!");
-    return;
-  }
   // Push army to database
   const army = {
     soldiers: toRaise,
@@ -222,8 +228,9 @@ function postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selected
   .then( (res2) => {
     console.log("Succsesfully added army: " + res2.data.armydata);
     // Change the workforce number of the province
-    province['workforce'] = newValue; 
-    province[armySlot] = res2.data.armydata._id;
+    province['workforce'] = newValue;
+    const armyId = res2.data.armydata._id; 
+    province.armies.push(armyId);
     onRaiseArmy(province);
     // Update province with army and new value of workforce
     axios
@@ -255,18 +262,4 @@ function updateSession(curCost, slotIndex, sessionId) {
   .catch((err) => {
       console.log('Couldnt update the session: ' + err);
   });  
-}
-
-function findArmySlot(province) {
-  let armySlot;
-  if (province['army1'] == null) {
-    armySlot = 'army1';
-  } else if (province['army2'] == null) {
-    armySlot = 'army2';
-  } else if (province['army3'] == null) {
-    armySlot = 'army3';
-  } else if (province['army4'] == null) {
-    armySlot = 'army4';
-  }  
-  return armySlot;
 }

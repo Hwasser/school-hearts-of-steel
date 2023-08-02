@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Session = require('../../models/Session');
 const Province = require('../../models/Province');
-const { gameSessionStart, gameSessionStop } = require('../../broadcast');
+const { gameSessionStart, gameSessionStop } = require('../../gamesessions');
 
 // @route GET api/Session/
 // @description Get all sessions
@@ -70,8 +70,8 @@ router.put('/:id', async (req, res) => {
 // @route DELETE api/sessions/:id
 // @description Delete Session by id
 // @access Public
-router.delete('/:id', (req, res) => {
-  gameSessionStop(req.params.id); // Close all current game sessions;
+router.delete('/:id', async (req, res) => {
+  await gameSessionStop(req.params.id); // Close the current game session
   Session.findOneAndDelete({_id: req.params.id})
     .then(session => res.json({ mgs: 'Session ' + req.params.id + ' successfully removed!' }))
     .catch(err => res.status(404).json({ error: 'No such session' }));

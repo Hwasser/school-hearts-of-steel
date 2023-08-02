@@ -1,7 +1,6 @@
-import axios from 'axios';
 import { useState } from 'react';
 import './FootArmyView.css';  
-const { units } = require('../../unitStats');
+const { units } = require('../../GameData/unitStats');
 
 export default function FootArmyView({onSplitArmy, provProp, upgrades, isOwner, getArmies}) {
   // Whether or not to use the split menu
@@ -190,7 +189,9 @@ export default function FootArmyView({onSplitArmy, provProp, upgrades, isOwner, 
             )}
           </div>
           <div className="footer_army">
-            {listOfUnits}
+            <div className='army_box'>
+              {listOfUnits}
+            </div>
           </div>
         </div>
         </>

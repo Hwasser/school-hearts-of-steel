@@ -4,7 +4,7 @@ import axios from 'axios';
 import './StartMenu.css';
 import startNewGame from './../../functionality/startNewGame';
 import { closeGameSession } from '../../functionality/gameSessionEnded';
-import { initUpgrades } from '../../upgradeStats';
+import { initUpgrades } from '../../GameData/upgradeStats';
 
 export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
 

@@ -32,37 +32,43 @@ const buildings = {
       food: 50,
       fuel: 0,
       tools: 50,
-      material: 150
+      material: 150,
+      time: 5
   },
   mine: {
       food: 50,
       fuel: 50,
       tools: 150,
-      material: 0
+      material: 0,
+      time: 5
   },
   workshop: {
       food: 0,
       fuel: 50,
       tools: 50,
-      material: 150
+      material: 150,
+      time: 5
   },
   farm: {
       food: 0,
       fuel: 0,
       tools: 100,
-      material: 150
+      material: 150,
+      time: 5
   },
   fort: {
       food: 0,
       fuel: 0,
       tools: 50,
-      material: 200
+      material: 200,
+      time: 5
   },
   none: {
       food: 0,
       fuel: 0,
       tools: 0,
-      material: 0
+      material: 0,
+      time: 0
   }
 };
 
