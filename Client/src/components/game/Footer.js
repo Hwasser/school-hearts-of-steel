@@ -229,7 +229,7 @@ export default function Footer( {
           <span id="value10"> {provProp['workforce']} </span>
         </div>
 
-        {player.name === properties.owner && (
+        {(player.name === properties.owner && properties.enemy_army == null) && (
           <button 
             className='property_button'
               onClick={onRaiseArmyMenu}

@@ -235,6 +235,10 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                 if (curProv == recProv) {
                     setProperties(message);
                 }
+            } 
+            // If the province is selected during battle, update it
+            if (properties['terrain'] != null && properties.id == message.province.id) {
+                setProperties(message.province);
             }
         } catch (err) {
             console.log(err);
