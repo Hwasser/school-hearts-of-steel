@@ -123,16 +123,30 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     //--------------------------------------------------
     // --------- Handle updates from the server --------
 
-    // Fetch "hourly" update from server
-    const handleUpdateSession = (message) => {
+    /**
+     * @brief: Fetching the broadcast that happens at the start of each tick
+     * regarding updated session resources and time
+     * 
+     * @param {JSON} message 
+     */
+    async function handleUpdateSession(message) {
         const updatedSession = receiveResourceUpdate(message, {... session}, slotIndex);
         updatedSession.time = message.time;
         setSession(updatedSession);
-        getPendingData()
         // Remove complete movements
+        updateMovements(updatedSession.time);
+    }
+
+    /**
+     * @brief: Updates the movement drawn on screen
+     * 
+     * @param {Integer} time 
+     */
+    async function updateMovements(time) {
+        await getPendingData()
         const movementsCopy = {... movements}
         for (let m in movements) {
-            if (movementsCopy[m].end == updatedSession.time) {
+            if (movementsCopy[m].end == time) {
                 delete movementsCopy[m];
             }
         }
@@ -192,6 +206,9 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             if (province.enemy_army == null) {
                 battleLocal[province.id] = null;
             }
+            if (properties.terrain != null && properties.id == province.id) {
+                onUpdateSelectedProvince(province);
+            }
         }
         // Set armies to new positions
         setArmies(armiesCopy);
@@ -207,6 +224,44 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             if (battleLocal[provinceN] == null) {
                 setProperties(defaultProvinceState);
             } 
+        }
+    }
+
+    /**
+     * @brief: If a province is selected, update the view if the number of
+     * buildings changes or if an army has entered or left the province.
+     * 
+     * @param {JSON} province 
+     */
+    function onUpdateSelectedProvince(province) {
+        const propertiesCopy = {... properties};
+        let hasChanged = false;
+        if (properties.houses != province.houses) {
+            hasChanged = true;
+            propertiesCopy.houses = province.houses;
+        }
+        if (properties.farms != province.farms) {
+            hasChanged = true;
+            propertiesCopy.farms = province.farms;
+        }
+        if (properties.mines != province.mines) {
+            hasChanged = true;
+            propertiesCopy.mines = province.mines;
+        }
+        if (properties.forts != province.forts) {
+            hasChanged = true;
+            propertiesCopy.forts = province.forts;
+        }
+        if (properties.workshops != province.workshops) {
+            hasChanged = true;
+            propertiesCopy.workshops = province.workshops;
+        }
+        if (properties.enemy_army != province.enemy_army) {
+            hasChanged = true;
+            propertiesCopy.enemy_army = province.enemy_army;
+        }
+        if (hasChanged) {
+            setProperties(propertiesCopy);
         }
     }
 
@@ -301,8 +356,8 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         });  
     }
 
-    function getPendingData() {
-        axios.get(host + '/api/pendings', {
+    async function getPendingData() {
+        await axios.get(host + '/api/pendings', {
             params: {session: session._id, player: player._id}
         })
         .then( (res) => {

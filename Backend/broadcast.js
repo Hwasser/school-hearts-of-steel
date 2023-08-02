@@ -38,17 +38,22 @@ async function broadcastUpdateProvince(province) {
  * 
  * @param {String} sessionId 
  */
-async function broadcastUpdateArmies(sessionId) {
+async function broadcastUpdateEvents(sessionId) {
     const provinces = await Province.find({session: sessionId});
     provinceUpdates = {};
-    // Pick up armies-list, enemy_army and owner of each province
+    // Pick up data regarding updated armies and buildings
     for (let i = 0; i < provinces.length; i++) {
         const provinceId = provinces[i]._id;
         provinceUpdates[provinceId] = {
             id: provinces[i].id,
             armies: provinces[i].armies,
             enemy_army: provinces[i].enemy_army,
-            owner: provinces[i].owner
+            owner: provinces[i].owner,
+            houses: provinces[i].houses,
+            farms: provinces[i].farms,
+            mines: provinces[i].mines,
+            forts: provinces[i].forts,
+            workshops: provinces[i].workshops
         };
     }
     // Package and send
@@ -130,7 +135,7 @@ module.exports = {
     gameSessionSetupClients, 
     broadcastUpdateProvince, 
     broadcastPlayerJoined, 
-    broadcastUpdateArmies,
+    broadcastUpdateEvents,
     broadcastAttackBattle,
     broadcastHasWon,
     broadcastMergeArmies,

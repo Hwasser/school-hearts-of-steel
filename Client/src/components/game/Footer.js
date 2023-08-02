@@ -60,8 +60,9 @@ export default function Footer( {
     const constructingCopy = [... constructing];
     for (let i = 0; i < constructing.length; i++) {
       if (constructingCopy[i].type != '') {
-        if (provProp[constructingCopy[i].type] > constructingCopy[i].value) {
+        if (properties[constructingCopy[i].type] > constructingCopy[i].value) {
           constructingCopy[i].type = '';
+          constructingCopy[i].value = properties[constructingCopy[i].type];
         }
       }
     }

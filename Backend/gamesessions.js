@@ -13,7 +13,7 @@ const {
   } = require('./army_related');
 const {
     broadcastMessage,
-    broadcastUpdateArmies
+    broadcastUpdateEvents
 } = require('./broadcast');
 
 const gameSessions = {};
@@ -72,7 +72,7 @@ async function updateSession(id) {
         broadcastMessage(message);
         await iterateBattles(id);
         await handlePendingEvents(sessions);
-        broadcastUpdateArmies(id);
+        broadcastUpdateEvents(id);
     } catch (err) {
         console.log("Couldnt update res:", err);
     }
