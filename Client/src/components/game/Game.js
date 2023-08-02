@@ -17,6 +17,7 @@ import {
     from '../../functionality/receiveEvents';
 import {sendEvent} from '../../functionality/sendEvents';
 import { armyMove, armyAttack } from '../../functionality/manageArmies';
+import { buildings } from '../../GameData/provinceStats';
 
 /**
  * @brief: This Component represents a running game session
@@ -346,11 +347,16 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     //----------------------------------------
     // --------- Handle game actions ---------
 
-    // Handle selection of a provinces/army/upgrade from the database
-    function handleSelectAction(selectedObject, selecting) { 
-        setProperties(selectedObject);
+    /**
+     * @brief: Update the selected property
+     * 
+     * @param {JSON} selectedObject 
+     * @param {String} selecting: A brief discription of what is selected 
+     */
+    function handleSelectAction(selectedObject, selecting) {
+        
+        setProperties({... selectedObject});
     }
-
     /**
      * @brief: Merge two armies. Updates the database and state.
      * @param {*} army1: The document id of a army
@@ -455,13 +461,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         });  
     };
 
-    const handeSelectUpgrade = (upgrade) => {
-        setProperties({...upgrade});
-    };
-
-    function updateProperties(newProperty) {
-        setProperties(newProperty);
-    }
 
     //------------------------------------------
     // --------- Handle the game views ---------
@@ -471,12 +470,12 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     // and remember the states of the rest.
     const footer = React.useMemo( () => 
         <Footer 
+            onSelectAction={handleSelectAction} 
             onSplitArmy={handleSplitArmy}
             onBuyUpgrade={handleBuyUpgrade} 
             fetchResourceUpdates={fetchResourceUpdates} 
             pushPendingData={pushPendingData}
             properties={properties} 
-            updateProperties={updateProperties}
             session={session}
             upgrades={upgrades}
             slotIndex={slotIndex}
@@ -534,7 +533,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                 {!upgradeView && (gameui)}
                 {upgradeView  && (
                     <UpgradeUI 
-                        onSelectUpgrade={handeSelectUpgrade} 
+                        onSelectAction={handleSelectAction} 
                         upgrades={upgrades} 
                     />
                 )}

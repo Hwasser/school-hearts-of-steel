@@ -20,12 +20,12 @@ import FootBattleView from './FootBattleView';
  * @returns 
  */
 export default function Footer( {
+  onSelectAction,
   onBuyUpgrade,
   onSplitArmy,
   fetchResourceUpdates,
   pushPendingData,
   getArmies,
-  updateProperties,
   properties,
   session, 
   upgrades,
@@ -75,7 +75,7 @@ export default function Footer( {
   function raiseArmyAction(newProvinceInfo) {
     onRaiseArmyMenu();
     fetchResourceUpdates();
-    updateProperties(newProvinceInfo);
+    onSelectAction(newProvinceInfo, 'army');
   }
 
   function buildMenuAction(province, buildingType) {

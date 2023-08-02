@@ -27,7 +27,7 @@ export default function GameUI(
     })
     .then( (res) => {
       if (res.data.length !== 0) {
-          onSelectAction(res.data[0]);
+          onSelectAction(res.data[0], 'province');
       }
     })
     .catch( (e) => {
@@ -46,7 +46,7 @@ export default function GameUI(
     
     axios.get(`http://localhost:8082/api/armies/${id}` )
     .then( (res) => {
-      onSelectAction(res.data);
+      onSelectAction(res.data, 'army');
     })
     .catch( (e) => {
       console.log(e)
@@ -58,7 +58,7 @@ export default function GameUI(
    * @param {Integer} number: Which battle is selected
    */
   function handleSelectBattle(number) {
-    onSelectAction(battle[number]);
+    onSelectAction(battle[number], 'battle');
   }
   
   /**
