@@ -16,7 +16,8 @@ import {
     receiveUpdateProvince} 
     from '../../functionality/receiveEvents';
 import {sendEvent} from '../../functionality/sendEvents';
-import { armyMove, armyAttack } from '../../functionality/manageArmies';
+import { buildings } from '../../GameData/provinceStats';
+import {host} from '../../backend_adress';
 
 /**
  * @brief: This Component represents a running game session
@@ -86,7 +87,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const localProvinceId = Array(nProvinces);
         const localArmies = [... armies]
         
-        axios.get('http://localhost:8082/api/provinces/', {
+        axios.get(host + '/api/provinces/', {
             params: { purpose: "get_all", session: session._id}
         })
         .then( (res) => {
@@ -234,6 +235,10 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                 if (curProv == recProv) {
                     setProperties(message);
                 }
+            } 
+            // If the province is selected during battle, update it
+            if (properties['terrain'] != null && properties.id == message.province.id) {
+                setProperties(message.province);
             }
         } catch (err) {
             console.log(err);
@@ -259,7 +264,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     const handlePlayerConnect = (message) => {
-        axios.put('http://localhost:8082/api/players', {
+        axios.put(host + '/api/players', {
           params: { sessionId: session._id, token: message, player: player._id}
         })
         .catch((err) => {
@@ -285,7 +290,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     // When buying something, get the new resource status from the server
     function fetchResourceUpdates() {
         axios
-        .get(`http://localhost:8082/api/sessions/${session._id}`)
+        .get(host + `/api/sessions/${session._id}`)
         .then((res) => {
             const updatedSession = receiveResourceUpdate(res.data, {... session}, slotIndex);
             setSession(updatedSession);
@@ -297,7 +302,9 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     function getPendingData() {
-        axios.get(`http://localhost:8082/api/pendings/${session._id}`)
+        axios.get(host + '/api/pendings', {
+            params: {session: session._id, player: player._id}
+        })
         .then( (res) => {
             pendingData = [... res.data];
         })
@@ -346,11 +353,16 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     //----------------------------------------
     // --------- Handle game actions ---------
 
-    // Handle selection of a provinces/army/upgrade from the database
-    function handleSelectAction(selectedObject, selecting) { 
-        setProperties(selectedObject);
+    /**
+     * @brief: Update the selected property
+     * 
+     * @param {JSON} selectedObject 
+     * @param {String} selecting: A brief discription of what is selected 
+     */
+    function handleSelectAction(selectedObject, selecting) {
+        
+        setProperties({... selectedObject});
     }
-
     /**
      * @brief: Merge two armies. Updates the database and state.
      * @param {*} army1: The document id of a army
@@ -367,10 +379,29 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         };
 
         axios
-        .put(`http://localhost:8082/api/provinces`, updatePackage)
+        .put(host + '/api/provinces', updatePackage)
         .catch((err) => {
             console.log('Couldnt merge armies: ' + err);
     });  
+    }
+
+    /**
+     * @brief: Fetch a province from database and update the province
+     * 
+     * @param {Integer} index: The province number (index in array)
+     */
+    async function fetchAndUpdateProvince(index) {
+        axios.get(host + '/api/provinces/', {
+            params: { purpose: "get_by_n", id: index, session: session._id}
+        })
+        .then( (res) => {
+            if (res.data.length !== 0) {
+                handleSelectAction(res.data[0], 'province');
+            }
+        })
+        .catch( (e) => {
+            console.log(e)
+        });
     }
 
     // Update the armies in province if a player merge two armies
@@ -390,7 +421,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         // Post changes to left army
         let newLeftId  = "";
         await axios
-        .put(`http://localhost:8082/api/armies/${leftArmyId}`, leftArmy)
+        .put(host + `/api/armies/${leftArmyId}`, leftArmy)
         .then((res) => {
             newLeftId = res.data.armydata._id;
             handleSelectAction(res.data);
@@ -401,7 +432,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         // Post new right army
         let newRightId = "";
         await axios
-            .post(`http://localhost:8082/api/armies/`, rightArmy)
+            .post(host + '/api/armies/', rightArmy)
             .then((res) => {newRightId = res.data.armydata._id})
             .catch((err) => {
                 console.log('Error in posting army: ' + err);
@@ -422,7 +453,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             provinceN: province
         };
         axios
-            .put('http://localhost:8082/api/provinces', postPackage)
+            .put(host + '/api/provinces', postPackage)
             .catch((err) => {
             console.log('Error in replacing armies in province: ' + err);
         });
@@ -449,19 +480,12 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         setProperties(propertiesCopy);
         // Send new upgrade tree to server
         axios
-        .put(`http://localhost:8082/api/upgrades/${upgCopy._id}`, upgCopy)
+        .put(host + `/api/upgrades/${upgCopy._id}`, upgCopy)
         .catch((err) => {
             console.log('Couldnt update upgrade tree: ' + err);
         });  
     };
 
-    const handeSelectUpgrade = (upgrade) => {
-        setProperties({...upgrade});
-    };
-
-    function updateProperties(newProperty) {
-        setProperties(newProperty);
-    }
 
     //------------------------------------------
     // --------- Handle the game views ---------
@@ -471,12 +495,12 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     // and remember the states of the rest.
     const footer = React.useMemo( () => 
         <Footer 
+            onSelectAction={handleSelectAction} 
             onSplitArmy={handleSplitArmy}
             onBuyUpgrade={handleBuyUpgrade} 
             fetchResourceUpdates={fetchResourceUpdates} 
             pushPendingData={pushPendingData}
             properties={properties} 
-            updateProperties={updateProperties}
             session={session}
             upgrades={upgrades}
             slotIndex={slotIndex}
@@ -534,7 +558,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                 {!upgradeView && (gameui)}
                 {upgradeView  && (
                     <UpgradeUI 
-                        onSelectUpgrade={handeSelectUpgrade} 
+                        onSelectAction={handleSelectAction} 
                         upgrades={upgrades} 
                     />
                 )}

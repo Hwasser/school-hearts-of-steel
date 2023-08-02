@@ -9,7 +9,7 @@ import axios from 'axios';
 import './UpgradeUI.css';
 import { upgradeNames, upgradeTexts, upgradeDependencies, upgradeCosts } from '../../GameData/upgradeStats';
 
-export default function UpgradeUI( {onSelectUpgrade, upgrades} ) {
+export default function UpgradeUI( {onSelectAction, upgrades} ) {
     function dependencies(listOfDeps) {
         if (listOfDeps.length === 0) {
             return true;
@@ -80,7 +80,7 @@ export default function UpgradeUI( {onSelectUpgrade, upgrades} ) {
         }
         // The button itself
         return <button id={upgrade} className='upgrade_item' style={{background: color}}
-            onClick={() => onSelectUpgrade(upgradeData)}>{text}</button>;
+            onClick={() => onSelectAction(upgradeData, 'upgrade')}>{text}</button>;
     };
 
     return (

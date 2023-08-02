@@ -20,12 +20,12 @@ import FootBattleView from './FootBattleView';
  * @returns 
  */
 export default function Footer( {
+  onSelectAction,
   onBuyUpgrade,
   onSplitArmy,
   fetchResourceUpdates,
   pushPendingData,
   getArmies,
-  updateProperties,
   properties,
   session, 
   upgrades,
@@ -75,7 +75,7 @@ export default function Footer( {
   function raiseArmyAction(newProvinceInfo) {
     onRaiseArmyMenu();
     fetchResourceUpdates();
-    updateProperties(newProvinceInfo);
+    onSelectAction(newProvinceInfo, 'army');
   }
 
   function buildMenuAction(province, buildingType) {
@@ -229,7 +229,7 @@ export default function Footer( {
           <span id="value10"> {provProp['workforce']} </span>
         </div>
 
-        {player.name === properties.owner && (
+        {(player.name === properties.owner && properties.enemy_army == null) && (
           <button 
             className='property_button'
               onClick={onRaiseArmyMenu}

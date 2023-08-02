@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { useState } from 'react';
+import {host} from '../../backend_adress';
 
 import './FootUpgradeView.css';  
 
@@ -111,7 +112,7 @@ function updateSession(curCost, slotIndex, sessionId) {
   };
   
   axios
-  .put(`http://localhost:8082/api/sessions/${sessionId}`, updatePackage)
+  .put(host + `/api/sessions/${sessionId}`, updatePackage)
   .catch((err) => {
       console.log('Couldnt update the session: ' + err);
   });  

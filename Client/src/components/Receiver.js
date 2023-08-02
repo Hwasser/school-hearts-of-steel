@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import {adress} from '../backend_adress';
 
 function ReceiverSession({ onNewSession }) {
   console.log("Setting up new EventSource!");
 
   useEffect(() => {
-    const eventSource = new EventSource('http://localhost:5001/rec');
+    const eventSource = new EventSource('http://' + adress + ':5001/rec');
 
     // Event handler for receiving SSE messages
     eventSource.onmessage = (event) => {

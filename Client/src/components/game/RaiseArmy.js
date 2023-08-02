@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useState } from 'react';  
 
 import './RaiseArmy.css';  
+import {host} from '../../backend_adress';
 const { units } = require('../../GameData/unitStats');
 
 // Slider code inspired by "https://codepen.io/rmichels/pen/WNegjyK"
@@ -224,7 +225,7 @@ function postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selected
   console.log("Raising army:", army);
 
   axios
-  .post('http://localhost:8082/api/armies', army)
+  .post(host + '/api/armies', army)
   .then( (res2) => {
     console.log("Succsesfully added army: " + res2.data.armydata);
     // Change the workforce number of the province
@@ -234,7 +235,7 @@ function postArmyToServer(newValue, toRaise, fromProvince, onRaiseArmy, selected
     onRaiseArmy(province);
     // Update province with army and new value of workforce
     axios
-    .put(`http://localhost:8082/api/provinces/${id}`, province)
+    .put(host + `/api/provinces/${id}`, province)
     .catch((err) => {
       console.log('Error in replacing province: ' + err);
     });
@@ -258,7 +259,7 @@ function updateSession(curCost, slotIndex, sessionId) {
   };
   
   axios
-  .put(`http://localhost:8082/api/sessions/${sessionId}`, updatePackage)
+  .put(host + `/api/sessions/${sessionId}`, updatePackage)
   .catch((err) => {
       console.log('Couldnt update the session: ' + err);
   });  

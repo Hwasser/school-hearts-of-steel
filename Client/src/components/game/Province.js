@@ -1,6 +1,5 @@
 import './Province.css';  
 import Army from './ArmySlot.js'
-import { armyAttack } from '../../functionality/manageArmies';
 
 import image_mountains from "../../graphics/prov_mountains.png";
 import image_mountains_rad from "../../graphics/prov_mountains_rad.png";

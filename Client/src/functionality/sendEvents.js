@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {host} from '../backend_adress';
 
 const { buildings } = require('../GameData/provinceStats');
 
@@ -60,7 +61,7 @@ async function postBuilding(event, pending, getPendingData, fetchResourceUpdates
         await updateSession(curCost, slotIndex, event.session);
         // Post to server
         await axios
-        .delete(`http://localhost:8082/api/pendings/${alreadyBought._id}`)
+        .delete(host + `/api/pendings/${alreadyBought._id}`)
         .catch((err) => {
         console.log('Error with posting pending actions!: ' + err);
         });
@@ -68,7 +69,7 @@ async function postBuilding(event, pending, getPendingData, fetchResourceUpdates
         await updateSession(curCost, slotIndex, event.session);
         // Post to server
         await axios
-        .post(`http://localhost:8082/api/pendings/`, event)
+        .post(host + '/api/pendings/', event)
         .catch((err) => {
         console.log('Error with posting pending actions!: ' + err);
         });
@@ -86,7 +87,7 @@ async function postBuilding(event, pending, getPendingData, fetchResourceUpdates
 async function postMovement(event) {
     // Post to server
     await axios
-    .post(`http://localhost:8082/api/pendings/`, event)
+    .post(host + '/api/pendings/', event)
     .catch((err) => {
         console.log('Error with posting pending actions!: ' + err);
     });
@@ -105,7 +106,7 @@ async function updateSession(curCost, slotIndex, sessionId) {
     };
 
     await axios
-    .put(`http://localhost:8082/api/sessions/${sessionId}`, updatePackage)
+    .put(host + `/api/sessions/${sessionId}`, updatePackage)
     .catch((err) => {
         console.log('Couldnt update the session: ' + err);
     });  

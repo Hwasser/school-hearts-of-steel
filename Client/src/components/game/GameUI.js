@@ -9,6 +9,7 @@ import axios from 'axios';
 import Province from './Province';
 import React, { useState } from 'react';  
 import './GameUI.css';
+import {host} from '../../backend_adress';
 
 export default function GameUI( 
   {onSelectAction, onMergeArmies, pushPendingData, 
@@ -22,12 +23,12 @@ export default function GameUI(
   * @param {Integer} index: The province number 
   */
   function handleSelectProvince(index) {
-    axios.get('http://localhost:8082/api/provinces/', {
+    axios.get(host + '/api/provinces/', {
       params: { purpose: "get_by_n", id: index, session: session._id}
     })
     .then( (res) => {
       if (res.data.length !== 0) {
-          onSelectAction(res.data[0]);
+          onSelectAction(res.data[0], 'province');
       }
     })
     .catch( (e) => {
@@ -44,9 +45,9 @@ export default function GameUI(
       return;
     }
     
-    axios.get(`http://localhost:8082/api/armies/${id}` )
+    axios.get(host + `/api/armies/${id}` )
     .then( (res) => {
-      onSelectAction(res.data);
+      onSelectAction(res.data, 'army');
     })
     .catch( (e) => {
       console.log(e)
@@ -58,7 +59,7 @@ export default function GameUI(
    * @param {Integer} number: Which battle is selected
    */
   function handleSelectBattle(number) {
-    onSelectAction(battle[number]);
+    onSelectAction(battle[number], 'battle');
   }
   
   /**

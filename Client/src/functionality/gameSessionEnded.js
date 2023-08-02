@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {host} from '../backend_adress';
 
 /**
  * When a game session ends. Either by the game being closed down by a user or by someone winning
@@ -21,7 +22,7 @@ export function closeGameSession(session) {
 
 function removeUpgradeTree(id) {
     axios
-    .delete(`http://localhost:8082/api/upgrades/${id}`)
+    .delete(host + `/api/upgrades/${id}`)
     .catch((err) => {
         console.log('Failed removing a upgrade tree:', err.response);
     });
@@ -29,14 +30,14 @@ function removeUpgradeTree(id) {
 
 function removeSession(id) {
     axios
-    .delete(`http://localhost:8082/api/sessions/${id}`)
+    .delete(host + `/api/sessions/${id}`)
     .catch((err) => {
         console.log('Failed removing a session:', err.response);
     });
 }
 
 function removeProvinces(id) {
-    axios.delete(`http://localhost:8082/api/provinces`, {
+    axios.delete(host + `/api/provinces`, {
         params: {
           id: id,
           purpose: 'remove_session' 
