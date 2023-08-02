@@ -20,6 +20,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
     const [worldSize, setWorldSize] = useState(worldSizes.small);
     const [justEntered, setJustEntered] = useState(true); // Whether we just entered this screen
 
+    // Fetches all game sessions from the database
     function updateSessionList() {
         // Clear "game is full" message
         setGameIsFull(false);
@@ -34,6 +35,13 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
           });
     }
 
+    /**
+     * @brief: Adds a player to a game session and replaces a neutral province slot
+     * with a player province
+     * 
+     * @param {JSON} session 
+     * @param {Integer} freeSlots 
+     */
     async function addPlayerToSession(session, freeSlots) {
         // Which array index to put player in
         const slotIndex = session.max_slots - freeSlots;
@@ -64,6 +72,12 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
           });
     }
 
+    /**
+     * @brief: What happens when a player join a game
+     * 
+     * @param {JSON} selectedSession 
+     * @param {Integer} freeSlots 
+     */
     async function handleJoinGame(selectedSession, freeSlots) {
         // Check whether the player already is in the session
         const playerJoined = selectedSession.slot_names.reduce(
@@ -114,14 +128,21 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
                 const curMaxSlots = allSessions[i].max_slots;
                 const curTakenSlots = curMaxSlots - curFreeSlots;
                 const curSize = worldSizesReversed[allSessions[i].world_size];
-                const isOwner = allSessions[i].creator == playerData._id;
+                const creator = allSessions[i].creator;
+                const isOwner = creator == playerData.name;
 
                 allSessionsView.push(
-                    <li key={'game' + i} className="join_game_entry"> <button className='join_game_button'
-                        onClick={() => handleJoinGame(allSessions[i], curFreeSlots)}> Game: {i} | size: {curSize} | slots: ({curTakenSlots + "/" + curMaxSlots}) 
-                    </button> 
+                    <li key={'game' + i} className="join_game_entry"> 
+                        <button className='join_game_button' onClick={() => handleJoinGame(allSessions[i], curFreeSlots)}> 
+                        <span className='join_game_button_field'> {creator} </span>
+                        <span className='join_game_button_field'> {curSize} </span> 
+                        <span className='join_game_button_field'> {curTakenSlots + "/" + curMaxSlots} </span>
+                        </button> 
                     {isOwner && (
                         <button className="join_game_entry_close" onClick={() => handleCloseGameSession(allSessions[i])}>x</button>
+                    )}
+                    {!isOwner && (
+                        <span className="join_game_entry_close_not_owned">x</span>
                     )}
                     </li>
                 );
@@ -129,11 +150,16 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         return allSessionsView;
     }
 
-    // Init a new session with the starter players name and _id and
-    // starting resources. Then it goes on to fill up with dummies.
+    /**
+     * @brief: Init a new session with the starter players name and _id and
+     * starting resources. Then it goes on to fill up with dummies.
+     * 
+     * @param {[JSON]} upgradeTrees 
+     * @returns 
+     */
     function initSession(upgradeTrees) {
         const newSession = {
-            creator: playerData._id,
+            creator: playerData.name,
             max_slots: maxSlots,
             slot_names: [playerData.name],
             slot_ids: [playerData._id],
@@ -164,6 +190,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         // Setup a new session
         const newSession = initSession(upgradeTrees);
         // Post new sessions
+        let createdGame = null;
         await axios
         .post('http://localhost:8082/api/sessions', newSession)
           .then((res) => {
@@ -172,15 +199,21 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
             updateSessionList();
             try {
                 startNewGame(res.data.session);
+                createdGame = res.data.session;
             } catch(err) {
                 console.log("Error with startNewGame:", err);
             }
-          })
-          .catch((err) => {
+        })
+        .catch((err) => {
             console.log('cant find: ', err.response);
-          });
+        });
         // Clear "game is full" message
         setGameIsFull(false);
+        setTimeout(
+            () => handleJoinGame(createdGame, 0),
+            250
+        );
+        
     }
 
     if (justEntered) {
@@ -188,8 +221,8 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         setJustEntered(false)
     }
 
-    const playerHasGame = ( allSessions.findIndex( (e) => e.creator == playerData._id)) >= 0;
-    console.log(allSessions.findIndex( (e) => e.creator == playerData._id));
+    const playerHasGame = ( allSessions.findIndex( (e) => e.creator == playerData.name)) >= 0;
+    console.log(allSessions.findIndex( (e) => e.creator == playerData.name));
 
     return(
         <>
@@ -230,6 +263,11 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
                 <div className='game_list_container'>
                     <h3>Join a game</h3>
                     <ul>
+                        <li className="join_game_info"> 
+                            <span className='join_game_button_field'> Creator: </span>
+                            <span className='join_game_button_field'> size: </span> 
+                            <span className='join_game_button_field'> slots: </span>  
+                        </li>
                         <GetSessionList />
                     </ul>
                     <button id='start_menu_refresh_button' onClick={() => updateSessionList()}>Refresh list</button>
@@ -271,49 +309,4 @@ async function getUpgradeTree(upgradeId) {
     });
     return upgradeTree;
 
-}
-
-// TODO: Temporary!
-async function removeAllSessions() {
-    // Remove all previous sessions TODO: Temporary
-    await axios
-        .delete('http://localhost:8082/api/sessions')
-        .then( () => {
-        })
-        .catch((err) => {
-            console.log('cant remove all sessions:', err);
-    });
-}
-
-// TODO: Temporary!
-async function removeAllProvinces() {
-    await axios
-        .delete('http://localhost:8082/api/provinces')
-        .then( () => {
-        })
-        .catch((err) => {
-            console.log('cant remove all provinces:', err);
-    });
-}
-
-// TODO: Temporary!
-async function removeAllArmies() {
-    await axios
-        .delete('http://localhost:8082/api/armies')
-        .then( () => {
-        })
-        .catch((err) => {
-            console.log('cant remove all armies:', err);
-    });
-}
-
-// TODO: Temporary!
-async function removeAllUpgrades() {
-    await axios
-        .delete('http://localhost:8082/api/upgrades')
-        .then( () => {
-        })
-        .catch((err) => {
-            console.log('cant remove all upgrades:', err);
-    });
 }
