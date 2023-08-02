@@ -71,7 +71,7 @@ export default function Province(
   
   return (
       <div className='province' id={"province"+id} owner={owner} key={"province"+id}
-        style={{'background-color': color, backgroundImage: `url(${provImage[terrain]})`, 
+        style={{'backgroundColor': color, backgroundImage: `url(${provImage[terrain]})`, 
           width: width[session.world_size], height: height[session.world_size]}} 
         onDragOver={handleDragOver} onDrop={(e) => {handleOnDrop(e, id)}}>
       

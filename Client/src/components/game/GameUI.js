@@ -183,7 +183,7 @@ export default function GameUI(
                 battle={curBattle}
               />);
           }
-          body.push(<div className='world_row'> {listItems} </div>);
+          body.push(<div key={"provine_row" + i} className='world_row'> {listItems} </div>);
       }
       return body;
   }

@@ -2,7 +2,16 @@ import { useState } from 'react';
 import './FootBattleView.css';
 
 export default function FootBattleView( {properties} ) {
-    const performance = properties.performance;
+    // The performance is a real value € [0,1] that shows whether the
+    // attacker or the defender wins the battle
+    let performance = properties.performance;
+    // Limit the values so that the bar won't look weird or non existent
+    if (performance < 0.05) {
+        performance = 0.05;
+    }
+    if (performance > 0.95) {
+        performance = 0.95;
+    }
 
     return (
         <>
