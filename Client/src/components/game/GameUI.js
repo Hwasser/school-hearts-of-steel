@@ -9,6 +9,7 @@ import axios from 'axios';
 import Province from './Province';
 import React, { useState } from 'react';  
 import './GameUI.css';
+import {host} from '../../backend_adress';
 
 export default function GameUI( 
   {onSelectAction, onMergeArmies, pushPendingData, 

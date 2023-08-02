@@ -1,5 +1,6 @@
 import { useState } from 'react'; 
 import axios from 'axios';
+import {host} from '../../backend_adress';
 
 import './StartMenu.css';
 import startNewGame from './../../functionality/startNewGame';
@@ -26,7 +27,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         setGameIsFull(false);
         // Get all sessions from the database and place them is "allSessions"
         axios
-        .get('http://localhost:8082/api/sessions')
+        .get(host + '/api/sessions')
           .then((res) => {
             setAllSessions(res.data);
           })
@@ -52,7 +53,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         session.purpose = 'add_player';
         // Update session
         await axios
-        .put(`http://localhost:8082/api/sessions/${session._id}`, session)
+        .put(host + `/api/sessions/${session._id}`, session)
           .then((res) => {
             console.log("Added player to session:", res.data);
           })
@@ -66,7 +67,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
             sessionId: session._id,
             purpose: 'replace_empty_slot'};
         await axios
-        .put("http://localhost:8082/api/provinces", provinceData)
+        .put(host + '/api/provinces', provinceData)
           .catch((err) => {
             console.log('StartMenu: Failed updating empty slot: ', err.response);
           });
@@ -192,7 +193,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         // Post new sessions
         let createdGame = null;
         await axios
-        .post('http://localhost:8082/api/sessions', newSession)
+        .post(host + '/api/sessions', newSession)
           .then((res) => {
             console.log("Created new game!", res)
             // Refresh game list
@@ -286,7 +287,7 @@ async function addUpgrades(maxSlots) {
     const upgradeTrees = [];
     for (let i = 0; i < maxSlots; i++) {
         await axios
-            .post(`http://localhost:8082/api/upgrades/`, initUpgrades)
+            .post(host + `/api/upgrades/`, initUpgrades)
             .then((res) => {
                 upgradeTrees.push(res.data.upgrades._id);
             })
@@ -300,7 +301,7 @@ async function addUpgrades(maxSlots) {
 async function getUpgradeTree(upgradeId) {
     let upgradeTree = {};
     await axios
-    .get(`http://localhost:8082/api/upgrades/${upgradeId}`)
+    .get(host + `/api/upgrades/${upgradeId}`)
         .then((res) => {
         upgradeTree = res.data;
         })

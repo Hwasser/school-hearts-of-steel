@@ -18,6 +18,7 @@ import {
 import {sendEvent} from '../../functionality/sendEvents';
 import { armyMove, armyAttack } from '../../functionality/manageArmies';
 import { buildings } from '../../GameData/provinceStats';
+import {host} from '../../backend_adress';
 
 /**
  * @brief: This Component represents a running game session
@@ -87,7 +88,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const localProvinceId = Array(nProvinces);
         const localArmies = [... armies]
         
-        axios.get('http://localhost:8082/api/provinces/', {
+        axios.get(host + '/api/provinces/', {
             params: { purpose: "get_all", session: session._id}
         })
         .then( (res) => {
@@ -264,7 +265,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     const handlePlayerConnect = (message) => {
-        axios.put('http://localhost:8082/api/players', {
+        axios.put(host + '/api/players', {
           params: { sessionId: session._id, token: message, player: player._id}
         })
         .catch((err) => {
@@ -290,7 +291,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     // When buying something, get the new resource status from the server
     function fetchResourceUpdates() {
         axios
-        .get(`http://localhost:8082/api/sessions/${session._id}`)
+        .get(host + `/api/sessions/${session._id}`)
         .then((res) => {
             const updatedSession = receiveResourceUpdate(res.data, {... session}, slotIndex);
             setSession(updatedSession);
@@ -302,7 +303,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     function getPendingData() {
-        axios.get("http://localhost:8082/api/pendings", {
+        axios.get(host + '/api/pendings', {
             params: {session: session._id, player: player._id}
         })
         .then( (res) => {
@@ -379,7 +380,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         };
 
         axios
-        .put(`http://localhost:8082/api/provinces`, updatePackage)
+        .put(host + '/api/provinces', updatePackage)
         .catch((err) => {
             console.log('Couldnt merge armies: ' + err);
     });  
@@ -391,7 +392,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
      * @param {Integer} index: The province number (index in array)
      */
     async function fetchAndUpdateProvince(index) {
-        axios.get('http://localhost:8082/api/provinces/', {
+        axios.get(host + '/api/provinces/', {
             params: { purpose: "get_by_n", id: index, session: session._id}
         })
         .then( (res) => {
@@ -421,7 +422,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         // Post changes to left army
         let newLeftId  = "";
         await axios
-        .put(`http://localhost:8082/api/armies/${leftArmyId}`, leftArmy)
+        .put(host + `/api/armies/${leftArmyId}`, leftArmy)
         .then((res) => {
             newLeftId = res.data.armydata._id;
             handleSelectAction(res.data);
@@ -432,7 +433,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         // Post new right army
         let newRightId = "";
         await axios
-            .post(`http://localhost:8082/api/armies/`, rightArmy)
+            .post(host + '/api/armies/', rightArmy)
             .then((res) => {newRightId = res.data.armydata._id})
             .catch((err) => {
                 console.log('Error in posting army: ' + err);
@@ -453,7 +454,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             provinceN: province
         };
         axios
-            .put('http://localhost:8082/api/provinces', postPackage)
+            .put(host + '/api/provinces', postPackage)
             .catch((err) => {
             console.log('Error in replacing armies in province: ' + err);
         });
@@ -480,7 +481,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         setProperties(propertiesCopy);
         // Send new upgrade tree to server
         axios
-        .put(`http://localhost:8082/api/upgrades/${upgCopy._id}`, upgCopy)
+        .put(host + `/api/upgrades/${upgCopy._id}`, upgCopy)
         .catch((err) => {
             console.log('Couldnt update upgrade tree: ' + err);
         });  

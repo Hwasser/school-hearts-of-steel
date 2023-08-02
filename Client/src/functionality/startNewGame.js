@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {host} from '../backend_adress';
 const { flavors, terrains, firstNames, lastNames } = require('../GameData/provinceStats');
 
 /**
@@ -45,7 +46,7 @@ async function postNewProvinces(allProvinces, sessionId) {
         province.armies.push(postedArmy);
       }
       axios
-      .post('http://localhost:8082/api/provinces', province)
+      .post(host + '/api/provinces', province)
       .then( (res) => {
         allProvinces[i]['objectid'] = res.data.province._id;
       })
@@ -204,7 +205,7 @@ async function postArmyToServer(province, sessionId) {
 
 
   await axios
-  .post('http://localhost:8082/api/armies', army)
+  .post(host + '/api/armies', army)
   .then( (res) => {
     armyId = res.data.armydata._id;
   })

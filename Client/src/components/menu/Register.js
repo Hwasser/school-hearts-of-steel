@@ -1,6 +1,7 @@
 import './Register.css';
 import { useState } from 'react'; 
 import axios from 'axios';
+import {host} from '../../backend_adress';
 
 /**
  * Menu for registering a new user/player
@@ -40,7 +41,7 @@ export default function Register( {selectLogin} ) {
         delete player['passwordAgain'];
 
         axios
-          .post('http://localhost:8082/api/players', player)
+          .post(host + '/api/players', player)
           .then((res) => {
             // Reset value
             setPlayer(initValue);

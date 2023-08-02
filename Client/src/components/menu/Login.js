@@ -2,6 +2,7 @@ import './Login.css';
 
 import { useState } from 'react'; 
 import axios from 'axios';
+import {host} from '../../backend_adress';
 
 /**
  * Login menu for users/players
@@ -28,7 +29,7 @@ export default function Login( {onLoginAction, selectRegister} ) {
     function handleLogin() {
         console.log("Tried to login with:", player.name, player.password);
         axios
-          .get('http://localhost:8082/api/players', {
+          .get(host + '/api/players', {
             params: {name: player.name, password: player.password}
           })
           .then((res) => {
