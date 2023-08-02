@@ -15,8 +15,10 @@ export default function MovementGUI({movements, armies}) {
     let arrowsCopy = [... arrows];
     let hasChanged = false;
 
+    // Check for all movements
     for (let m in movements) {
       const mid = m.toString();
+      // Ignore movements that are already in the list of arrows
       if (arrows.findIndex(e => e['key'] == mid) >= 0) {
         continue;
       }
@@ -41,15 +43,14 @@ export default function MovementGUI({movements, armies}) {
       
       const arrow = (<Xarrow key={mid} start={startDestination} end={endDestination} labels={{middle: endLabel}} />);
       arrowsCopy.push(arrow);
-      console.log("PUSH!");
     }
 
+    // Remove old arrows that isn't in the movements anymore
     for (let i = 0; i < arrows.length; i++) {
       const oldArrow = arrows[i].key;
       if (!movements[oldArrow]) {
         arrowsCopy = arrowsCopy.filter(e => e.key != oldArrow);
         hasChanged = true;
-        console.log("REMOVE!");
       }
     }
 

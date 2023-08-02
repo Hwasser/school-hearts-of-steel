@@ -133,25 +133,11 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const updatedSession = receiveResourceUpdate(message, {... session}, slotIndex);
         updatedSession.time = message.time;
         setSession(updatedSession);
-        // Remove complete movements
-        updateMovements(updatedSession.time);
+        // Remove possible complete movements
+        removeMovements(updatedSession.time);
     }
 
-    /**
-     * @brief: Updates the movement drawn on screen
-     * 
-     * @param {Integer} time 
-     */
-    async function updateMovements(time) {
-        await getPendingData()
-        const movementsCopy = {... movements}
-        for (let m in movements) {
-            if (movementsCopy[m].end == time) {
-                delete movementsCopy[m];
-            }
-        }
-        setMovements(movementsCopy);
-    }
+
 
     const handleUpdateProvince = (message) => {
         
@@ -379,17 +365,17 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         event['start'] = session.time;
         event['end'] = session.time + 3; // TODO: TEMPORARY!
 
-        handleMovements(event);
+        addMovements(event);
 
         sendEvent(event, pendingData, getPendingData, fetchResourceUpdates, slotIndex);   
     }
 
-    // TODO: Ska den här ens vara kvar?!
     /**
+     * @brief: Add a new movement to the dict of movements
      * 
      * @param {JSON} event 
      */
-    function handleMovements(event) {
+    function addMovements(event) {
         if (event.type != 'movement') {
             return;
         }
@@ -404,6 +390,22 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
 
         setMovements(movementsCopy);
     }
+
+        /**
+     * @brief: Updates the movement drawn on screen
+     * 
+     * @param {Integer} time 
+     */
+        async function removeMovements(time) {
+            await getPendingData()
+            const movementsCopy = {... movements}
+            for (let m in movements) {
+                if (movementsCopy[m].end == time) {
+                    delete movementsCopy[m];
+                }
+            }
+            setMovements(movementsCopy);
+        }
 
     //----------------------------------------
     // --------- Handle game actions ---------
