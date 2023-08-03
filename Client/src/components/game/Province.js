@@ -27,7 +27,6 @@ export default function Province(
   // Setup province colors and set color for each player
   const playerNames = session.slot_names;
   const playerColors = {'Neutral': allColors[4]};
-  // TODO: This seem extremely ineffective to run all the time
   for (let i = 0; i < session.max_slots; i++) {
     const currentPlayer = playerNames[i];
     playerColors[currentPlayer] = (session.slot_ids[i] == null) ? 'white' : allColors[i];
