@@ -51,14 +51,21 @@ router.put('/:id', async (req, res) => {
   if (req.body.purpose == 'buy_stuff') {
     try {
       const slotIndex = req.body.slotIndex;
-      const document = await Session.findById(req.params.id);
-      // Change value
-      document.food[slotIndex]     -= req.body.food;
-      document.fuel[slotIndex]     -= req.body.fuel;
-      document.tools[slotIndex]    -= req.body.tools;
-      document.material[slotIndex] -= req.body.material;
-      // Store value and show status
-      await document.save();
+
+      const updateObject = {};
+      updateObject[`food.${slotIndex}`]     = -req.body.food;
+      updateObject[`fuel.${slotIndex}`]     = -req.body.fuel;
+      updateObject[`tools.${slotIndex}`]    = -req.body.tools;
+      updateObject[`material.${slotIndex}`] = -req.body.material;
+      
+      await Session.findOneAndUpdate( 
+        { _id: req.params.id},
+        { 
+          $inc: updateObject
+        },
+        { new: true }
+      );
+
       res.status(200).send('Session updated');
     } catch {
       res.status(500).json({ error: 'Unable to update empty slot in province' })

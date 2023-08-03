@@ -5,12 +5,15 @@ import ProvinceBuild from './ProvinceBuild';
 import FootArmyView from './FootArmyView';
 import FootUpgradeView from './FootUpgradeView';
 import FootBattleView from './FootBattleView';
+import { buildings } from '../../GameData/provinceStats';
 
 /**
  * @param {Function} onBuyUpgrade
  * @param {Function} onSplitArmy
  * @param {Function} fetchResourceUpgrades
  * @param {Function} getArmies
+ * @param {Function} pushPendingData
+ * @param {Function} getTime: Get current time of the game session
  * @param {JSON} properties: All properties of the currently selected province/army
  * @param {JSON} session: All information of the current game session (see Session in backend)
  * @param {JSON} upgrades:
@@ -25,6 +28,7 @@ export default function Footer( {
   onSplitArmy,
   fetchResourceUpdates,
   pushPendingData,
+  getTime,
   getArmies,
   properties,
   session, 
@@ -36,7 +40,7 @@ export default function Footer( {
   const [useRaiseMenu, setuseRaiseMenu] = useState(false);
   const [useBuildMenu, setUseBuildMenu] = useState('none');
   const [footerType, setFooterType] = useState('province');
-  const constructionInit = Array(session.world_size).fill(null).map(() => ({ type: "", value: 0 }));
+  const constructionInit = Array(session.world_size).fill(null).map(() => ({ type: "", value: 0, time: 0 }));
   const [constructing, setConstructing] = useState(constructionInit);
   
   // For deactivating menus
@@ -91,6 +95,7 @@ export default function Footer( {
     if (constructing[provProp.id].type == '') {
       constructingCopy[provProp.id].type = buildingType;
       constructingCopy[provProp.id].value = provProp[buildingType];
+      constructingCopy[provProp.id].time =  buildings[buildingType]['time'] + getTime();
       setConstructing(constructingCopy);
     } else {
       constructingCopy[provProp.id].type = '';
@@ -118,41 +123,41 @@ export default function Footer( {
     }
   } 
 
+  /**
+   * @brief: Represents a building button for an owned province
+   * 
+   * @param {String} type 
+   * @returns: A react component
+   */
+  function HouseButton( {type} ) {
+    const isSelected = constructing[provProp.id].type == type;
+    let formatedTime = '';
+    if (isSelected) {
+      const completeTime = constructing[provProp.id].time;
+      const days  = completeTime / 24 | 0;
+      const hours = completeTime % 24;
+      formatedTime = '(' + days + ':' + hours + ')';
+    }
+    return (
+      <button className={(isSelected) ? 'property_button_constructing' : 'property_button'} 
+          onClick={() => onBuildMenu(type)} >
+          <span> Houses: </span>
+          <span> {provProp[type]} {formatedTime}  </span>
+      </button>
+    );
+  }
+
   // The buttons for constucting buildings
   function BuildingButtons() {
     return (
       <div className='footer_row'>
         {player.name === properties.owner && (
           <>
-          <button className={(constructing[provProp.id].type == 'houses') ? 'property_button_constructing' : 'property_button'} 
-            onClick={() => onBuildMenu('houses')} >
-            <span id="name6"> Houses: </span>
-            <span id="value6"> {provProp['houses']} </span>
-          </button>
-
-          <button className={(constructing[provProp.id].type == 'mines') ? 'property_button_constructing' : 'property_button'}  
-            onClick={() => onBuildMenu('mines')} >
-            <span id="name7"> Mines: </span>
-            <span id="value7"> {provProp['mines']} </span>
-          </button>
-
-          <button className={(constructing[provProp.id].type == 'workshops') ? 'property_button_constructing' : 'property_button'}  
-            onClick={() => onBuildMenu('workshops')} >
-            <span id="name8"> Workshops: </span>
-            <span id="value8"> {provProp['workshops']} </span>
-          </button>
-
-          <button className={(constructing[provProp.id].type == 'farms') ? 'property_button_constructing' : 'property_button'} 
-            onClick={() => onBuildMenu('farms')}>
-            <span id="name9"> Farms: </span>
-            <span id="value9"> {provProp['farms']} </span>
-          </button>
-
-          <button className={(constructing[provProp.id].type == 'forts') ? 'property_button_constructing' : 'property_button'} 
-            onClick={() => onBuildMenu('forts')} >
-            <span id="name11"> Fortifications: </span>
-            <span id="value11"> {provProp['forts']} </span>
-          </button>
+          <HouseButton key="house_button"    type={'houses'} />
+          <HouseButton key="mine_button"     type={'mines'} />
+          <HouseButton key="workshop_button" type={'workshops'} />
+          <HouseButton key="farm_button"     type={'farms'} />
+          <HouseButton key="fort_button"     type={'forts'} />
           </>
       )}
       {player.name !== properties.owner && (

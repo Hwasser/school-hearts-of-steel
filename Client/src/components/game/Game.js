@@ -57,6 +57,11 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     const [upgradeView, setUpgradeView] = useState(false);
     const [upgrades, setUpgrades] = useState({});
 
+    const getTime = () => {
+        return session.time;
+    }
+
+    // Used for fetching pending data, can be to massive for states
     let pendingData = [];
 
     // Fetch province information from the server once when opening the game
@@ -521,6 +526,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             onBuyUpgrade={handleBuyUpgrade} 
             fetchResourceUpdates={fetchResourceUpdates} 
             pushPendingData={pushPendingData}
+            getTime={getTime}
             properties={properties} 
             session={session}
             upgrades={upgrades}
