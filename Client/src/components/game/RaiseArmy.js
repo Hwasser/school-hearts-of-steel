@@ -8,8 +8,9 @@ const { units } = require('../../GameData/unitStats');
 // Slider code inspired by "https://codepen.io/rmichels/pen/WNegjyK"
 
 /**
- * 
+ * Module for the "raise army" menu in the footer 
  */
+
 /**
  * @brief: Contains the menu for raising armies within a province.
  * 
