@@ -223,7 +223,6 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
     }
 
     const playerHasGame = ( allSessions.findIndex( (e) => e.creator == playerData.name)) >= 0;
-    console.log(allSessions.findIndex( (e) => e.creator == playerData.name));
 
     return(
         <>
