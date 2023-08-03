@@ -489,7 +489,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         }
     }
 
-    const handleBuyUpgrade = (upgrade) => {
+    function handleBuyUpgrade(upgrade) {
         // Update upgrade tree
         const upgCopy = {... upgrades};
         upgCopy[upgrade] = true
@@ -504,6 +504,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         .catch((err) => {
             console.log('Couldnt update upgrade tree: ' + err);
         });  
+        fetchResourceUpdates();
     };
 
 

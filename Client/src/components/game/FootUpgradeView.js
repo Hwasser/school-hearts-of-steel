@@ -23,9 +23,9 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
     const alreadyBought = provProp.status;
     const [canAffordMessage, setCanAffordMessage] = useState(true);
 
-    function handleBuyUpgrade(upgrade) {
+    async function handleBuyUpgrade(upgrade) {
       if (canAfford && provProp.available) {
-        updateSession(provProp['costs'], slotIndex, session._id);
+        await updateSession(provProp['costs'], slotIndex, session._id);
         onBuyUpgrade(upgrade)
       } else {
         setCanAffordMessage(false);
@@ -100,7 +100,7 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
   }
   
 // Update the player resources in the session
-function updateSession(curCost, slotIndex, sessionId) {
+async function updateSession(curCost, slotIndex, sessionId) {
   // A package with data to send to the backend
   const updatePackage = {
     food: curCost['food'],
@@ -111,7 +111,7 @@ function updateSession(curCost, slotIndex, sessionId) {
     slotIndex: slotIndex,
   };
   
-  axios
+  await axios
   .put(host + `/api/sessions/${sessionId}`, updatePackage)
   .catch((err) => {
       console.log('Couldnt update the session: ' + err);
