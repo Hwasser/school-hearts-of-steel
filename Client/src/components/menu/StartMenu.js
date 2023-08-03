@@ -159,6 +159,8 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
      * @returns 
      */
     function initSession(upgradeTrees) {
+        const startRes = 250;
+
         const newSession = {
             creator: playerData.name,
             max_slots: maxSlots,
@@ -167,20 +169,20 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
             upgrades: [upgradeTrees[0]],
             world_size: worldSize,
             time: 0,
-            food: [10000],
-            fuel: [10000],
-            material: [10000],
-            tools: [10000]
+            food: [startRes],
+            fuel: [startRes],
+            material: [startRes],
+            tools: [startRes]
         }
         for (let i = 1; i < maxSlots; i++) {
             const nextPlayer = "Player" + (i+1);
             newSession.slot_names.push(nextPlayer);
             newSession.slot_ids.push(null);
             newSession.upgrades.push(upgradeTrees[i]);
-            newSession.food.push(100);
-            newSession.fuel.push(100);
-            newSession.material.push(100);
-            newSession.tools.push(100);
+            newSession.food.push(startRes);
+            newSession.fuel.push(startRes);
+            newSession.material.push(startRes);
+            newSession.tools.push(startRes);
         }
         return newSession;
     }
