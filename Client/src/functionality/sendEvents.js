@@ -40,12 +40,9 @@ async function postBuilding(event, pending, getPendingData, fetchResourceUpdates
         }
     }
     
-    const curCost = {
-        food: buildings[event.text]['food'],
-        fuel: buildings[event.text]['fuel'],
-        tools: buildings[event.text]['tools'],
-        material: buildings[event.text]['material']
-    };
+    // Gather cost information from event bundle and remove it from event bundle
+    const curCost = event.cost;
+    delete event['cost'];
     
     if (alreadyBought != null) {
         // If building is of other type -> abort

@@ -1,12 +1,10 @@
-## Hearts of steel v 0.1.0
+## Hearts of steel v 0.9.0
 author: Victor Hwasser
 email: victorhwasser@gmail.com
 
 ### Features:
-- Frontend
-- Backend with RESTful interface
-- Database
-- You can build armies in provinces, build buildings and attack other provinces and their armies.
+- Frontend using React
+- Backend with RESTful interface, MongoDB and EventSource
 
 ### Run instructions
 

@@ -28,48 +28,102 @@ const lastNames = {
 
 // The cost of all buildings in a province
 const buildings = {
-  house: {
-      food: 50,
+  houses: {
+    cost: {
+      food: 40,
       fuel: 0,
-      tools: 50,
-      material: 150,
-      time: 5
-  },
-  mine: {
-      food: 50,
-      fuel: 50,
-      tools: 150,
-      material: 0,
-      time: 5
-  },
-  workshop: {
-      food: 0,
-      fuel: 50,
-      tools: 50,
-      material: 150,
-      time: 5
-  },
-  farm: {
-      food: 0,
+      tools: 30,
+      material: 100
+    },
+    growth: {
+      food: 10,
       fuel: 0,
+      tools: 10,
+      material: 20
+    },
+    time: 4,
+    info: "Increases the workforce each hour"
+  },
+  mines: {
+    cost: {
+      food: 30,
+      fuel: 30,
       tools: 100,
-      material: 150,
-      time: 5
+      material: 0
+    },
+    growth: {
+      food: 10,
+      fuel: 10,
+      tools: 20,
+      material: 0
+    },
+    time: 4,
+    info: "Excavates building material"
   },
-  fort: {
+  workshops: {
+    cost: {
+      food: 30,
+      fuel: 30,
+      tools: 0,
+      material: 100
+    },
+    growth: {
+      food: 10,
+      fuel: 10,
+      tools: 0,
+      material: 20
+    },
+    time: 4,
+    info: "Constructs new tools"
+  },
+  farms: {
+    cost: {
       food: 0,
       fuel: 0,
-      tools: 50,
-      material: 200,
-      time: 5
+      tools: 60,
+      material: 100
+    },
+    growth: {
+      food: 0,
+      fuel: 10,
+      tools: 10,
+      material: 20
+    },
+    time: 4,
+    info: "Generates food"
+  },
+  forts: {
+    cost: {
+      food: 20,
+      fuel: 0,
+      tools: 40,
+      material: 100
+    },
+    growth: {
+      food: 10,
+      fuel: 0,
+      tools: 10,
+      material: 20
+    },
+    time: 4,
+    info: "Generates food"
   },
   none: {
+    cost: {
       food: 0,
       fuel: 0,
       tools: 0,
-      material: 0,
-      time: 0
-  }
+      material: 0
+    },
+    growth: {
+      food: 0,
+      fuel: 0,
+      tools: 0,
+      material: 0
+    },
+    time: 0,
+    info: "-"
+  },
 };
 
 module.exports = { 

@@ -1,11 +1,11 @@
 .build_building {
-  position: absolute;
+  position:absolute;
   background-color: antiquewhite;
   border: 2px solid rgba(0, 0, 0, 0.25);
   border-radius: 4px;
-  width: 33%;
+  width: 30%;
   height: auto;
-  left:33%;
+  left:35%;
   top: -200px;
   padding: 8px;
   text-align: center;
@@ -44,4 +44,32 @@
     top: -120px;
     padding: 4px;
     text-align: center;
+  }
+
+
+  .build_name {
+    padding: 0;
+    margin: 4px;
+  }
+
+  .build_desc {
+    padding: 0;
+    margin: 4px;
+  }
+
+  .build_costs {
+    padding: 0;
+    margin: 4px;
+  }
+
+  .cost_row {
+    display: flex;
+    
+    
+  }
+
+  .cost_field {
+    flex: 1;
+    background-color: rgba(0, 0, 0, 0.12);
+    margin: 2px;
   }

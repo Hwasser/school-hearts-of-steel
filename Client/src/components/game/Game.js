@@ -16,7 +16,6 @@ import {
     receiveUpdateProvince} 
     from '../../functionality/receiveEvents';
 import {sendEvent} from '../../functionality/sendEvents';
-import { buildings } from '../../GameData/provinceStats';
 import {host} from '../../backend_adress';
 
 /**
@@ -371,7 +370,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     /**
-     * @brief: Add a new movement to the dict of movements
+     * @brief: Add a new army movement to the dict of movements
      * 
      * @param {JSON} event 
      */
@@ -392,7 +391,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
         /**
-     * @brief: Updates the movement drawn on screen
+     * @brief: Updates the army movement drawn on screen
      * 
      * @param {Integer} time 
      */

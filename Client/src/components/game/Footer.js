@@ -79,12 +79,13 @@ export default function Footer( {
     onSelectAction(newProvinceInfo, 'army');
   }
 
-  function buildMenuAction(province, buildingType) {
+  function buildMenuAction(province, buildingType, curCost) {
     const eventPackage = {
       type: 'building',
       text: buildingType,
       provinceID: province._id,
-      provinceN: province.id
+      provinceN: province.id,
+      cost: curCost
     }
     const constructingCopy = [... constructing];
     if (constructing[provProp.id].type == '') {
