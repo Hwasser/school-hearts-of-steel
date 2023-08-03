@@ -9,7 +9,6 @@ import Footer from './Footer';
 import GameUI from './GameUI';
 import UpgradeUI from './UpgradeUI';
 import Receiver from '../Receiver';
-import MovementGUI from './MovementGUI';
 import {
     receiveResourceUpdate, 
     receiveJoinedPlayer, 
@@ -57,7 +56,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     // Whether to use the upgrade view or the game view
     const [upgradeView, setUpgradeView] = useState(false);
     const [upgrades, setUpgrades] = useState({});
-    const [movements, setMovements] = useState({});
 
     let pendingData = [];
 
@@ -132,8 +130,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const updatedSession = receiveResourceUpdate(message, {... session}, slotIndex);
         updatedSession.time = message.time;
         setSession(updatedSession);
-        // Remove possible complete movements
-        removeMovements(updatedSession.time);
     }
 
 
@@ -303,6 +299,14 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         setProvinceOwners(ownersCopy);
     }
 
+    /**
+     * @brief: When a new player arrives, it receives a token from the server, it then
+     * sends the token back to the server together with information about the player 
+     * and its current game session. This way we can connect a client in EventSource with
+     * requests to the Express.
+     * 
+     * @param {String} message: Token received from server 
+     */
     const handlePlayerConnect = (message) => {
         axios.put(host + '/api/players', {
           params: { sessionId: session._id, token: message, player: player._id}
@@ -362,49 +366,9 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         event['player'] = player._id;
         event['session'] = session._id;
         event['start'] = session.time;
-        event['end'] = session.time + 3; // TODO: TEMPORARY!
-
-        addMovements(event);
 
         sendEvent(event, pendingData, getPendingData, fetchResourceUpdates, slotIndex);   
     }
-
-    /**
-     * @brief: Add a new army movement to the dict of movements
-     * 
-     * @param {JSON} event 
-     */
-    function addMovements(event) {
-        if (event.type != 'movement') {
-            return;
-        }
-
-        const movementsCopy = {... movements};
-        movementsCopy[event.army_id] = {
-            from: event.provinceN,
-            to: event.province2N,
-            start: event.start,
-            end: event.end
-        };
-
-        setMovements(movementsCopy);
-    }
-
-        /**
-     * @brief: Updates the army movement drawn on screen
-     * 
-     * @param {Integer} time 
-     */
-        async function removeMovements(time) {
-            await getPendingData()
-            const movementsCopy = {... movements}
-            for (let m in movements) {
-                if (movementsCopy[m].end == time) {
-                    delete movementsCopy[m];
-                }
-            }
-            setMovements(movementsCopy);
-        }
 
     //----------------------------------------
     // --------- Handle game actions ---------
@@ -581,12 +545,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         player={player}
         battle={battle}
     />, [properties, armies, provinceOwners, battle]);
-    
-    const movementsui = React.useMemo( () => 
-    <MovementGUI
-        movements={movements}
-        armies={armies}
-    />, [movements] );
         
     const renderGame = () => {
         return (
@@ -619,7 +577,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                     />
                 )}
                 {footer}
-                {movementsui}
             </div>
             </>
         )

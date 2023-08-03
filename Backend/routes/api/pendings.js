@@ -25,7 +25,6 @@ router.get('/', (req, res) => {
 // @description add Pending action
 // @access Public
 router.post('/', async (req, res) => {
-  
   // For movements, remove current pending movement of unit if we change direction
   // Don't allow changing the movement on the same time as the execution
   if (req.body.type == 'movement') {

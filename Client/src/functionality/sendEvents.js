@@ -31,6 +31,8 @@ export async function sendEvent(event, pending, getPendingData, fetchResourceUpd
  * @param {Integer} slotIndex
  */
 async function postBuilding(event, pending, getPendingData, fetchResourceUpdates, slotIndex) {
+    event['end'] = event.start + buildings[event.text]['time'];
+    
     // Check if we're already buying a building
     let alreadyBought = null;
     for (let i = 0; i < pending.length; i++) {
@@ -82,6 +84,8 @@ async function postBuilding(event, pending, getPendingData, fetchResourceUpdates
  * @param {JSON} event
  */
 async function postMovement(event) {
+    const moveTime = 2;
+    event['end'] = event.start + moveTime;
     // Post to server
     await axios
     .post(host + '/api/pendings/', event)
