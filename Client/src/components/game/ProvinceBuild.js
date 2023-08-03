@@ -75,7 +75,7 @@ export default function ProvinceBuild(
             <div className='build_building' style={{display: toDraw}}>
             {constructing[fromProvince.id].type == '' && (
                 <>
-                <h2 className='build_name'> Construct a {selected}</h2>
+                <h2 className='build_name'> Construct a {buildings[selected]['name']}</h2>
                 <p className='build_desc'> {buildings[selected]['info']}</p>
                 <h3 className='build_costs'>Requirements:</h3>
                 <div className='cost_row'>
