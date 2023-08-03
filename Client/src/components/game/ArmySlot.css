@@ -18,3 +18,15 @@
     background-color: rgba(0, 0, 0, 0.1);
     scale: 1.1;
   }
+
+  .army_movement {
+    position: absolute;
+    bottom: 8px;
+    height: 24px;
+    left: 64px;
+    padding:2px;
+    color: lightcyan;
+    background: rgba(0, 0, 0, 0.50);
+    cursor: grab;
+    transition: background-color 0.2s, scale 0.2s;
+  }

@@ -5,9 +5,9 @@
  * Children: Proinvce.js, ArmySlot.js
  */
 
+import React, { useState } from 'react';  
 import axios from 'axios';
 import Province from './Province';
-import React, { useState } from 'react';  
 import './GameUI.css';
 import {host} from '../../backend_adress';
 
@@ -18,6 +18,16 @@ export default function GameUI(
   const worldRowSize = Math.sqrt(session.world_size);
   const [mergeConfirmation, setMergeConfirmation] = useState(false);
   const [mergeState, setMergeState] = useState(null);
+  
+  // Used to draw movements of the current player armies on the screen
+  const [movements, setMovements] = useState({});
+  for (let m in movements) {
+    const slot = movements[m]['fromSlot'];
+    const inProvince = movements[m]['from'];
+    if (armies[slot][inProvince] != m) {
+      delete movements[m];
+    }
+  }
 
  /**
   * @param {Integer} index: The province number 
@@ -78,7 +88,7 @@ export default function GameUI(
  * @param {Integer} toProvince: Province number 
  * @param {JSON} army: The object id (_id) of an army
  */
-  function handleMoveArmy(fromProvince, toProvince, army) {
+  function handleMoveArmy(fromProvince, toProvince, army, fromSlot) {
   if (fromProvince == toProvince) {
     return;
   }
@@ -107,20 +117,30 @@ export default function GameUI(
           || armies[2][toProvince] == null 
           || armies[3][toProvince] == null) {      
           console.log("move army " + army + " from province " + fromProvince + " to " + toProvince);
-          // Push pending event to server
-          pushPendingData(pendingEventPackage);
+          pushMovements(army, fromProvince, toProvince, fromSlot, pendingEventPackage);
         } else {
           console.log("No available army slots in that province!");
         }
       // If the province is not ours, attack!
       } else {
         console.log("attack with army " + army + " from province " + fromProvince + " to " + toProvince);
-        // Push pending event to server
-        pushPendingData(pendingEventPackage);
+        pushMovements(army, fromProvince, toProvince, fromSlot, pendingEventPackage);
       }
     } else {
       console.log("Province is too far away!");
     }
+  }
+  
+  function pushMovements(army, fromProvince, toProvince, fromSlot, pendingEventPackage) {
+    // Push movements to screen
+    const movementsCopy = {... movements};
+    // Delete old movement graphics of army if possible
+    delete movementsCopy[army];
+    // Push new movement graphics
+    movementsCopy[army] = {from: fromProvince, to: toProvince, toName: names[toProvince], fromSlot: fromSlot};
+    setMovements(movementsCopy);
+    // Push pending event to server
+    pushPendingData(pendingEventPackage);
   }
 
   /**
@@ -181,6 +201,7 @@ export default function GameUI(
                 session={session}
                 player={player}
                 battle={curBattle}
+                movements={movements}
               />);
           }
           body.push(<div key={"provine_row" + i} className='world_row'> {listItems} </div>);

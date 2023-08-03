@@ -21,7 +21,7 @@ import image_swords from "../../graphics/swords.gif";
 
 export default function Province(
   { provinceNumber, onProvinceClick, onArmyClick, onMoveArmy, onMergeArmies, onBattleClick,
-    name, owner, flavor, terrain, armies, session, player, battle}) {
+    name, owner, flavor, terrain, armies, session, player, battle, movements}) {
   // If start dragging an army  
 
   // Setup province colors and set color for each player
@@ -75,13 +75,13 @@ export default function Province(
         onDragOver={handleDragOver} onDrop={(e) => {handleOnDrop(e, provinceNumber)}}>
       
       <button className='province_name' onClick={onProvinceClick}>{name}</button>
-      <Army key={name + '_army1'} provinceNumber={provinceNumber} slotNumber={0} exists={armies[0] != null } 
+      <Army key={name + '_army1'} provinceNumber={provinceNumber} slotNumber={0} exists={armies[0] != null} movement={movements[armies[0]]} 
         ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[0]} onMergeArmies={handleMergeArmies} />
-      <Army key={name + '_army2'} provinceNumber={provinceNumber} slotNumber={1} exists={armies[1] != null} 
+      <Army key={name + '_army2'} provinceNumber={provinceNumber} slotNumber={1} exists={armies[1] != null} movement={movements[armies[1]]}
         ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[1]} onMergeArmies={handleMergeArmies} />
-      <Army key={name + '_army3'} provinceNumber={provinceNumber} slotNumber={2} exists={armies[2] != null} 
+      <Army key={name + '_army3'} provinceNumber={provinceNumber} slotNumber={2} exists={armies[2] != null} movement={movements[armies[2]]}
         ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[2]} onMergeArmies={handleMergeArmies} />
-      <Army key={name + '_army4'} provinceNumber={provinceNumber} slotNumber={3} exists={armies[3] != null} 
+      <Army key={name + '_army4'} provinceNumber={provinceNumber} slotNumber={3} exists={armies[3] != null} movement={movements[armies[3]]}
         ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[3]} onMergeArmies={handleMergeArmies} />
       {battle && (
         <img src={image_swords} alt={"battle icon"} className="province_battle_icon" onClick={() => onBattleClick(provinceNumber)} />

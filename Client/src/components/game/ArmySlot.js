@@ -3,7 +3,7 @@ import React from 'react';
 import './ArmySlot.css';  
 
 export default function Army( 
-  {provinceNumber, slotNumber, exists, ownsArmy, armyObject, onArmyClick, onMergeArmies}) {
+  {provinceNumber, slotNumber, exists, ownsArmy, armyObject, onArmyClick, onMergeArmies, movement}) {
 
     // If an army exists in a slot, show that it exists and make it draggable
     const armyVisibility = (exists) ? 1.0 : 0.2;
@@ -59,8 +59,13 @@ export default function Army(
   const position = positionStart + positionOffset * slotNumber;
 
   return (
+    <>
       <button className='province_army' id={provinceId} style={{opacity: armyVisibility, top: position}} draggable={armyDraggable} 
       onClick={() => onArmyClick(armyObject)} onDragStart={(e) => handleOnDrag(e, armyObject, provinceNumber, slotNumber)} 
       onDragEnd={(e) => handleDragEnd(e)} onDragOver={handleDragOver} onDrop={(e) => {handleOnDrop(e, armyObject, provinceNumber)} }>{name}</button>
+      { movement != null && (
+        <span className='army_movement' style={{top: position}}>to {movement.toName}</span>
+      )}
+    </>
   );
 }
