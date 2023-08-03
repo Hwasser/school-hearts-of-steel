@@ -20,7 +20,7 @@ import image_swords from "../../graphics/swords.gif";
  */
 
 export default function Province(
-  { id, onProvinceClick, onArmyClick, onMoveArmy, onMergeArmies, onBattleClick,
+  { provinceNumber, onProvinceClick, onArmyClick, onMoveArmy, onMergeArmies, onBattleClick,
     name, owner, flavor, terrain, armies, session, player, battle}) {
   // If start dragging an army  
 
@@ -55,7 +55,7 @@ export default function Province(
   }
 
   function handleMergeArmies(army1, army2) {
-    onMergeArmies(army1, army2, id);
+    onMergeArmies(army1, army2, provinceNumber);
   }
 
   const width = {9: 285, 16: 235, 25: 185};
@@ -70,22 +70,22 @@ export default function Province(
   };
   
   return (
-      <div className='province' id={"province"+id} owner={owner} key={"province"+id}
+      <div className='province' id={"province"+provinceNumber} owner={owner} key={"province"+provinceNumber}
         style={{'backgroundColor': color, backgroundImage: `url(${provImage[terrain]})`, 
           width: width[session.world_size], height: height[session.world_size]}} 
-        onDragOver={handleDragOver} onDrop={(e) => {handleOnDrop(e, id)}}>
+        onDragOver={handleDragOver} onDrop={(e) => {handleOnDrop(e, provinceNumber)}}>
       
       <button className='province_name' onClick={onProvinceClick}>{name}</button>
-      <Army key={name + '_army1'} provinceNumber={id} slotNumber={0} exists={armies[0] != null } 
+      <Army key={name + '_army1'} provinceNumber={provinceNumber} slotNumber={0} exists={armies[0] != null } 
         ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[0]} onMergeArmies={handleMergeArmies} />
-      <Army key={name + '_army2'} provinceNumber={id} slotNumber={1} exists={armies[1] != null} 
+      <Army key={name + '_army2'} provinceNumber={provinceNumber} slotNumber={1} exists={armies[1] != null} 
         ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[1]} onMergeArmies={handleMergeArmies} />
-      <Army key={name + '_army3'} provinceNumber={id} slotNumber={2} exists={armies[2] != null} 
+      <Army key={name + '_army3'} provinceNumber={provinceNumber} slotNumber={2} exists={armies[2] != null} 
         ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[2]} onMergeArmies={handleMergeArmies} />
-      <Army key={name + '_army4'} provinceNumber={id} slotNumber={3} exists={armies[3] != null} 
+      <Army key={name + '_army4'} provinceNumber={provinceNumber} slotNumber={3} exists={armies[3] != null} 
         ownsArmy={player.name == owner} onArmyClick={onArmyClick} armyObject={armies[3]} onMergeArmies={handleMergeArmies} />
       {battle && (
-        <img src={image_swords} alt={"battle icon"} className="province_battle_icon" onClick={() => onBattleClick(id)} />
+        <img src={image_swords} alt={"battle icon"} className="province_battle_icon" onClick={() => onBattleClick(provinceNumber)} />
       )}
       </div>
       

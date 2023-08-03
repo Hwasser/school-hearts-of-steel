@@ -167,7 +167,7 @@ export default function GameUI(
             const provArmies = [armies[0][index], armies[1][index], armies[2][index], armies[3][index]]
               listItems.push(<Province 
                 key={"province"+index}
-                id={index} 
+                provinceNumber={index} 
                 onProvinceClick={ () => handleSelectProvince(index) }
                 onBattleClick={handleSelectBattle}
                 onArmyClick={handleSelectArmy}
