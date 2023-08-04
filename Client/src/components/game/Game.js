@@ -1,6 +1,5 @@
 import React from 'react'
 import axios from 'axios';
-import Xarrow from "react-xarrows";
 import { useState, useMemo } from 'react';  
 
 import './Game.css';
