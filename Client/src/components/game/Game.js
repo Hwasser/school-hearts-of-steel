@@ -475,7 +475,8 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         const postPackage = {
             purpose: 'update_province_armies',
             armySlots: newProvinceSlots,
-            provinceN: province
+            provinceN: province,
+            session: session._id
         };
         axios
             .put(host + '/api/provinces', postPackage)

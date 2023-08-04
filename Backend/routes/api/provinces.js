@@ -85,7 +85,8 @@ router.put('/', async (req, res) => {
   if (req.body.purpose == "update_province_armies") {
     const armySlots = req.body.armySlots;
     const provinceN = req.body.provinceN;
-    const document = await Province.findOne({id: provinceN});
+    const session   = req.body.session;
+    const document = await Province.findOne({id: provinceN, session: session});
     // Replace army slots
     document.armies = armySlots;
     // Store and broadcast
