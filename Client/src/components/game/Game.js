@@ -458,7 +458,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         .put(host + `/api/armies/${leftArmyId}`, leftArmy)
         .then((res) => {
             newLeftId = res.data.armydata._id;
-            handleSelectAction(res.data);
+            handleSelectAction(res.data.armydata);
         })
         .catch((err) => {
             console.log('Error in updating army: ' + err);
