@@ -15,7 +15,6 @@ const Army = require('./models/Army');
 
 const { 
     broadcastAttackBattle,
-    broadcastUpdateProvince,
     broadcastHasWon, 
     broadcastMergeArmies} = require('./broadcast');
 const { initUpgrades } = require('./GameData/upgradeStats');
@@ -323,7 +322,8 @@ async function findBattle(event, fromProvince, battleProvince) {
     battleProvince, 
     attackingArmyTroops.length, 
     defendingArmyTroops.length, 
-    performance);
+    performance,
+    event.session);
   
 }
 
@@ -349,7 +349,8 @@ async function continueBattle(battle) {
     battle.province, 
     battle.attackingArmyTroops.length, 
     defendingArmyTroops.length, 
-    performance);
+    performance,
+    battle.session);
 }
 
 async function performBattle(battle) {
@@ -395,7 +396,8 @@ async function performBattle(battle) {
       battle.province, 
       battle.attackingArmyTroops.length, 
       battle.defendingArmyTroops.length, 
-      performance);
+      performance,
+      battle.session);
     return '';
   }
 
@@ -537,7 +539,7 @@ async function mergeArmies(updatePackage) {
     }},
     { new: true }
     );
-  broadcastMergeArmies(provinceDocument);
+  broadcastMergeArmies(provinceDocument, updatePackage.session);
 }
 
 /**
@@ -588,7 +590,7 @@ async function hasWon(sessionId) {
       return;
     }
   }
-  broadcastHasWon(firstOwner);  
+  broadcastHasWon(firstOwner, sessionId);  
 }
 
 module.exports = { 

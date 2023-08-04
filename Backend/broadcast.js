@@ -36,18 +36,10 @@ function gameSessionSetupClients(clients) {
     broadcastClients = clients;
 }
 
-async function broadcastUpdateProvince(province) {
-    try {
-        const message = {purpose: 'update_province', package: province};
-        broadcastMessage(message);
-    } catch (err) {
-        console.log("Failed to update province:", err);
-    }
-}
 
 /**
  * @brief: Remove clients that belongs to a removed game session
- */
+*/
 async function removeDeadClients() {
     const allSessions = await Session.find({});
     const sessionIds = allSessions.map(e => e._id.toString());
@@ -55,6 +47,14 @@ async function removeDeadClients() {
     console.log("All clients:", broadcastClients);
 }
 
+async function broadcastUpdateProvince(province) {
+    try {
+        const message = {purpose: 'update_province', package: province};
+        broadcastMessage(message, province.session);
+    } catch (err) {
+        console.log("Failed to update province:", err);
+    }
+}
 
 /**
  * @brief: Broadcast the changes that has been done to provinces regarding armies and battles
@@ -84,11 +84,11 @@ async function broadcastUpdateEvents(sessionId) {
         purpose: 'update_armies',
         package: provinceUpdates
     };
-    broadcastMessage(message);
+    broadcastMessage(message, sessionId);
 }
 
 // Broadcast current state of a battle
-async function broadcastAttackBattle(province, soldiers1, soldiers2, performance) {
+async function broadcastAttackBattle(province, soldiers1, soldiers2, performance, sessionId) {
     try {
         const message = 
             {purpose: 'attack_battle', 
@@ -99,17 +99,17 @@ async function broadcastAttackBattle(province, soldiers1, soldiers2, performance
                     performance: performance
             }
         };
-        broadcastMessage(message);
+        broadcastMessage(message, sessionId);
     } catch (err) {
         console.log("Failed to attack with army:", err);
     }
 }
 
-async function broadcastMergeArmies(province) {
+async function broadcastMergeArmies(province, sessionId) {
     try {
         const message = {purpose: 'merge_armies', 
             package: {province: province}};
-        broadcastMessage(message);
+        broadcastMessage(message, sessionId);
     } catch (err) {
         console.log("Failed to move army:", err);
     }
@@ -122,17 +122,17 @@ async function broadcastPlayerJoined(province, sessionId) {
         const message = {
             purpose: 'player_joined', 
             package: {province: province, session: sessionDocument}};
-        broadcastMessage(message);
+        broadcastMessage(message, sessionId);
     } catch (err) {
         console.log("Failed to update province:", err);
     }
 }
 
-async function broadcastHasWon(whoWon) {
+async function broadcastHasWon(whoWon, sessionId) {
     try {
         console.log(whoWon, "won the game!");
         const message = {purpose: 'player_won', package: whoWon};
-        broadcastMessage(message);
+        broadcastMessage(message, sessionId);
     } catch (err) {
         console.log("Failed to broadcast winner:", err);
     }
@@ -143,13 +143,13 @@ async function broadcastHasWon(whoWon) {
  * 
  * @param {JSON} dataPackage: A ready to go JSON data package 
  */
-function broadcastMessage(dataPackage) {
+function broadcastMessage(dataPackage, sessionId) {
     broadcastClients.forEach(client => {
-        if (client['session'] != null) {
+        if (client['session'] != null && client['session'] == sessionId) {
             // Tie each package to the session and player the client is tied to 
             const current = client['client'];
             const personalPackage = {... dataPackage};
-            personalPackage['toSession'] = client['session'];
+            personalPackage['toSession'] = sessionId;
             personalPackage['toPlayer'] = client['player'];
             const message = JSON.stringify(personalPackage);
             current.res.write(`data: ${message}\n\n`); // Send SSE message to client

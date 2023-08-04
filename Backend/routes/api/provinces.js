@@ -60,8 +60,7 @@ router.put('/', async (req, res) => {
   // When a player joins a game, broadcast this to all users
   if (req.body.purpose == 'replace_empty_slot') {
     try {
-      const documents = await Province.find({owner: req.body.oldName, session: req.body.sessionId});
-      const document = documents[0]; // Players only start with one province
+      const document = await Province.findOne({owner: req.body.oldName, session: req.body.sessionId});
       document.owner = req.body.newName;
       broadcastPlayerJoined(document, req.body.sessionId);
       await document.save();

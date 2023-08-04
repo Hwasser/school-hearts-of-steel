@@ -69,7 +69,7 @@ async function updateSession(id) {
         await sessions.save();
         // Store and broadcast updated value
         const message = {purpose: 'update_session', package: sessions};
-        broadcastMessage(message);
+        broadcastMessage(message, id);
         await iterateBattles(id);
         await handlePendingEvents(sessions);
         broadcastUpdateEvents(id);

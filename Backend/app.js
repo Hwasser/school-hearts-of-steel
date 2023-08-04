@@ -63,7 +63,7 @@ appSSE.get('/rec', (req, res) => {
 
   });
   
-  gameSessionSetupClients(clients, broadcastMessage);
+  gameSessionSetupClients(clients);
   broadcastMessage('data: Test of broadcast\n\n');
 });
 
