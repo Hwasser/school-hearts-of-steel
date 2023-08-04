@@ -529,12 +529,12 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             pushPendingData={pushPendingData}
             getTime={getTime}
             properties={properties} 
-            session={session}
+            session={{... session}}
             upgrades={upgrades}
             slotIndex={slotIndex}
             player={player}
             getArmies={getArmies}
-        />, [properties, upgrades] );
+        />, [properties, upgrades, session] );
 
     // Specify exactly which states that re-renders this component
     // and remember the states of the rest.

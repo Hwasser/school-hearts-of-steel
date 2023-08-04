@@ -10,6 +10,13 @@ const gameSessions = {};
 const timePerUpdate = 5000;
 let broadcastClients = [];
 
+/**
+ * @brief: Connect a EventSource-client to a connected player id and session id
+ * 
+ * @param {String} token: A String generated from the date is ms when the player joined
+ * @param {String} session: A session _id
+ * @param {String} player: A player _id 
+ */
 function connectPlayer(token, session, player) {
     let clientToRemove = null;
     broadcastClients.forEach(client => {
@@ -21,7 +28,8 @@ function connectPlayer(token, session, player) {
             client['player'] = player;
         }
     });
-    console.log(broadcastClients);
+    
+    removeDeadClients();
 }
 
 function gameSessionSetupClients(clients) {
@@ -36,6 +44,17 @@ async function broadcastUpdateProvince(province) {
         console.log("Failed to update province:", err);
     }
 }
+
+/**
+ * @brief: Remove clients that belongs to a removed game session
+ */
+async function removeDeadClients() {
+    const allSessions = await Session.find({});
+    const sessionIds = allSessions.map(e => e._id.toString());
+    broadcastClients = broadcastClients.filter(e => sessionIds.includes(e.session))
+    console.log("All clients:", broadcastClients);
+}
+
 
 /**
  * @brief: Broadcast the changes that has been done to provinces regarding armies and battles
@@ -126,11 +145,14 @@ async function broadcastHasWon(whoWon) {
  */
 function broadcastMessage(dataPackage) {
     broadcastClients.forEach(client => {
-        const current = client['client'];
-        const personalPackage = {... dataPackage};
-        personalPackage['toSession'] = client['session'];
-        const message = JSON.stringify(personalPackage);
-        current.res.write(`data: ${message}\n\n`); // Send SSE message to client
+        if (client['session'] != null) {
+            // Tie each package to the session the client is in 
+            const current = client['client'];
+            const personalPackage = {... dataPackage};
+            personalPackage['toSession'] = client['session'];
+            const message = JSON.stringify(personalPackage);
+            current.res.write(`data: ${message}\n\n`); // Send SSE message to client
+        }
     });
   }
 
