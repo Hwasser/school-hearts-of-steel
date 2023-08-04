@@ -118,10 +118,10 @@ async function broadcastMergeArmies(province) {
 async function broadcastPlayerJoined(province, sessionId) {
     try {
         console.log("Player joined game");
-        const sessionDocument = await Session.find({_id: sessionId});
+        const sessionDocument = await Session.findOne({_id: sessionId});
         const message = {
             purpose: 'player_joined', 
-            package: {province: province, session: sessionDocument[0]}};
+            package: {province: province, session: sessionDocument}};
         broadcastMessage(message);
     } catch (err) {
         console.log("Failed to update province:", err);
@@ -146,10 +146,11 @@ async function broadcastHasWon(whoWon) {
 function broadcastMessage(dataPackage) {
     broadcastClients.forEach(client => {
         if (client['session'] != null) {
-            // Tie each package to the session the client is in 
+            // Tie each package to the session and player the client is tied to 
             const current = client['client'];
             const personalPackage = {... dataPackage};
             personalPackage['toSession'] = client['session'];
+            personalPackage['toPlayer'] = client['player'];
             const message = JSON.stringify(personalPackage);
             current.res.write(`data: ${message}\n\n`); // Send SSE message to client
         }

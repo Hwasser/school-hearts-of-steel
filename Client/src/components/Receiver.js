@@ -45,7 +45,7 @@ export default function Receiver({
   onPlayerWon,
   onMergeArmies,
   onPlayerConnect,
-  getSessionId
+  onSessionInfo
 }) {
   const [eventSession, setEventSession] = useState(null);
 
@@ -54,18 +54,21 @@ export default function Receiver({
   }, []);
 
   useEffect(() => {
+    
     // Event handler for receiving SSE messages
     if (eventSession != null) {
       eventSession.onmessage = (event) => {
         const message = event.data;
         try {
           const document = JSON.parse(message);
-          if (document.toSession == null) {
+           if (document.toSession == null) {
             if (document.purpose == 'connect') {
               console.log("Received: connect to token", document.package);
               onPlayerConnect(document.package);
             }
-          } else if (document.toSession == getSessionId()) {
+          } else if (
+            document.toSession == onSessionInfo().session &&
+            document.toPlayer == onSessionInfo().player ) {
             switch (document.purpose) {
               case 'update_session':
                 onUpdateResources(document.package);

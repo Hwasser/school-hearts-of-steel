@@ -78,7 +78,11 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     }
 
     const getArmies = () => (armies);
-    const getSessionId = () => (session._id);
+    
+    const handleSessionInfo = () => ({
+        session: session._id.toString(),
+        player: player._id.toString()
+    });
 
     // Init all provinces when booting up the game
     function initAllProvinces(index) {
@@ -534,7 +538,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             slotIndex={slotIndex}
             player={player}
             getArmies={getArmies}
-        />, [properties, upgrades, session] );
+        />, [properties, upgrades] );
 
     // Specify exactly which states that re-renders this component
     // and remember the states of the rest.
@@ -567,7 +571,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
                     onPlayerWon={handlePlayerWon} 
                     onMergeArmies={handleBroadcastMergeArmies}
                     onPlayerConnect={handlePlayerConnect}
-                    getSessionId={getSessionId}
+                    onSessionInfo={handleSessionInfo}
                 />
                 <Header 
                     onExitGame={onExitGame}
