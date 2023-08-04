@@ -86,7 +86,7 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
             <div className='footer_row'>
               <div className='property_progress'>
                 {!alreadyBought && (
-                  <button className='property_button' onClick={() => handleBuyUpgrade(provProp['data'])} > Purchase </button>
+                  <button className='upgrade_purchase' onClick={() => handleBuyUpgrade(provProp['data'])} > Purchase </button>
                 )}
                 {alreadyBought && (
                   <button className='upgrade_bought'> Bought </button>

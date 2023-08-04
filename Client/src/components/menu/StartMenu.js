@@ -15,10 +15,17 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         large: 25
     };
 
+    const startResOptions = {
+        few: 250,
+        medium: 400,
+        lots: 800
+    };
+
     const [gameIsFull, setGameIsFull] = useState(false);
     const [allSessions, setAllSessions] = useState([]);
     const [maxSlots, setMaxSlots] = useState(2);
     const [worldSize, setWorldSize] = useState(worldSizes.small);
+    const [startRes, setStartRes] = useState(startResOptions.few);
     const [justEntered, setJustEntered] = useState(true); // Whether we just entered this screen
 
     // Fetches all game sessions from the database
@@ -159,8 +166,6 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
      * @returns 
      */
     function initSession(upgradeTrees) {
-        const startRes = 250;
-
         const newSession = {
             creator: playerData.name,
             max_slots: maxSlots,
@@ -253,6 +258,17 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
                             onClick={() => setWorldSize(worldSizes.medium)} >Medium</button>
                         <button className={(worldSize == worldSizes.large ? 'startmenu_button_selected' : 'startmenu_button')}
                             onClick={() => setWorldSize(worldSizes.large)} >Large</button>
+
+                    </div>
+
+                    <p className='start_text_options'>Start Resources:</p>
+                    <div className='game_option_container'>
+                        <button className={(startRes == startResOptions.few ? 'startmenu_button_selected' : 'startmenu_button')} 
+                            onClick={() => setStartRes(startResOptions.few)} >Few</button>
+                        <button className={(startRes == startResOptions.medium ? 'startmenu_button_selected' : 'startmenu_button')} 
+                            onClick={() => setStartRes(startResOptions.medium)} >Medium</button>
+                        <button className={(startRes == startResOptions.lots ? 'startmenu_button_selected' : 'startmenu_button')}
+                            onClick={() => setStartRes(startResOptions.lots)} >Lots</button>
 
                     </div>
                     {!playerHasGame && (
