@@ -60,8 +60,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         return session.time;
     }
 
-    console.log("OWNER OF LAST:", provinceOwners[8]); // TODO: REMOVE
-
     // Used for fetching pending data, can be to massive for states
     let pendingData = [];
 
@@ -87,7 +85,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
 
     // Init all provinces when booting up the game
     function initAllProvinces(index) {
-        console.log("INIT"); // TODO: REMOVE
         const localProvinceNames = Array(nProvinces);
         const localProvinceOwners = Array(nProvinces);
         const localProvinceFlavors = Array(nProvinces);
@@ -145,9 +142,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
 
 
 
-    const handleUpdateProvince = (message) => {
-        console.log("handleUpdateProvince"); // TODO:
-        
+    const handleUpdateProvince = (message) => { 
         const province = message;
         // Make a copy of old state
         const armiesCopy = [... armies];
@@ -193,7 +188,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
             replaceArmiesInProvince(province, armiesCopy);
             // Change owners if possible
             if (provinceOwnersLocal[province.id] != province.owner) {
-                console.log("handleUpdateArmies updates owner!", province.id, province.owner); // TODO:
                 provinceOwnersLocal[province.id] = province.owner;
                 ownersChanged = true;
             }

@@ -144,12 +144,14 @@ async function broadcastHasWon(whoWon, sessionId) {
  * @param {JSON} dataPackage: A ready to go JSON data package 
  */
 function broadcastMessage(dataPackage, sessionId) {
+    const session = (typeof(sessionId) == "string") ? sessionId : sessionId.toString();
+
     broadcastClients.forEach(client => {
-        if (client['session'] != null && client['session'] == sessionId) {
+        if (client['session'] != null && client['session'] == session) {
             // Tie each package to the session and player the client is tied to 
             const current = client['client'];
             const personalPackage = {... dataPackage};
-            personalPackage['toSession'] = sessionId;
+            personalPackage['toSession'] = session;
             personalPackage['toPlayer'] = client['player'];
             const message = JSON.stringify(personalPackage);
             current.res.write(`data: ${message}\n\n`); // Send SSE message to client
