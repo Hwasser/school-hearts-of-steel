@@ -76,12 +76,7 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
                 <span key="upg_name5"> Material: </span>
                 <span key="upg_value5"> {provProp['costs']['material']} </span>
               </div>
-              {!alreadyBought && (
-                <button className='property_button' onClick={() => handleBuyUpgrade(provProp['data'])} > Purchase </button>
-              )}
-              {alreadyBought && (
-                <button className='upgrade_bought'> Bought </button>
-              )}
+
             </div>
             <div className='footer_row'>
               <div className='property_name'>
@@ -90,7 +85,12 @@ export default function FootUpgradeView({provProp, onBuyUpgrade, session, slotIn
             </div>
             <div className='footer_row'>
               <div className='property_progress'>
-                <div id="upgrade_progress_bar" key="upg_value7"> Researched </div>
+                {!alreadyBought && (
+                  <button className='property_button' onClick={() => handleBuyUpgrade(provProp['data'])} > Purchase </button>
+                )}
+                {alreadyBought && (
+                  <button className='upgrade_bought'> Bought </button>
+                )}
               </div>
             </div>
         </div>
