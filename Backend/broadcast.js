@@ -11,7 +11,11 @@ const timePerUpdate = 5000;
 let broadcastClients = [];
 
 function connectPlayer(token, session, player) {
+    let clientToRemove = null;
     broadcastClients.forEach(client => {
+        // If old client is tied to the same player, remove it
+        broadcastClients = broadcastClients.filter(e => e['player'] != player)
+        // Tie client to a player and a session
         if (client['token'] == token) {
             client['session'] = session;
             client['player'] = player;
