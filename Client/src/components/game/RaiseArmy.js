@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState } from 'react';  
+import React, { useState, useEffect } from 'react';  
 
 import './RaiseArmy.css';  
 import {host} from '../../backend_adress';
@@ -31,6 +31,7 @@ export default function RaiseArmy({
   upgrades, 
   session, 
   slotIndex}) {
+    
   // Minimum amout to draft or to be left in province
   const minLimit = 10;
   const workforce = fromProvince['workforce'];
@@ -44,11 +45,6 @@ export default function RaiseArmy({
   const onSelectUnit = (unit) => {
     setSelectedUnit(unit);
   }
-
-  if (workforce != curWorkforce) {
-    setCurWorkforce(workforce);
-  }
-
 
   // When the "raise army" button has been pushed, 
   // update the workforce and push back to interface
@@ -99,7 +95,7 @@ export default function RaiseArmy({
       const canAffordFuel  = curPrice['fuel']  <= session.fuel[slotIndex];
       const canAffordMaterial  = curPrice['material']  <= session.material[slotIndex];
       const canAfford = canAffordFood && canAffordTools && canAffordFuel && canAffordMaterial;
-      
+
       const Slider = () => (
         <>
 
@@ -207,7 +203,7 @@ export default function RaiseArmy({
       "threshold"
     );
 
-  return ( <Slider /> )
+    return <Slider />;
 }
 
 // Update the amount of workers in province in database

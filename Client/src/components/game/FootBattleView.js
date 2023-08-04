@@ -9,8 +9,8 @@ export default function FootBattleView( {properties} ) {
     if (performance < 0.05) {
         performance = 0.05;
     }
-    if (performance > 0.95) {
-        performance = 0.95;
+    if (performance > 1.95) {
+        performance = 1.95;
     }
 
     return (

@@ -1,5 +1,5 @@
 import './Footer.css';  
-import { useState } from 'react';
+import React, { useState } from 'react';
 import RaiseArmy from './RaiseArmy';
 import ProvinceBuild from './ProvinceBuild';
 import FootArmyView from './FootArmyView';
@@ -13,7 +13,6 @@ import { buildings } from '../../GameData/provinceStats';
  * @param {Function} fetchResourceUpgrades
  * @param {Function} getArmies
  * @param {Function} pushPendingData
- * @param {Function} getTime: Get current time of the game session
  * @param {JSON} properties: All properties of the currently selected province/army
  * @param {JSON} session: All information of the current game session (see Session in backend)
  * @param {JSON} upgrades:
@@ -28,7 +27,6 @@ export default function Footer( {
   onSplitArmy,
   fetchResourceUpdates,
   pushPendingData,
-  getTime,
   getArmies,
   properties,
   session, 
@@ -83,19 +81,21 @@ export default function Footer( {
     onSelectAction(newProvinceInfo, 'army');
   }
 
-  function buildMenuAction(province, buildingType, curCost) {
+  function buildMenuAction(province, buildingType, curCost, currentTime) {
     const eventPackage = {
       type: 'building',
       text: buildingType,
       provinceID: province._id,
       provinceN: province.id,
+      start: currentTime,
+      end: buildings[buildingType]['time'] + currentTime,
       cost: curCost
     }
     const constructingCopy = [... constructing];
     if (constructing[provProp.id].type == '') {
       constructingCopy[provProp.id].type = buildingType;
       constructingCopy[provProp.id].value = provProp[buildingType];
-      constructingCopy[provProp.id].time =  buildings[buildingType]['time'] + getTime();
+      constructingCopy[provProp.id].time =  buildings[buildingType]['time'] + currentTime;
       setConstructing(constructingCopy);
     } else {
       constructingCopy[provProp.id].type = '';
@@ -141,7 +141,7 @@ export default function Footer( {
     return (
       <button className={(isSelected) ? 'property_button_constructing' : 'property_button'} 
           onClick={() => onBuildMenu(type)} >
-          <span> Houses: </span>
+          <span> {type}: </span>
           <span> {provProp[type]} {formatedTime}  </span>
       </button>
     );
@@ -193,6 +193,8 @@ export default function Footer( {
     );
   }
 
+  const sessionCopy = {...session}
+
   const FooterProvince = () => (
     <>
     {(footerType === 'province') && (
@@ -204,7 +206,7 @@ export default function Footer( {
         active={useRaiseMenu} 
         fromProvince = {provProp}
         upgrades={upgrades} 
-        session={session}
+        session={sessionCopy}
         slotIndex={slotIndex}
       /> 
 
@@ -213,7 +215,7 @@ export default function Footer( {
         setInactive={makeBuildInactive}
         fromProvince={provProp}
         onBuildMenu={buildMenuAction}
-        session={session}
+        session={sessionCopy}
         slotIndex={slotIndex}
         constructing={constructing}
       />
@@ -293,7 +295,7 @@ export default function Footer( {
       <FootUpgradeView 
         provProp={{... provProp}} 
         onBuyUpgrade={onBuyUpgrade} 
-        session={session} 
+        session={sessionCopy} 
         slotIndex={slotIndex} /> 
     )}
     {(footerType === 'battle') && (

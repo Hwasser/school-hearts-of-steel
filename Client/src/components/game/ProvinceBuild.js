@@ -3,6 +3,8 @@
 */
 import './ProvinceBuild.css';
 import { useState } from 'react';  
+import axios from 'axios';
+import {host} from '../../backend_adress';
 const { buildings } = require('../../GameData/provinceStats');
 
 export default function ProvinceBuild(
@@ -32,21 +34,19 @@ export default function ProvinceBuild(
         tools: buildings[selected]['cost']['tools'] + buildings[selected]['growth']['tools'] * currentLevel
     }
 
-    // Whether we can afford this building
-    const canAffordFood     = curCost.food     <= session.food[slotIndex];
-    const canAffordFuel     = curCost.fuel     <= session.fuel[slotIndex];
-    const canAffordTools    = curCost.material <= session.tools[slotIndex];
-    const canAffordMaterial = curCost.tools    <= session.material[slotIndex];
+    
+    async function onConfirmButton() {
+        const recentSession = await getSession(session._id);
+        const canAffordRecent = checkCanAfford(curCost, recentSession, slotIndex)
 
-    function onConfirmButton() {
         if (currentLevel >= maxLevel) {
             setErrorMessage("You cannot construct more buildings of that type in this province!");
             return;
-        } else if (!canAffordFood || !canAffordFuel || !canAffordTools || !canAffordMaterial) {
+        } else if (!canAffordRecent.all) {
             setErrorMessage("You cannot afford to construct this building!");
             return;           
         }
-        onBuildMenu(fromProvince, selected, curCost);
+        onBuildMenu(fromProvince, selected, curCost, recentSession.time);
         setInactive();
         setErrorMessage('');
     }    
@@ -61,6 +61,7 @@ export default function ProvinceBuild(
     }    
 
     const toDraw = (selected != 'none') ? "inline" : "none";
+    const canAfford = checkCanAfford(curCost, session, slotIndex)
 
     return (
         <>
@@ -81,24 +82,24 @@ export default function ProvinceBuild(
                 <div className='cost_row'>
                     <div className='cost_field'> 
                     <span>Food:</span>
-                    <span style={{color: (canAffordFood) ? 'black' : 'red'}}>
+                    <span style={{color: (canAfford.food) ? 'black' : 'red'}}>
                         {curCost.food}</span> 
                     </div>
                     <div className='cost_field'> 
                     <span>Fuel:</span>
-                    <span style={{color: (canAffordFuel) ? 'black' : 'red'}}>
+                    <span style={{color: (canAfford.fuel) ? 'black' : 'red'}}>
                         {curCost.fuel}</span> 
                     </div>
                 </div>
                 <div className='cost_row'>
                     <div className='cost_field'> 
                     <span>Tools:</span>
-                    <span style={{color: (canAffordTools) ? 'black' : 'red'}}>
+                    <span style={{color: (canAfford.tools) ? 'black' : 'red'}}>
                         {curCost.tools}</span> 
                     </div>
                     <div className='cost_field'> 
                     <span>Material:</span>
-                    <span style={{color: (canAffordMaterial) ? 'black' : 'red'}}>
+                    <span style={{color: (canAfford.material) ? 'black' : 'red'}}>
                         {curCost.material}</span> 
                     </div>
                 </div>
@@ -127,3 +128,40 @@ export default function ProvinceBuild(
     );
 }
 
+
+/**
+ * @param {String} id: The _id of a session 
+ * @returns {JSON} session
+ */
+async function getSession(id) {
+    let session = null;
+    await axios
+    .get(host + `/api/sessions/${id}`)
+    .then((res) => {
+        session = res.data;
+    })
+    .catch((err) => {
+        console.log('Error in updating session: ' + err);
+    });  
+    return session;
+}
+
+/**
+ * @brief: Check whether we can afford a building of curCost with current resources from session
+ * 
+ * @param {Dict} curCost 
+ * @param {JSON} session 
+ * @param {Integer} slotIndex 
+ * @returns {Dict}
+ */
+function checkCanAfford(curCost, session, slotIndex) {
+    // Whether we can afford this building
+    const canAfford = {
+        food:     curCost.food     <= session.food[slotIndex],
+        fuel:     curCost.fuel     <= session.fuel[slotIndex],
+        tools:    curCost.material <= session.tools[slotIndex],
+        material: curCost.tools    <= session.material[slotIndex]
+    };
+    canAfford['all'] = canAfford.food && canAfford.fuel && canAfford.tools && canAfford.material;
+    return canAfford;   
+}

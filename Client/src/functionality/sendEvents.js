@@ -1,8 +1,6 @@
 import axios from 'axios';
 import {host} from '../backend_adress';
 
-const { buildings } = require('../GameData/provinceStats');
-
 /**
  * @brief: Post a pending action
  * 
@@ -31,8 +29,6 @@ export async function sendEvent(event, pending, getPendingData, fetchResourceUpd
  * @param {Integer} slotIndex
  */
 async function postBuilding(event, pending, getPendingData, fetchResourceUpdates, slotIndex) {
-    event['end'] = event.start + buildings[event.text]['time'];
-    
     // Check if we're already buying a building
     let alreadyBought = null;
     for (let i = 0; i < pending.length; i++) {

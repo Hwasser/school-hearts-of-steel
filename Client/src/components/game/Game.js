@@ -56,10 +56,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     const [upgradeView, setUpgradeView] = useState(false);
     const [upgrades, setUpgrades] = useState({});
 
-    const getTime = () => {
-        return session.time;
-    }
-
     // Used for fetching pending data, can be to massive for states
     let pendingData = [];
 
@@ -139,6 +135,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         updatedSession.time = message.time;
         setSession(updatedSession);
     }
+
 
 
 
@@ -520,25 +517,6 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
     //------------------------------------------
     // --------- Handle the game views ---------
 
-
-    // Specify exactly which states that re-renders this component
-    // and remember the states of the rest.
-    const footer = React.useMemo( () => 
-        <Footer 
-            onSelectAction={handleSelectAction} 
-            onSplitArmy={handleSplitArmy}
-            onBuyUpgrade={handleBuyUpgrade} 
-            fetchResourceUpdates={fetchResourceUpdates} 
-            pushPendingData={pushPendingData}
-            getTime={getTime}
-            properties={properties} 
-            session={{... session}}
-            upgrades={upgrades}
-            slotIndex={slotIndex}
-            player={player}
-            getArmies={getArmies}
-        />, [properties, upgrades] );
-
     // Specify exactly which states that re-renders this component
     // and remember the states of the rest.
     const gameui = React.useMemo( () => 
@@ -556,6 +534,21 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         player={player}
         battle={battle}
     />, [properties, armies, provinceOwners, battle]);
+
+        const footer = React.useMemo( () => 
+        <Footer 
+            onSelectAction={handleSelectAction} 
+            onSplitArmy={handleSplitArmy}
+            onBuyUpgrade={handleBuyUpgrade} 
+            fetchResourceUpdates={fetchResourceUpdates} 
+            pushPendingData={pushPendingData}
+            properties={properties} 
+            session={{... session}}
+            upgrades={upgrades}
+            slotIndex={slotIndex}
+            player={player}
+            getArmies={getArmies}
+        />, [properties, upgrades] );
         
     const renderGame = () => {
         return (
