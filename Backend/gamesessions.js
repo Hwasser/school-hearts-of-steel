@@ -5,7 +5,7 @@
 const Session = require('./models/Session');
 const Province = require('./models/Province');
 const Pending = require('./models/Pending');
-const Upgrade = require('./models/Pending');
+const Upgrade = require('./models/Upgrade');
 const Army = require('./models/Pending');
 
 const {
@@ -60,7 +60,8 @@ async function gameSessionsRestart() {
  * @param {String} id 
  */
 async function gameSessionStop(id) {
-    if (gameSessions[id].active) {
+    console.log("STOP active:", gameSessions[id].active);
+    if (gameSessions[id].active == true) {
         console.log("Busy .. tries again")
         setTimeout(() => gameSessionStop(id), 50);
         return;
@@ -75,9 +76,9 @@ async function gameSessionStop(id) {
     const currentSession = await Session.findById(id);
     const nPlayers = currentSession.max_slots;
     // Remove all tech trees
-    for (let i = 0; i < nPlayers; n++) {
+    for (let i = 0; i < nPlayers; i++) {
         const techTree = currentSession.upgrades[i];
-        Upgrade.findByIdAndDelete(techTree);
+        await Upgrade.findByIdAndDelete(techTree);
     }
     // Remove all provinces, armies and pending events
     console.log("Removed provinces:", await Province.deleteMany({session: id}));
@@ -150,9 +151,6 @@ async function handlePendingEvents(session) {
                         console.log("Failed to move unit due to:", err);
                     }
                     break;
-                case 'battle':
-                    console.log("pending event: performing battle!");
-                    break;
                 default:
                     console.log("pending event: wrong type!");
                     break;
@@ -176,7 +174,6 @@ async function updatePerUser(slotIndex, document, userResources) {
     // Upgrades contribute to resource extraction
     const upgradeTreeId = document.upgrades[slotIndex];
     const upgradeTree   = await Upgrade.findById(upgradeTreeId)
-    console.log("TREE ID:", upgradeTreeId, "TREE:", upgradeTree);
     const modifier = 1 + 0.10 * upgradeTree.upg_tech1 + 0.10 * upgradeTree.upg_tech2 + 0.10 * upgradeTree.upg_tech3; 
     
     document.food[slotIndex]     += Math.round(userResources[slotIndex].food * modifier);

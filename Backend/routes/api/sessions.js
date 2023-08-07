@@ -78,6 +78,7 @@ router.put('/:id', async (req, res) => {
 // @description Delete Session by id
 // @access Public
 router.delete('/:id', async (req, res) => {
+  console.log(req.params.id);
   await gameSessionStop(req.params.id); // Close the current game session
   Session.findOneAndDelete({_id: req.params.id})
     .then(session => res.json({ mgs: 'Session ' + req.params.id + ' successfully removed!' }))

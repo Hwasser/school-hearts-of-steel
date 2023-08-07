@@ -146,7 +146,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
                         <span className='join_game_button_field'> {curTakenSlots + "/" + curMaxSlots} </span>
                         </button> 
                     {isOwner && (
-                        <button className="join_game_entry_close" onClick={() => handleCloseGameSession(allSessions[i])}>x</button>
+                        <button className="join_game_entry_close" onClick={() => handleCloseGameSession(allSessions[i]._id)}>x</button>
                     )}
                     {!isOwner && (
                         <span className="join_game_entry_close_not_owned">x</span>
