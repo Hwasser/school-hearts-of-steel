@@ -6,8 +6,6 @@ const Session = require('./models/Session');
 const Province = require('./models/Province');
 const Pending = require('./models/Pending');
 
-const gameSessions = {};
-const timePerUpdate = 5000;
 let broadcastClients = [];
 
 /**

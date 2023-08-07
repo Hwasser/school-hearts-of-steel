@@ -16,7 +16,7 @@
 
 .upgrade_purchase {
     flex: 1;
-    opacity: 0.5;
+    opacity: 1;
     border-top:    1px solid  rgba(0,0,0, 0.5);
     border-left:   1px solid  rgba(0,0,0, 0.5);
     border-bottom: 2px solid  rgba(0,0,0, 0.4);

@@ -5,6 +5,8 @@
 const Session = require('./models/Session');
 const Province = require('./models/Province');
 const Pending = require('./models/Pending');
+const Upgrade = require('./models/Pending');
+const Army = require('./models/Pending');
 
 const {
     attackOrMoveArmy,
@@ -19,6 +21,11 @@ const {
 const gameSessions = {};
 const timePerUpdate = 5000;
 
+/**
+ * @brief: Start a game session in the backend
+ * 
+ * @param {String} id 
+ */
 function gameSessionStart(id) {
     try {
         console.log("gamesessions.js: started game session", id);
@@ -27,24 +34,55 @@ function gameSessionStart(id) {
             updateSession(id);
         }, timePerUpdate);
         // Add session to all game sessions
-        gameSessions[id] = sessionLoop;
+        // active is whether the interval is currently processed
+        gameSessions[id] = {
+            loop: sessionLoop,
+            active: false
+        };
     } catch (err) {
         console.log("broadcast: Failed to start game session:", err);
     }
 }
 
-// Stops all game sessions for now and end their loops
+/**
+ * @brief: Restart all game sessions on server reboot
+ */
+async function gameSessionsRestart() {
+    const allSessions = await Session.find({});
+    for (let i = 0; i < allSessions.length; i++) {
+        gameSessionStart(allSessions[i]._id);
+    }
+}
+
+/**
+ * @brief: Stop a game session and remove all its data
+ * 
+ * @param {String} id 
+ */
 async function gameSessionStop(id) {
+    if (gameSessions[id].active) {
+        console.log("Busy .. tries again")
+        setTimeout(() => gameSessionStop(id), 50);
+        return;
+    }
     console.log("gamesessions.js: ended game session", id);
     // Kill the time loop for the session and remove it from the dict of game sessions
-    clearInterval(gameSessions[id]);
-    delete gameSessions[id];
-    // Remove all pending events
-    console.log("Removed pending events:", await Pending.deleteMany({session: id}));
-    // Delete all armies
-    console.log("Removed armies:", await Army.deleteMany({session: id}));
-    // Remove all battles that is currently running
+    // Also terminate of battles of the current session
+    clearInterval(gameSessions[id].loop);
     terminateAllBattles(id)
+    delete gameSessions[id];
+    // Find game session information
+    const currentSession = await Session.findById(id);
+    const nPlayers = currentSession.max_slots;
+    // Remove all tech trees
+    for (let i = 0; i < nPlayers; n++) {
+        const techTree = currentSession.upgrades[i];
+        Upgrade.findByIdAndDelete(techTree);
+    }
+    // Remove all provinces, armies and pending events
+    console.log("Removed provinces:", await Province.deleteMany({session: id}));
+    console.log("Removed pending events:", await Pending.deleteMany({session: id}));
+    console.log("Removed armies:", await Army.deleteMany({session: id}));
     console.log("broadcast: Sessions left on server:", gameSessions);
 }
 
@@ -55,6 +93,8 @@ async function gameSessionStop(id) {
  */
 async function updateSession(id) {
     try {
+        // Tells backend that the sessions is updating its states
+        gameSessions[id].active = true;
         // Fetch data from database
         const provinces = await Province.find({session: id});
         const sessions = await Session.findById(id);
@@ -73,6 +113,8 @@ async function updateSession(id) {
         await iterateBattles(id);
         await handlePendingEvents(sessions);
         broadcastUpdateEvents(id);
+        // The update of the session is complete
+        gameSessions[id].active = false;
     } catch (err) {
         console.log("Couldnt update res:", err);
     }
@@ -133,7 +175,8 @@ async function handlePendingEvents(session) {
 async function updatePerUser(slotIndex, document, userResources) {
     // Upgrades contribute to resource extraction
     const upgradeTreeId = document.upgrades[slotIndex];
-    const upgradeTree   = await Upgrade.findById(upgradeTreeId);
+    const upgradeTree   = await Upgrade.findById(upgradeTreeId)
+    console.log("TREE ID:", upgradeTreeId, "TREE:", upgradeTree);
     const modifier = 1 + 0.10 * upgradeTree.upg_tech1 + 0.10 * upgradeTree.upg_tech2 + 0.10 * upgradeTree.upg_tech3; 
     
     document.food[slotIndex]     += Math.round(userResources[slotIndex].food * modifier);
@@ -210,7 +253,8 @@ function scavangeResource(province, workforce, resource) {
 
 
 module.exports = { 
-    gameSessionStart, 
+    gameSessionStart,
+    gameSessionsRestart,
     gameSessionStop
 };
 

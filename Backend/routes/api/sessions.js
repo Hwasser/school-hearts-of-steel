@@ -51,13 +51,13 @@ router.put('/:id', async (req, res) => {
   if (req.body.purpose == 'buy_stuff') {
     try {
       const slotIndex = req.body.slotIndex;
-
-      const updateObject = {};
+      // Put all resources in an update objet
+      const updateResoruces = {};
       updateObject[`food.${slotIndex}`]     = -req.body.food;
       updateObject[`fuel.${slotIndex}`]     = -req.body.fuel;
       updateObject[`tools.${slotIndex}`]    = -req.body.tools;
       updateObject[`material.${slotIndex}`] = -req.body.material;
-      
+      // Update the session in one atomic operation
       await Session.findOneAndUpdate( 
         { _id: req.params.id},
         { 

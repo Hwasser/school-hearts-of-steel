@@ -2,6 +2,7 @@ const express = require('express');
 const connectDB = require('./config/db');
 const cors = require('cors');
 const { gameSessionSetupClients } = require('./broadcast');
+const { gameSessionsRestart } = require('./gamesessions');
 
 // routes
 const provinces = require('./routes/api/provinces');
@@ -86,6 +87,9 @@ app.use('/api/pendings', pendings);
 
 const port = process.env.PORT || 8082;
 const port2 = 5001;
+
+// Restart gamesessions when the server boots up again
+gameSessionsRestart();
 
 //module.exports = { broadcastMessage };
 

@@ -4,7 +4,6 @@ import {host} from '../../backend_adress';
 
 import './StartMenu.css';
 import startNewGame from './../../functionality/startNewGame';
-import { closeGameSession } from '../../functionality/gameSessionEnded';
 import { initUpgrades } from '../../GameData/upgradeStats';
 
 export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
@@ -16,9 +15,9 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
     };
 
     const startResOptions = {
-        few: 250,
-        medium: 400,
-        lots: 800
+        few: 400,
+        medium: 800,
+        lots: 1500
     };
 
     const [gameIsFull, setGameIsFull] = useState(false);
@@ -116,7 +115,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
     }
 
     function handleCloseGameSession(id){
-        closeGameSession(id);
+        removeSession(id);
         setTimeout(() => updateSessionList(), 250);
     };
 
@@ -327,4 +326,12 @@ async function getUpgradeTree(upgradeId) {
     });
     return upgradeTree;
 
+}
+
+function removeSession(id) {
+    axios
+    .delete(host + `/api/sessions/${id}`)
+    .catch((err) => {
+        console.log('Failed removing a session:', err.response);
+    });
 }

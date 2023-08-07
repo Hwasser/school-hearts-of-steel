@@ -1,13 +1,12 @@
-import React, { useState } from 'react'
+import React from 'react'
 import axios from 'axios';
 import './WinScreen.css';
-import { closeGameSession } from '../../functionality/gameSessionEnded';
 import {host} from '../../backend_adress';
 
 export default function WinScreen({winner, sessionEndData, onWinBack}) {
     // Remove session and go back to main menu
     const handleWinBack = () => {
-        closeGameSession(sessionEndData);
+        removeSession(sessionEndData._id);
         onWinBack();
     };
 
@@ -81,4 +80,12 @@ export default function WinScreen({winner, sessionEndData, onWinBack}) {
         </div>
         </>
     );
+}
+
+function removeSession(id) {
+    axios
+    .delete(host + `/api/sessions/${id}`)
+    .catch((err) => {
+        console.log('Failed removing a session:', err.response);
+    });
 }
