@@ -1,14 +1,19 @@
-import React from 'react'
+import React, {useState} from 'react'
 import axios from 'axios';
 import './WinScreen.css';
 import {host} from '../../backend_adress';
 
-export default function WinScreen({winner, sessionEndData, onWinBack}) {
+export default function WinScreen({winner, player, sessionId, onWinBack}) {
     // Remove session and go back to main menu
     const handleWinBack = () => {
-        removeSession(sessionEndData._id);
+        removeSession(sessionId);
         onWinBack();
     };
+
+    const [session, setSession] = useState(null);
+    if (!session) {
+        setSession(getSession(sessionId));
+    }
 
     // Go back to main menu
     // NOTE: Don't remove session since other players may still be alive!
@@ -17,11 +22,15 @@ export default function WinScreen({winner, sessionEndData, onWinBack}) {
     };
 
     const ScoreBoard = () => {
-        const nPlayers = sessionEndData.slot_names.length;
-        // Get sum of resources of all players
+        if (session == null) {
+            return (<></>);
+        }
+
+        const nPlayers = session.slot_names.length;
+        // Get sum of resources and score of all players
         const resources = new Array(nPlayers);
         for (let i = 0; i < nPlayers; i++) {
-            resources[i] = sessionEndData.food[i] + sessionEndData.fuel[i] + sessionEndData.material[i] + sessionEndData.tools[i];
+            resources[i] = session.food[i] + session.fuel[i] + session.material[i] + session.tools[i] + session.score[i];
         }
         // Sort resources and find rank
         const resourcesSorted = [...resources];
@@ -36,7 +45,7 @@ export default function WinScreen({winner, sessionEndData, onWinBack}) {
         const players = [];
         for (let i = 0; i < nPlayers; i++) {
             const current = rank[i];
-            const playerName = sessionEndData.slot_names[current];
+            const playerName = session.slot_names[current];
             const playerRes = resources[current];
             const playerData = (
                 <div className='win_player_row'>
@@ -53,7 +62,7 @@ export default function WinScreen({winner, sessionEndData, onWinBack}) {
                 <div className='win_top_row'>
                     <span className='win_player_col'>Rank:</span>
                     <span className='win_player_col'>Player Name:</span>
-                    <span className='win_player_col'>Resources:</span>
+                    <span className='win_player_col'>Score:</span>
                 </div>
                 {players}
             </div>
@@ -63,23 +72,40 @@ export default function WinScreen({winner, sessionEndData, onWinBack}) {
     return (
         <>
         <div className='main_win_screen'>
-            {winner == 'you' && (
+            {winner == player.name && (
                 <div className='you_won'>
                     <h1 className='win_header'>You won!</h1>
-                    <ScoreBoard />
+                    {session && (
+                        <ScoreBoard />
+                    )}
                     <button onClick={() => handleWinBack()} className='win_back_button'>Huzzah!</button>
                 </div>
             )}
-            {winner == 'other' && (
+            {winner != player.name && (
             <div className='you_lost'>
                 <h1 className='win_header'>You lose!</h1>
-                <ScoreBoard />
+                {session && (
+                    <ScoreBoard />
+                )}
                 <button onClick={() => handleLostBack()} className='win_back_button'>Sacred bleu!</button>
             </div>
         )}
         </div>
         </>
     );
+}
+
+async function getSession(id) {
+    let session = null;
+    await axios
+    .get(host + `/api/sessions/${id}`)
+    .then((res) => {
+        session = res.data;
+    })
+    .catch((err) => {
+        console.log('Failed removing a session:', err.response);
+    });
+    return session;
 }
 
 function removeSession(id) {

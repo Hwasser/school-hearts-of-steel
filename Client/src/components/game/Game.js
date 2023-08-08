@@ -328,11 +328,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
      * @param {JSON} message 
      */
     const handlePlayerWon = (message) => {
-        if (player.name == message) {
-            onWonGame('you', {... session});
-        } else {
-            onWonGame('other', {... session});
-        }
+            onWonGame(message);
     }
 
     // When buying something, get the new resource status from the server

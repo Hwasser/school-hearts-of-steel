@@ -20,10 +20,9 @@ export default function HeartsOfSteel() {
         setHasStarted(true);
     }
 
-    function handleWonGame(whoWon, endSession) {
+    function handleWonGame(whoWon) {
         setHasStarted(false);
         setWinner(whoWon);
-        setSessionData(endSession);
     }
 
     // Return from the winner screen
@@ -41,7 +40,7 @@ export default function HeartsOfSteel() {
                 <MainMenu onJoinGame={handleJoinGame} />
             )}
             {!hasStarted && winner != '' && (
-                <WinScreen winner={winner} sessionEndData={sessionData} onWinBack={handleWinBack} />
+                <WinScreen winner={winner} player={playerData} sessionId={sessionData._id} onWinBack={handleWinBack} />
             )}
             {hasStarted && sessionData != null && (
                 <Game 

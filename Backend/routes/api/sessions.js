@@ -52,11 +52,12 @@ router.put('/:id', async (req, res) => {
     try {
       const slotIndex = req.body.slotIndex;
       // Put all resources in an update objet
-      const updateResoruces = {};
+      const updateObject = {};
       updateObject[`food.${slotIndex}`]     = -req.body.food;
       updateObject[`fuel.${slotIndex}`]     = -req.body.fuel;
       updateObject[`tools.${slotIndex}`]    = -req.body.tools;
       updateObject[`material.${slotIndex}`] = -req.body.material;
+      updateObject[`score.${slotIndex}`] = req.body.food + req.body.fuel + req.body.tools + req.body.material;
       // Update the session in one atomic operation
       await Session.findOneAndUpdate( 
         { _id: req.params.id},

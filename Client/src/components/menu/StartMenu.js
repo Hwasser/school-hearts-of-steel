@@ -119,6 +119,33 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         setTimeout(() => updateSessionList(), 250);
     };
 
+    /**
+     * @brief: Posts a session to the server and creates a new game
+     * 
+     * @param {Dict} newSession 
+     * @returns A Session from the server
+     */
+    async function postSession(newSession) {
+        let createdGame = null;
+        await axios
+            .post(host + '/api/sessions', newSession)
+            .then((res) => {
+                console.log("Created new game!", res)
+                // Refresh game list
+                updateSessionList();
+                try {
+                    createdGame = res.data.session;
+                    startNewGame(createdGame);
+                } catch(err) {
+                    console.log("Error with startNewGame:", err);
+                }
+            })
+            .catch((err) => {
+                console.log('cant find: ', err.response);
+            });
+        return createdGame;
+    }
+
     // Get a list of the view of all games in the session list
     function GetSessionList() {
         const worldSizesReversed = {
@@ -176,7 +203,8 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
             food: [startRes],
             fuel: [startRes],
             material: [startRes],
-            tools: [startRes]
+            tools: [startRes],
+            score: new Array(maxSlots).fill(0)
         }
         for (let i = 1; i < maxSlots; i++) {
             const nextPlayer = "Player" + (i+1);
@@ -191,29 +219,16 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         return newSession;
     }
 
+    /**
+     * @brief: When the player presses "Create new game"
+     */
     async function handleStartGame() {
         // Add a upgrade tree for each player
         const upgradeTrees = await addUpgrades(maxSlots);
         // Setup a new session
         const newSession = initSession(upgradeTrees);
         // Post new sessions
-        let createdGame = null;
-        await axios
-        .post(host + '/api/sessions', newSession)
-          .then((res) => {
-            console.log("Created new game!", res)
-            // Refresh game list
-            updateSessionList();
-            try {
-                startNewGame(res.data.session);
-                createdGame = res.data.session;
-            } catch(err) {
-                console.log("Error with startNewGame:", err);
-            }
-        })
-        .catch((err) => {
-            console.log('cant find: ', err.response);
-        });
+        const createdGame = await postSession(newSession);
         // Clear "game is full" message
         setGameIsFull(false);
         setTimeout(
@@ -228,6 +243,7 @@ export default function StartMenu( {selectLogin, onJoinGame, playerData} ){
         setJustEntered(false)
     }
 
+    // Check whether the player has already started a game
     const playerHasGame = ( allSessions.findIndex( (e) => e.creator == playerData.name)) >= 0;
 
     return(

@@ -203,6 +203,8 @@ async function terminateAllBattles(id) {
  * @returns: Whether the battle ended or not after the victory
  */
 async function battleWon(battle) {
+  // Give the winner some score according to the number of defeated soldiers
+  winnerScore(battle.defendingArmy.soldiers, battle.attackerSlot, battle.session);
   // Delete the current defender army
   await Army.deleteOne({_id: battle.defendingArmy._id});
   // If they have more armies, continue the battle
@@ -275,6 +277,24 @@ async function battleDraw(battle) {
 }
 
 /**
+ * @brief: Posts some score for defeating an enemy
+ * 
+ * @param {Integer} defeatedSoldiers 
+ * @param {Integer} attackerSlot 
+ * @param {String} sessionId 
+ */
+async function winnerScore(defeatedSoldiers, attackerSlot, sessionId) {
+  const scorePerSoldier = 10;
+  const sessionUpdateObject = {};
+  sessionUpdateObject[`score.${attackerSlot}`] = defeatedSoldiers * scorePerSoldier;
+  await Session.findOneAndUpdate( 
+    { _id: sessionId},
+    { $inc: sessionUpdateObject },
+    { new: true }
+  );
+}
+
+/**
  * @brief: Find everything you need to know for a battle like upgrades on both sides,
  * the terrain, fetch both armies and set up a list of units for both, set round to 0 
  * and add the battle to "battles" in the top of the BATTLE-section.
@@ -307,6 +327,7 @@ async function findBattle(event, fromProvince, battleProvince) {
   const battle = {
     province: battleProvince,
     session: event.session,
+    attackerSlot: attackerSlot,
     attackerUpgrades: attackerUpgrades,
     defenderUpgrades: defenderUpgrades,
     attackingArmy: attackingArmy,
