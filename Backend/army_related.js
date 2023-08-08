@@ -284,7 +284,7 @@ async function battleDraw(battle) {
  * @param {String} sessionId 
  */
 async function winnerScore(defeatedSoldiers, attackerSlot, sessionId) {
-  const scorePerSoldier = 10;
+  const scorePerSoldier = 50;
   const sessionUpdateObject = {};
   sessionUpdateObject[`score.${attackerSlot}`] = defeatedSoldiers * scorePerSoldier;
   await Session.findOneAndUpdate( 
