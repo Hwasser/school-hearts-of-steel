@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   Session.findById(req.params.id)
     .then(session => res.json(session))
-    .catch(err => res.status(404).json({ noarmyfound: 'No Army found' }));
+    .catch(err => res.status(404).json({ noarmyfound: 'No Session found' }));
 });
 
 // @route POST api/Session

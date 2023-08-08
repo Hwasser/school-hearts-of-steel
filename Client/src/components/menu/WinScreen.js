@@ -12,7 +12,8 @@ export default function WinScreen({winner, player, sessionId, onWinBack}) {
 
     const [session, setSession] = useState(null);
     if (!session) {
-        setSession(getSession(sessionId));
+        console.log("Get session"); 
+        getSession(sessionId, setSession);
     }
 
     // Go back to main menu
@@ -22,10 +23,6 @@ export default function WinScreen({winner, player, sessionId, onWinBack}) {
     };
 
     const ScoreBoard = () => {
-        if (session == null) {
-            return (<></>);
-        }
-
         const nPlayers = session.slot_names.length;
         // Get sum of resources and score of all players
         const resources = new Array(nPlayers);
@@ -95,19 +92,29 @@ export default function WinScreen({winner, player, sessionId, onWinBack}) {
     );
 }
 
-async function getSession(id) {
-    let session = null;
+/**
+ * @brief: Get a session and set it as current session
+ * 
+ * @param {String} id 
+ * @param {Function} setSession 
+ */
+async function getSession(id, setSession) { 
     await axios
     .get(host + `/api/sessions/${id}`)
     .then((res) => {
-        session = res.data;
+        setSession(res.data); 
     })
     .catch((err) => {
-        console.log('Failed removing a session:', err.response);
-    });
-    return session;
+        console.log('Error in updating session: ' + err);
+        
+    });  
 }
 
+/**
+ * @brief: Remove a session from the db
+ * 
+ * @param {String} id 
+ */
 function removeSession(id) {
     axios
     .delete(host + `/api/sessions/${id}`)
