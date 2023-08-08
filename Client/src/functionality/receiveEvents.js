@@ -9,11 +9,3 @@ export function receiveResourceUpdate(dataPackage, updatedSession, slotIndex) {
     }
     return updatedSession;
 }
-
-export function receiveJoinedPlayer() {
-    
-}
-
-export function receiveUpdateProvince() {
-
-}

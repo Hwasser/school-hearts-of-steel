@@ -8,10 +8,7 @@ import Footer from './Footer';
 import GameUI from './GameUI';
 import UpgradeUI from './UpgradeUI';
 import Receiver from '../Receiver';
-import {
-    receiveResourceUpdate, 
-    receiveJoinedPlayer, 
-    receiveUpdateProvince} 
+import {receiveResourceUpdate} 
     from '../../functionality/receiveEvents';
 import {sendEvent} from '../../functionality/sendEvents';
 import {host} from '../../backend_adress';
