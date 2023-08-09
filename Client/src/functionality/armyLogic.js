@@ -1,3 +1,10 @@
+/**
+ * This module contains larger army logics, such as moving and splitting
+ * an army. 
+ */
+
+import axios from 'axios';
+import {host} from '../backend_adress';
 
 /**
  * @brief: Setup a movement event after dragging an army on the screen
@@ -64,4 +71,69 @@ function createPendingMovementPackage(fromProvince, toProvince, provinceId, army
         army_id: army
     }
     return pendingEventPackage;
+}
+
+/**
+ * @brief: An army has been divided into a left and right part.
+ *         The left army is the original one and will be replaced
+ *         in the DB and the right army will be created and pushed
+ *         to the DB. Then the new left army will be selected.
+ * Note: handleSelectAction is called from "Game.js"
+ * 
+ * @param {String} leftArmy 
+ * @param {String} rightArmy 
+ * @param {String} leftArmyId 
+ * @param {JSON} province 
+ * @param {[String]} provinceOwners 
+ * @param {[[String]]} armies 
+ * @param {String} sessionId 
+ * @param {Function} handleSelectAction 
+ */
+export async function splitArmy(leftArmy, rightArmy, leftArmyId, province, provinceOwners, armies, sessionId, handleSelectAction) {
+    const maxArmySlots = 4;
+    // Add information to armies
+    leftArmy['session'] = sessionId;
+    leftArmy['owner']   = provinceOwners[province];
+    rightArmy['session'] = sessionId;
+    rightArmy['owner']   = provinceOwners[province];
+    // Post changes to left army
+    let newLeftId  = "";
+    await axios
+    .put(host + `/api/armies/${leftArmyId}`, leftArmy)
+    .then((res) => {
+        newLeftId = res.data.armydata._id;
+        handleSelectAction(res.data.armydata);
+    })
+    .catch((err) => {
+        console.log('Error in updating army: ' + err);
+    });
+    // Post new right army
+    let newRightId = "";
+    await axios
+        .post(host + '/api/armies/', rightArmy)
+        .then((res) => {newRightId = res.data.armydata._id})
+        .catch((err) => {
+            console.log('Error in posting army: ' + err);
+    });
+    // Re-order the slots with the new armies
+    const newProvinceSlots = [];
+    for (let i = 0; i < maxArmySlots; i++) {
+        if (armies[i][province] != leftArmyId && armies[i][province] != null) {
+            newProvinceSlots.push(armies[i][province]);
+        }
+    }
+    newProvinceSlots.push(newLeftId);
+    newProvinceSlots.push(newRightId);
+    // Post changes of province
+    const postPackage = {
+        purpose: 'update_province_armies',
+        armySlots: newProvinceSlots,
+        provinceN: province,
+        session: sessionId
+    };
+    axios
+        .put(host + '/api/provinces', postPackage)
+        .catch((err) => {
+        console.log('Error in replacing armies in province: ' + err);
+    });
 }

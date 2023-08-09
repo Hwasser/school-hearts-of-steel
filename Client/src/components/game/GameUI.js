@@ -86,6 +86,7 @@ export default function GameUI(
 
 /**
  * @brief: When dragging an army from one province to another on the screen
+ * NOTE: Calls push movements from setupMovement when done
  * 
  * @param {Integer} fromProvince: Province number 
  * @param {Integer} toProvince: Province number 
@@ -96,6 +97,15 @@ export default function GameUI(
     setupMovement(fromProvince, toProvince, army, fromSlot, provinceId, armies, worldRowSize, owners, pushMovements);
   }
   
+  /**
+   * @brief: Push movements to the view and to the server (pending event)
+   * 
+   * @param {String} army: Army id 
+   * @param {Integer} fromProvince: Source province number
+   * @param {Integer} toProvince: Destination province number
+   * @param {Integer} fromSlot: Which slot the army came from
+   * @param {*} pendingEventPackage: A package to send to the server
+   */
   function pushMovements(army, fromProvince, toProvince, fromSlot, pendingEventPackage) {
     // Push movements to screen
     const movementsCopy = {... movements};

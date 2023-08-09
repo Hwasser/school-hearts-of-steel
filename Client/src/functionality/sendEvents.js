@@ -80,7 +80,6 @@ async function postBuilding(event, pending, getPendingData, fetchResourceUpdates
  * @param {JSON} event
  */
 async function postMovement(event) {
-    console.log("MOVEMENT:", event);
     const moveTime = 2;
     event['end'] = event.start + moveTime;
     // Post to server

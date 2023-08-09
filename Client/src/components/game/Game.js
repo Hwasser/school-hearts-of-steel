@@ -10,6 +10,8 @@ import UpgradeUI from './UpgradeUI';
 import Receiver from '../Receiver';
 import {receiveResourceUpdate} 
     from '../../functionality/receiveEvents';
+import {splitArmy} 
+    from '../../functionality/armyLogic';
 import {sendEvent} from '../../functionality/sendEvents';
 import {host} from '../../backend_adress';
 
@@ -430,54 +432,25 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         setArmies(armyCopy);
     }
 
+    /**
+     * @brief: When you split an army from the Footer
+     * 
+     * @param {JSON} leftArmy 
+     * @param {JSON} rightArmy 
+     * @param {String} leftArmyId 
+     * @param {JSON} province 
+     */
     async function handleSplitArmy(leftArmy, rightArmy, leftArmyId, province) {
-        // Add information to armies
-        leftArmy['session'] = session._id;
-        leftArmy['owner']   = provinceOwners[province];
-        rightArmy['session'] = session._id;
-        rightArmy['owner']   = provinceOwners[province];
-        // Post changes to left army
-        let newLeftId  = "";
-        await axios
-        .put(host + `/api/armies/${leftArmyId}`, leftArmy)
-        .then((res) => {
-            newLeftId = res.data.armydata._id;
-            handleSelectAction(res.data.armydata);
-        })
-        .catch((err) => {
-            console.log('Error in updating army: ' + err);
-        });
-        // Post new right army
-        let newRightId = "";
-        await axios
-            .post(host + '/api/armies/', rightArmy)
-            .then((res) => {newRightId = res.data.armydata._id})
-            .catch((err) => {
-                console.log('Error in posting army: ' + err);
-        });
-        // Re-order the slots with the new armies
-        const newProvinceSlots = [];
-        for (let i = 0; i < maxArmySlots; i++) {
-            if (armies[i][province] != leftArmyId && armies[i][province] != null) {
-                newProvinceSlots.push(armies[i][province]);
-            }
-        }
-        newProvinceSlots.push(newLeftId);
-        newProvinceSlots.push(newRightId);
-        // Post changes of province
-        const postPackage = {
-            purpose: 'update_province_armies',
-            armySlots: newProvinceSlots,
-            provinceN: province,
-            session: session._id
-        };
-        axios
-            .put(host + '/api/provinces', postPackage)
-            .catch((err) => {
-            console.log('Error in replacing armies in province: ' + err);
-        });
+        splitArmy(leftArmy, rightArmy, leftArmyId, province, provinceOwners, armies, session._id, handleSelectAction);
     }
 
+    /**
+     * @brief: Replaces and re-orders all armies in a province when an province armies
+     *         list has been updated. 
+     * 
+     * @param {JSON} province:
+     * @param {[[String]]} armiesCopy: Copy of "armies" 
+     */
     function replaceArmiesInProvince(province, armiesCopy) {
         for (let i = 0; i < maxArmySlots; i++) {
             if (i < province.armies.length) {
