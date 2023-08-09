@@ -336,6 +336,7 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         .get(host + `/api/sessions/${session._id}`)
         .then((res) => {
             const updatedSession = receiveResourceUpdate(res.data, {... session}, slotIndex);
+            updatedSession.time = res.data.time; 
             setSession(updatedSession);
         })
         .catch((err) => {
@@ -461,6 +462,11 @@ export default function Game({player, sessionData, upgradeTree, slotIndex, onWon
         }
     }
 
+    /**
+     * @brief: When user is buying an upgrade
+     * 
+     * @param {String} upgrade 
+     */
     function handleBuyUpgrade(upgrade) {
         // Update upgrade tree
         const upgCopy = {... upgrades};

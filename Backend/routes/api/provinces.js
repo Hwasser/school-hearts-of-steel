@@ -43,7 +43,7 @@ router.post('/', (req, res) => {
 // @description Update Province
 // @access Public
 router.put('/:id', (req, res) => {
-  Province.findByIdAndUpdate(req.params.id, req.body)
+  Province.findByIdAndUpdate(req.params.id, req.body, { new: true })
     .then(province => {
       broadcastUpdateProvince(req.body); 
       res.json({ msg: 'Updated successfully' });

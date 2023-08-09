@@ -53,7 +53,7 @@ router.post('/', async (req, res) => {
 // @access Public
 router.delete('/:id', (req, res) => {
     Pending.findOneAndDelete({_id: req.params.id})
-      .then(army => res.json({ mgs: 'Army ' + req.params.id + ' successfully removed!' }))
+      .then(pending => res.json({ mgs: 'Pending event ' + req.params.id + ' successfully removed!' }))
       .catch(err => res.status(404).json({ error: 'No such pending event' }));
   });
   

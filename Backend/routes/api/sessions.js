@@ -61,12 +61,9 @@ router.put('/:id', async (req, res) => {
       // Update the session in one atomic operation
       await Session.findOneAndUpdate( 
         { _id: req.params.id},
-        { 
-          $inc: updateObject
-        },
+        { $inc: updateObject },
         { new: true }
       );
-
       res.status(200).send('Session updated');
     } catch {
       res.status(500).json({ error: 'Unable to update empty slot in province' })

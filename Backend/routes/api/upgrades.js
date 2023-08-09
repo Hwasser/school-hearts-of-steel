@@ -16,7 +16,7 @@ router.post('/', (req, res) => {
 // @description Update Upgrade
 // @access Public
 router.put('/:id', (req, res) => {
-  Upgrade.findByIdAndUpdate(req.params.id, req.body)
+  Upgrade.findByIdAndUpdate(req.params.id, req.body, { new: true })
     .then(upgrade => res.json({ msg: 'Updated successfully' }))
     .catch(err =>
       res.status(400).json({ error: 'Unable to update the Database' })
