@@ -8,10 +8,12 @@ const mongoose = require('mongoose');
  * player: The player that spawned this 
  * start: The start time
  * end: The time in which the action should occur
- * province: The province._id where this action takes place
+ * provinceID: The province._id where this action takes place
+ * provinceN: The province number where this action takes place
  * 
  * (not required):
- * province2: When moving between provinces
+ * province2ID: When moving between provinces
+ * province2N: When moving between provinces
  * army_id: The attacking army
  * text: for example the building or upgrade name
  */

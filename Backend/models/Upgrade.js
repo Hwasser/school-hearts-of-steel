@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-// A game session
+// An upgrade tree for a player in a session
 
 const UpgradeSchema = new mongoose.Schema({
     upg_weap1: {
