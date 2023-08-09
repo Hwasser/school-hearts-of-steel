@@ -10,7 +10,7 @@ const { gameSessionStart, gameSessionStop } = require('../../gamesessions');
 router.get('/', (req, res) => {
   Session.find()
     .then(session => res.json(session))
-    .catch(err => res.status(404).json({ noplayerfound: 'No sessions found' }));
+    .catch(err => res.status(404).json({ nosessionfound: 'No sessions found' }));
   });
 
 // @route GET api/Session/:id
@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   Session.findById(req.params.id)
     .then(session => res.json(session))
-    .catch(err => res.status(404).json({ noarmyfound: 'No Session found' }));
+    .catch(err => res.status(404).json({ nosessionfound: 'No Session found' }));
 });
 
 // @route POST api/Session
@@ -42,7 +42,7 @@ router.put('/:id', async (req, res) => {
   if (req.body.purpose == 'add_player') {
     delete req.body.purpose; // This is meta-data for PUT-requests
     Session.findByIdAndUpdate(req.params.id, req.body)
-    .then(army => res.json({ msg: 'Updated successfully' }))
+    .then(session => res.json({ msg: 'Updated successfully' }))
     .catch(err =>
       res.status(400).json({ error: 'Unable to update the Database' })
     );

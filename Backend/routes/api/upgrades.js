@@ -17,7 +17,7 @@ router.post('/', (req, res) => {
 // @access Public
 router.put('/:id', (req, res) => {
   Upgrade.findByIdAndUpdate(req.params.id, req.body)
-    .then(army => res.json({ msg: 'Updated successfully' }))
+    .then(upgrade => res.json({ msg: 'Updated successfully' }))
     .catch(err =>
       res.status(400).json({ error: 'Unable to update the Database' })
     );
@@ -28,8 +28,8 @@ router.put('/:id', (req, res) => {
 // @access Public
 router.get('/:id', (req, res) => {
   Upgrade.findById(req.params.id)
-    .then(session => res.json(session))
-    .catch(err => res.status(404).json({ noarmyfound: 'No Upgrade found' }));
+    .then(upgrade => res.json(upgrade))
+    .catch(err => res.status(404).json({ noupgradefound: 'No Upgrade found' }));
 });
 
 // @route DELETE api/Upgrade/:id
@@ -37,7 +37,7 @@ router.get('/:id', (req, res) => {
 // @access Public
 router.delete('/:id', (req, res) => {
   Upgrade.findOneAndDelete({_id: req.params.id})
-    .then(province => res.json({ mgs: 'Upgrade entry deleted successfully' }))
+    .then(upgrade => res.json({ mgs: 'Upgrade entry deleted successfully' }))
     .catch(err => res.status(404).json({ error: 'No such a Upgrade' }));
 });
 
@@ -46,8 +46,8 @@ router.delete('/:id', (req, res) => {
 // @access Public
 router.delete('/', (req, res) => {
   Upgrade.deleteMany({})
-    .then(session => {
-      res.json({ mgs: 'All sessions removed' });
+    .then(upgrade => {
+      res.json({ mgs: 'All upgrades removed' });
     })
     .catch(err => res.status(404).json({ error: 'Couldnt remove all upgrades' }));
 });
