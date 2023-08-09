@@ -2,11 +2,11 @@
  * Module contains functions that are going to be broadcasted from the server to all clients
  */
 
-const Session = require('./models/Session');
+const Session  = require('./models/Session');
 const Province = require('./models/Province');
-const Pending = require('./models/Pending');
-const Upgrade = require('./models/Upgrade');
-const Army = require('./models/Pending');
+const Pending  = require('./models/Pending');
+const Upgrade  = require('./models/Upgrade');
+const Army     = require('./models/Army');
 
 const {
     attackOrMoveArmy,

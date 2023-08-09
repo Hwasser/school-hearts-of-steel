@@ -30,6 +30,11 @@ function connectPlayer(token, session, player) {
     removeDeadClients();
 }
 
+/**
+ * @brief: When a new player joins the game the list of clients will be replaced with the new appended one
+ * 
+ * @param {[Object]} clients 
+ */
 function gameSessionSetupClients(clients) {
     broadcastClients = clients;
 }
@@ -45,6 +50,11 @@ async function removeDeadClients() {
     console.log("All clients:", broadcastClients);
 }
 
+/**
+ * @brief: Broadcasts the update of a province
+ * 
+ * @param {JSON} province 
+ */
 async function broadcastUpdateProvince(province) {
     try {
         const message = {purpose: 'update_province', package: province};
@@ -85,7 +95,15 @@ async function broadcastUpdateEvents(sessionId) {
     broadcastMessage(message, sessionId);
 }
 
-// Broadcast current state of a battle
+/**
+ * @brief: Broadcast current state of a battle
+ * 
+ * @param {JSON} province 
+ * @param {Integer} soldiers1 
+ * @param {Integer} soldiers2 
+ * @param {Float} performance 
+ * @param {String} sessionId 
+ */
 async function broadcastAttackBattle(province, soldiers1, soldiers2, performance, sessionId) {
     try {
         const message = 
@@ -103,6 +121,12 @@ async function broadcastAttackBattle(province, soldiers1, soldiers2, performance
     }
 }
 
+/**
+ * @brief: Broadcast when one player has merged two armies
+ * 
+ * @param {JSON} province 
+ * @param {String} sessionId 
+ */
 async function broadcastMergeArmies(province, sessionId) {
     try {
         const message = {purpose: 'merge_armies', 
@@ -113,6 +137,12 @@ async function broadcastMergeArmies(province, sessionId) {
     }
 }
 
+/**
+ * @brief: When a player has joined the game, broadcast the province with the new owner
+ * 
+ * @param {JSON} province 
+ * @param {String} sessionId 
+ */
 async function broadcastPlayerJoined(province, sessionId) {
     try {
         console.log("Player joined game");
@@ -126,6 +156,12 @@ async function broadcastPlayerJoined(province, sessionId) {
     }
 }
 
+/**
+ * @brief: Broadcasts two all players that a player has won
+ * 
+ * @param {String} whoWon: The username of the player that has won
+ * @param {String} sessionId 
+ */
 async function broadcastHasWon(whoWon, sessionId) {
     try {
         console.log(whoWon, "won the game!");
@@ -139,7 +175,8 @@ async function broadcastHasWon(whoWon, sessionId) {
 /**
  * @brief: Broadcasts a message for all clients and include their session id 
  * 
- * @param {JSON} dataPackage: A ready to go JSON data package 
+ * @param {JSON} dataPackage: A ready to go JSON data package
+ * @param {String} sessionId 
  */
 function broadcastMessage(dataPackage, sessionId) {
     const session = (typeof(sessionId) == "string") ? sessionId : sessionId.toString();
