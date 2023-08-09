@@ -89,15 +89,11 @@ export default function GameUI(
  * @param {JSON} army: The object id (_id) of an army
  */
   function handleMoveArmy(fromProvince, toProvince, army, fromSlot) {
-  if (fromProvince == toProvince) {
-    return;
-  }
-
   // Check if destination province is neightbour from this province
   const move = fromProvince - toProvince; 
   if (Math.abs(move) == worldRowSize 
-    || (move == -1 &&  (fromProvince % worldRowSize != worldRowSize-1))
-    || (move == 1 && (fromProvince % worldRowSize != 0)) ) {
+    || (move === -1 &&  (fromProvince % worldRowSize !== worldRowSize-1))
+    || (move === 1 && (fromProvince % worldRowSize !== 0) || move === 0) ) {
       const province1 = provinceId[fromProvince];
       const province2 = provinceId[toProvince];
       // Event package to send to server
@@ -137,7 +133,9 @@ export default function GameUI(
     // Delete old movement graphics of army if possible
     delete movementsCopy[army];
     // Push new movement graphics
-    movementsCopy[army] = {from: fromProvince, to: toProvince, toName: names[toProvince], fromSlot: fromSlot};
+    if (fromProvince != toProvince) { // except if army is not moving, stop it!
+      movementsCopy[army] = {from: fromProvince, to: toProvince, toName: names[toProvince], fromSlot: fromSlot};
+    }
     setMovements(movementsCopy);
     // Push pending event to server
     pushPendingData(pendingEventPackage);

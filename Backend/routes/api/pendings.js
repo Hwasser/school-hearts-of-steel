@@ -30,9 +30,15 @@ router.post('/', async (req, res) => {
   if (req.body.type == 'movement') {
     const result = await Pending.deleteOne(
       {session: req.body.session, type: 'movement', army_id: req.body.army_id, end: { $ne: req.body.start }})
-      Pending.create(req.body)
-      .then(pending => res.json(pending))
-      .catch(err => res.status(400).json({ error: 'Unable to add pending event' }));
+      // If province 1 and 2 is the same, remove movement and stop
+      if (req.body.provinceN === req.body.province2N) {
+          res.json({msg: "no_movement"});
+      } else {
+        Pending.create(req.body)
+        .then(pending => res.json(pending))
+        .catch(err => res.status(400).json({ error: 'Unable to add pending event' }));
+      }
+      
     } else {
       // Other stuff is taken care on the client side
       Pending.create(req.body)

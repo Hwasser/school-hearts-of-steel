@@ -60,7 +60,6 @@ async function gameSessionsRestart() {
  * @param {String} id 
  */
 async function gameSessionStop(id) {
-    console.log("STOP active:", gameSessions[id].active);
     if (gameSessions[id].active == true) {
         console.log("Busy .. tries again")
         setTimeout(() => gameSessionStop(id), 50);

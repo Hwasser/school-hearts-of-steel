@@ -26,7 +26,7 @@ const lastNames = {
   urban: ['town', 'ville', ' City', ' Village', ' District', 'burgh', ' Metropolis']
 }
 
-// The cost of all buildings in a province
+// Stats of all buildings
 const buildings = {
   houses: {
     cost: {
@@ -42,7 +42,8 @@ const buildings = {
       material: 20
     },
     time: 4,
-    info: "Increases the workforce each hour"
+    info: "Increases the workforce each hour",
+    name: 'house'
   },
   mines: {
     cost: {
@@ -58,7 +59,8 @@ const buildings = {
       material: 0
     },
     time: 4,
-    info: "Excavates building material"
+    info: "Excavates building material each hour",
+    name: 'mine'
   },
   workshops: {
     cost: {
@@ -74,7 +76,8 @@ const buildings = {
       material: 20
     },
     time: 4,
-    info: "Constructs new tools"
+    info: "Constructs new tools each hour",
+    name: 'workshop'
   },
   farms: {
     cost: {
@@ -90,7 +93,8 @@ const buildings = {
       material: 20
     },
     time: 4,
-    info: "Generates food"
+    info: "Generates food each hour",
+    name: 'farm'
   },
   forts: {
     cost: {
@@ -106,7 +110,8 @@ const buildings = {
       material: 20
     },
     time: 4,
-    info: "Generates food"
+    info: "Increases defences by 10%",
+    name: 'fort'
   },
   none: {
     cost: {
@@ -122,7 +127,8 @@ const buildings = {
       material: 0
     },
     time: 0,
-    info: "-"
+    info: "-",
+    name: '-'
   },
 };
 
