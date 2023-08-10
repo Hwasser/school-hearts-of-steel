@@ -2,9 +2,8 @@
  * This component represent the view for upgrades
  */
 
-import React, { useState } from 'react';  
+import React from 'react';  
 import Xarrow from "react-xarrows";
-import axios from 'axios';
 
 import './UpgradeUI.css';
 import { upgradeNames, upgradeTexts, upgradeDependencies, upgradeCosts } from '../../GameData/upgradeStats';
