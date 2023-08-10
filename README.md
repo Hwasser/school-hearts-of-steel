@@ -1,7 +1,4 @@
 ## Hearts of steel v 1.0
-author: Victor Hwasser
-email: victorhwasser@gmail.com
-github: Hwasser
 
 ### Features:
 - Frontend using React.
@@ -9,8 +6,7 @@ github: Hwasser
 
 ### System Requirements
 - OS: Linux-compatible.
-- Pre-installed software: npm (Node Package Manager)
-- npm serve package (install globaly with "$npm install -g serve")
+- Pre-installed software: npm (Node Package Manager) and the serve package (install globally with "$npm install -g serve")
 - MongoDB with a local server running. 
 NOTE: You can choose which ever MongoDB database server you like by changing the address under 'Backend/config/default.json'.
 
